@@ -1,0 +1,33 @@
+{
+  "iconScale" : 0.7565919743342595,
+  "iconOffset" : [
+    0,
+    0
+  ],
+  "id" : "24670896-9CE6-40DD-86CB-111B3E0DEB8D",
+  "topColor" : {
+    "red" : 0,
+    "blue" : 0.3188166618,
+    "alpha" : 1,
+    "green" : 0.5628422499
+  },
+  "shadowOpacity" : 0.4,
+  "shadowHeight" : 0.1246953125,
+  "bottomColor" : {
+    "blue" : 0,
+    "red" : 0,
+    "green" : 0.5603182912,
+    "alpha" : 1
+  },
+  "symbol" : {
+    "name" : "shippingbox",
+    "family" : "sf-symbols"
+  },
+  "symbolColor" : {
+    "alpha" : 1,
+    "blue" : 0.9999999403953552,
+    "green" : 0.9999999403953552,
+    "red" : 0.9999999403953552
+  },
+  "version" : 1
+}
