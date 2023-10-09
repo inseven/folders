@@ -87,7 +87,7 @@ fi
 
 # Build and archive.
 xcodebuild \
-    -project InContext.xcodeproj \
+    -project Folders.xcodeproj \
     -scheme "Folders" \
     -archivePath "$ARCHIVE_PATH" \
     MARKETING_VERSION=$VERSION_NUMBER \
