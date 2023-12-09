@@ -37,8 +37,11 @@ struct LibraryView: View {
             Sidebar(applicationModel: applicationModel, sceneModel: sceneModel)
         } detail: {
             if let folderURL = sceneModel.selection?.folderURL {
-                FolderView(folderURL: folderURL)
+                GridView(store: applicationModel.store, directoryURL: folderURL)
+                    .navigationTitle(folderURL.displayName)
                     .id(folderURL)
+//                FolderView(folderURL: folderURL)
+//                    .id(folderURL)
             }
         }
     }

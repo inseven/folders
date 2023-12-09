@@ -31,6 +31,12 @@ struct Sidebar: View {
         List(applicationModel.sidebarItems, id: \.self, children: \.children, selection: $sceneModel.selection) { item in
             Label(item.folderURL.displayName, systemImage: "folder")
                 .contextMenu {
+                    Button {
+                        NSWorkspace.shared.reveal(item.folderURL)
+                    } label: {
+                        Text("Reveal in Finder")
+                    }
+                    Divider()
                     Button(role: .destructive) {
                         applicationModel.remove(item.folderURL)
                     } label: {

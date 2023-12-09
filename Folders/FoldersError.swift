@@ -25,5 +25,6 @@ import Foundation
 enum FoldersError: Error {
 
     case general(String)
+    case unknownSchemaVersion(Int32)
 
 }
