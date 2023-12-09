@@ -12,6 +12,12 @@
 		D82B95812B231AD000C8B6FB /* Store.swift in Sources */ = {isa = PBXBuildFile; fileRef = D82B95802B231AD000C8B6FB /* Store.swift */; };
 		D82B95842B23DC2B00C8B6FB /* FSEventsWrapper in Frameworks */ = {isa = PBXBuildFile; productRef = D82B95832B23DC2B00C8B6FB /* FSEventsWrapper */; };
 		D838B5EB2ACE201C0042899E /* Selection.swift in Sources */ = {isa = PBXBuildFile; fileRef = D838B5EA2ACE201C0042899E /* Selection.swift */; };
+		D8472A642B2517A50070DB64 /* ShortcutItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8472A632B2517A50070DB64 /* ShortcutItemView.swift */; };
+		D8472A662B2517DE0070DB64 /* DirectoryWatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8472A652B2517DE0070DB64 /* DirectoryWatcher.swift */; };
+		D8472A682B2518320070DB64 /* FixedItemSizeCollectionViewLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8472A672B2518320070DB64 /* FixedItemSizeCollectionViewLayout.swift */; };
+		D8472A6A2B2518600070DB64 /* NSWorkspace.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8472A692B2518600070DB64 /* NSWorkspace.swift */; };
+		D8472A6C2B2518900070DB64 /* NSCollectionViewDiffableDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8472A6B2B2518900070DB64 /* NSCollectionViewDiffableDataSource.swift */; };
+		D8472A6E2B2518D00070DB64 /* InteractiveCollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8472A6D2B2518D00070DB64 /* InteractiveCollectionView.swift */; };
 		D855DE202AD31EC0003FE04D /* CGRect.swift in Sources */ = {isa = PBXBuildFile; fileRef = D855DE1F2AD31EC0003FE04D /* CGRect.swift */; };
 		D855DE222AD31EEF003FE04D /* SelectionLoop.swift in Sources */ = {isa = PBXBuildFile; fileRef = D855DE212AD31EEF003FE04D /* SelectionLoop.swift */; };
 		D855DE242AD31F0E003FE04D /* SelectionTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = D855DE232AD31F0E003FE04D /* SelectionTracker.swift */; };
@@ -57,6 +63,12 @@
 		D82B957B2B23112C00C8B6FB /* GridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GridView.swift; sourceTree = "<group>"; };
 		D82B95802B231AD000C8B6FB /* Store.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Store.swift; sourceTree = "<group>"; };
 		D838B5EA2ACE201C0042899E /* Selection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Selection.swift; sourceTree = "<group>"; };
+		D8472A632B2517A50070DB64 /* ShortcutItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShortcutItemView.swift; sourceTree = "<group>"; };
+		D8472A652B2517DE0070DB64 /* DirectoryWatcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DirectoryWatcher.swift; sourceTree = "<group>"; };
+		D8472A672B2518320070DB64 /* FixedItemSizeCollectionViewLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FixedItemSizeCollectionViewLayout.swift; sourceTree = "<group>"; };
+		D8472A692B2518600070DB64 /* NSWorkspace.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSWorkspace.swift; sourceTree = "<group>"; };
+		D8472A6B2B2518900070DB64 /* NSCollectionViewDiffableDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSCollectionViewDiffableDataSource.swift; sourceTree = "<group>"; };
+		D8472A6D2B2518D00070DB64 /* InteractiveCollectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InteractiveCollectionView.swift; sourceTree = "<group>"; };
 		D855DE1F2AD31EC0003FE04D /* CGRect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CGRect.swift; sourceTree = "<group>"; };
 		D855DE212AD31EEF003FE04D /* SelectionLoop.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectionLoop.swift; sourceTree = "<group>"; };
 		D855DE232AD31F0E003FE04D /* SelectionTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectionTracker.swift; sourceTree = "<group>"; };
@@ -184,6 +196,8 @@
 			isa = PBXGroup;
 			children = (
 				D855DE1F2AD31EC0003FE04D /* CGRect.swift */,
+				D8472A6B2B2518900070DB64 /* NSCollectionViewDiffableDataSource.swift */,
+				D8472A692B2518600070DB64 /* NSWorkspace.swift */,
 				D87653E12AC9F39100E8B65D /* URL.swift */,
 			);
 			path = Extensions;
@@ -192,13 +206,17 @@
 		D87653E72AC9F5FB00E8B65D /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				D8472A6D2B2518D00070DB64 /* InteractiveCollectionView.swift */,
+				D8472A652B2517DE0070DB64 /* DirectoryWatcher.swift */,
 				D87653E82AC9F6B900E8B65D /* FileView.swift */,
+				D8472A672B2518320070DB64 /* FixedItemSizeCollectionViewLayout.swift */,
 				D87653E52AC9F5D900E8B65D /* FolderView.swift */,
 				D82B957B2B23112C00C8B6FB /* GridView.swift */,
 				D89622E32ACD4266006F7D2E /* LibraryView.swift */,
 				D838B5EA2ACE201C0042899E /* Selection.swift */,
 				D855DE212AD31EEF003FE04D /* SelectionLoop.swift */,
 				D855DE232AD31F0E003FE04D /* SelectionTracker.swift */,
+				D8472A632B2517A50070DB64 /* ShortcutItemView.swift */,
 				D89622E12ACD4200006F7D2E /* Sidebar.swift */,
 			);
 			path = Views;
@@ -361,6 +379,7 @@
 				D838B5EB2ACE201C0042899E /* Selection.swift in Sources */,
 				D87653DF2AC9F19400E8B65D /* FolderModel.swift in Sources */,
 				D89622E62ACD42F2006F7D2E /* SceneModel.swift in Sources */,
+				D8472A6C2B2518900070DB64 /* NSCollectionViewDiffableDataSource.swift in Sources */,
 				D87653E62AC9F5DA00E8B65D /* FolderView.swift in Sources */,
 				D87653E42AC9F5B300E8B65D /* FileModel.swift in Sources */,
 				D89622E42ACD4266006F7D2E /* LibraryView.swift in Sources */,
@@ -371,12 +390,17 @@
 				D89622DE2ACD3B82006F7D2E /* Settings.swift in Sources */,
 				D89622DB2ACD394A006F7D2E /* ApplicationModel.swift in Sources */,
 				D89622E22ACD4200006F7D2E /* Sidebar.swift in Sources */,
+				D8472A682B2518320070DB64 /* FixedItemSizeCollectionViewLayout.swift in Sources */,
+				D8472A6E2B2518D00070DB64 /* InteractiveCollectionView.swift in Sources */,
 				D879E3452AD27C7B00A021E0 /* SidebarItem.swift in Sources */,
+				D8472A662B2517DE0070DB64 /* DirectoryWatcher.swift in Sources */,
 				D82B95812B231AD000C8B6FB /* Store.swift in Sources */,
 				D89622E02ACD3B9A006F7D2E /* FoldersError.swift in Sources */,
 				D855DE222AD31EEF003FE04D /* SelectionLoop.swift in Sources */,
 				D82B957C2B23112C00C8B6FB /* GridView.swift in Sources */,
+				D8472A6A2B2518600070DB64 /* NSWorkspace.swift in Sources */,
 				D87653E22AC9F39100E8B65D /* URL.swift in Sources */,
+				D8472A642B2517A50070DB64 /* ShortcutItemView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
