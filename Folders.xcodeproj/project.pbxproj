@@ -24,7 +24,6 @@
 		D87653C62AC9F01900E8B65D /* FoldersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D87653C52AC9F01900E8B65D /* FoldersTests.swift */; };
 		D87653D02AC9F01900E8B65D /* FoldersUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D87653CF2AC9F01900E8B65D /* FoldersUITests.swift */; };
 		D87653D22AC9F01900E8B65D /* FoldersUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D87653D12AC9F01900E8B65D /* FoldersUITestsLaunchTests.swift */; };
-		D87653DF2AC9F19400E8B65D /* FolderModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D87653DE2AC9F19400E8B65D /* FolderModel.swift */; };
 		D87653E22AC9F39100E8B65D /* URL.swift in Sources */ = {isa = PBXBuildFile; fileRef = D87653E12AC9F39100E8B65D /* URL.swift */; };
 		D87653E42AC9F5B300E8B65D /* FileModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D87653E32AC9F5B300E8B65D /* FileModel.swift */; };
 		D879E3452AD27C7B00A021E0 /* SidebarItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = D879E3442AD27C7B00A021E0 /* SidebarItem.swift */; };
@@ -76,7 +75,6 @@
 		D87653CB2AC9F01900E8B65D /* FoldersUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FoldersUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		D87653CF2AC9F01900E8B65D /* FoldersUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoldersUITests.swift; sourceTree = "<group>"; };
 		D87653D12AC9F01900E8B65D /* FoldersUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoldersUITestsLaunchTests.swift; sourceTree = "<group>"; };
-		D87653DE2AC9F19400E8B65D /* FolderModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolderModel.swift; sourceTree = "<group>"; };
 		D87653E12AC9F39100E8B65D /* URL.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URL.swift; sourceTree = "<group>"; };
 		D87653E32AC9F5B300E8B65D /* FileModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileModel.swift; sourceTree = "<group>"; };
 		D879E3442AD27C7B00A021E0 /* SidebarItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarItem.swift; sourceTree = "<group>"; };
@@ -190,10 +188,10 @@
 			isa = PBXGroup;
 			children = (
 				D855DE1F2AD31EC0003FE04D /* CGRect.swift */,
+				D8DDBCC52B2A1317003EAF4E /* FileManager.swift */,
 				D8472A6B2B2518900070DB64 /* NSCollectionViewDiffableDataSource.swift */,
 				D8472A692B2518600070DB64 /* NSWorkspace.swift */,
 				D87653E12AC9F39100E8B65D /* URL.swift */,
-				D8DDBCC52B2A1317003EAF4E /* FileManager.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -217,7 +215,6 @@
 			children = (
 				D89622DA2ACD394A006F7D2E /* ApplicationModel.swift */,
 				D87653E32AC9F5B300E8B65D /* FileModel.swift */,
-				D87653DE2AC9F19400E8B65D /* FolderModel.swift */,
 				D8DDBCC32B2A0F8E003EAF4E /* PreviewItem.swift */,
 				D89622E52ACD42F2006F7D2E /* SceneModel.swift */,
 				D89622DD2ACD3B82006F7D2E /* Settings.swift */,
@@ -367,7 +364,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D87653DF2AC9F19400E8B65D /* FolderModel.swift in Sources */,
 				D89622E62ACD42F2006F7D2E /* SceneModel.swift in Sources */,
 				D8472A6C2B2518900070DB64 /* NSCollectionViewDiffableDataSource.swift in Sources */,
 				D87653E42AC9F5B300E8B65D /* FileModel.swift in Sources */,
