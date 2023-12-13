@@ -25,8 +25,10 @@ import Carbon
 
 protocol InteractiveCollectionViewDelegate: NSObject {
 
-    func customCollectionView(_ customCollectionView: InteractiveCollectionView, contextMenuForSelection selection: IndexSet) -> NSMenu?
-    func customCollectionView(_ customCollectionView: InteractiveCollectionView, didDoubleClickSelection selection: Set<IndexPath>)
+    func customCollectionView(_ customCollectionView: InteractiveCollectionView,
+                              contextMenuForSelection selection: IndexSet) -> NSMenu?
+    func customCollectionView(_ customCollectionView: InteractiveCollectionView,
+                              didDoubleClickSelection selection: Set<IndexPath>)
     func customCollectionViewShowPreview(_ customCollectionView: InteractiveCollectionView)
 
 }
