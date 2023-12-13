@@ -26,45 +26,6 @@ import UniformTypeIdentifiers
 
 import OrderedCollections
 
-extension FileManager {
-
-    func files(directoryURL: URL) throws -> [URL]  {
-        let date = Date()
-        let resourceKeys = Set<URLResourceKey>([.nameKey, .isDirectoryKey, .contentTypeKey])
-        let directoryEnumerator = enumerator(at: directoryURL,
-                                             includingPropertiesForKeys: Array(resourceKeys),
-                                             options: [.skipsHiddenFiles, .producesRelativePathURLs])!
-
-        var files: [URL] = []
-        for case let fileURL as URL in directoryEnumerator {
-            // Get the file metadata.
-            let isDirectory = try fileURL
-                .resourceValues(forKeys: [.isDirectoryKey])
-                .isDirectory!
-
-            // Ignore directories.
-            if isDirectory {
-                continue
-            }
-
-            // Only show images; we'll want to make this test dynamic in the future.
-            guard let contentType = try fileURL.resourceValues(forKeys: [.contentTypeKey]).contentType,
-                  contentType.conforms(to: .image) || contentType.conforms(to: .video) || contentType.conforms(to: .movie) || fileURL.pathExtension == "cbz" || contentType.conforms(to: .pdf)
-            else {
-                continue
-            }
-
-            files.append(fileURL)
-        }
-
-        let duration = date.distance(to: Date())
-        print("Listing for '\(directoryURL.displayName)' took \(duration.formatted()) seconds (\(files.count) files).")
-
-        return files
-    }
-
-}
-
 class FolderModel: ObservableObject {
 
     enum State {
