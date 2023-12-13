@@ -235,9 +235,11 @@ extension InnerGridView: InteractiveCollectionViewDelegate {
         let menu = NSMenu()
 
         let items = [
-            NSMenuItem(title: "Reveal in Finder", action: #selector(reveal(sender:)), keyEquivalent: ""),
-            NSMenuItem(title: "Set Wallpaper", action: #selector(setWallpaper(sender:)), keyEquivalent: ""),
             NSMenuItem(title: "Preview", action: #selector(preview(sender:)), keyEquivalent: ""),
+            .separator(),
+            NSMenuItem(title: "Reveal in Finder", action: #selector(reveal(sender:)), keyEquivalent: ""),
+            .separator(),
+            NSMenuItem(title: "Set Wallpaper", action: #selector(setWallpaper(sender:)), keyEquivalent: ""),
         ]
 
         for item in items {
