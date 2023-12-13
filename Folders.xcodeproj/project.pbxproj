@@ -119,6 +119,9 @@
 		D82B95852B23DC5500C8B6FB /* Utilities */ = {
 			isa = PBXGroup;
 			children = (
+				D8DDBCC72B2A1582003EAF4E /* DirectoryScanner.swift */,
+				D8472A652B2517DE0070DB64 /* DirectoryWatcher.swift */,
+				D82B95802B231AD000C8B6FB /* Store.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -199,7 +202,6 @@
 		D87653E72AC9F5FB00E8B65D /* Views */ = {
 			isa = PBXGroup;
 			children = (
-				D8472A652B2517DE0070DB64 /* DirectoryWatcher.swift */,
 				D8472A672B2518320070DB64 /* FixedItemSizeCollectionViewLayout.swift */,
 				D82B957B2B23112C00C8B6FB /* GridView.swift */,
 				D8472A6D2B2518D00070DB64 /* InteractiveCollectionView.swift */,
@@ -214,12 +216,10 @@
 			isa = PBXGroup;
 			children = (
 				D89622DA2ACD394A006F7D2E /* ApplicationModel.swift */,
-				D8DDBCC72B2A1582003EAF4E /* DirectoryScanner.swift */,
 				D8DDBCC32B2A0F8E003EAF4E /* PreviewItem.swift */,
 				D89622E52ACD42F2006F7D2E /* SceneModel.swift */,
 				D89622DD2ACD3B82006F7D2E /* Settings.swift */,
 				D879E3442AD27C7B00A021E0 /* SidebarItem.swift */,
-				D82B95802B231AD000C8B6FB /* Store.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
