@@ -21,11 +21,13 @@
 // SOFTWARE.
 
 import AppKit
+import Carbon
 
 protocol InteractiveCollectionViewDelegate: NSObject {
 
     func customCollectionView(_ customCollectionView: InteractiveCollectionView, contextMenuForSelection selection: IndexSet) -> NSMenu?
     func customCollectionView(_ customCollectionView: InteractiveCollectionView, didDoubleClickSelection selection: Set<IndexPath>)
+    func customCollectionViewShowPreview(_ customCollectionView: InteractiveCollectionView)
 
 }
 
@@ -61,20 +63,19 @@ class InteractiveCollectionView: NSCollectionView {
         }
     }
 
-//    override func keyDown(with event: NSEvent) {
-//        if event.keyCode == kVK_Space {
-//            nextResponder?.keyDown(with: event)
-//            return
-//        }
-//        super.keyDown(with: event)
-//    }
-//
-//    override func keyUp(with event: NSEvent) {
-//        if event.keyCode == kVK_Space {
-//            nextResponder?.keyUp(with: event)
-//            return
-//        }
-//        super.keyUp(with: event)
-//    }
+    override func keyDown(with event: NSEvent) {
+        if event.keyCode == kVK_Space {
+            interactionDelegate?.customCollectionViewShowPreview(self)
+            return
+        }
+        super.keyDown(with: event)
+    }
+
+    override func keyUp(with event: NSEvent) {
+        if event.keyCode == kVK_Space {
+            return
+        }
+        super.keyUp(with: event)
+    }
 
 }

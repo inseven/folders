@@ -112,7 +112,6 @@ class ShortcutItemView: NSCollectionViewItem {
                     return
                 }
                 self.preview?.image = thumbnail.nsImage
-//                self.image = Image(thumbnail.cgImage, scale: 3.0, label: Text(self.fileURL.lastPathComponent))
             }
         }
         self.request = request

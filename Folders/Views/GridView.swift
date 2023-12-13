@@ -23,6 +23,9 @@
 import SwiftUI
 import QuickLookThumbnailing
 
+import QuickLook
+import QuickLookUI
+
 struct GridView: NSViewRepresentable {
 
     let store: Store
@@ -41,6 +44,7 @@ struct GridView: NSViewRepresentable {
 class InnerGridView: NSView {
 
     let directoryWatcher: DirectoryWatcher
+    var previewPanel: QLPreviewPanel?
 
     enum Section {
         case none
@@ -53,6 +57,12 @@ class InnerGridView: NSView {
     private let scrollView: NSScrollView
     private let collectionView: InteractiveCollectionView
     private var dataSource: DataSource! = nil
+
+    var activeSelectionIndexPath: IndexPath? = nil {
+        didSet {
+            previewPanel?.reloadData()
+        }
+    }
 
     init(store: Store, directoryURL: URL) {
         self.directoryWatcher = DirectoryWatcher(store: store, url: directoryURL)
@@ -75,7 +85,8 @@ class InnerGridView: NSView {
         collectionView.layer?.backgroundColor = NSColor.magenta.cgColor
 
         dataSource = DataSource(collectionView: collectionView) { collectionView, indexPath, item in
-            guard let view = collectionView.makeItem(withIdentifier: ShortcutItemView.identifier, for: indexPath) as? ShortcutItemView else {
+            guard let view = collectionView.makeItem(withIdentifier: ShortcutItemView.identifier,
+                                                     for: indexPath) as? ShortcutItemView else {
                 return ShortcutItemView()
             }
             view.configure(url: item)
@@ -108,6 +119,60 @@ class InnerGridView: NSView {
         fatalError("init(coder:) has not been implemented")
     }
 
+    override func acceptsPreviewPanelControl(_ panel: QLPreviewPanel!) -> Bool {
+        return true
+    }
+
+    override func beginPreviewPanelControl(_ panel: QLPreviewPanel!) {
+        self.previewPanel = panel
+        panel.dataSource = self
+        panel.delegate = self
+    }
+
+    override func endPreviewPanelControl(_ panel: QLPreviewPanel!) {
+        self.previewPanel = nil
+        panel.dataSource = nil
+        panel.delegate = nil
+    }
+
+}
+
+extension InnerGridView: QLPreviewPanelDataSource, QLPreviewPanelDelegate {
+
+    func numberOfPreviewItems(in panel: QLPreviewPanel!) -> Int {
+        // We return 1 to stop QuickLook trying to manage the selection on our behalf. This ensures we recieve key
+        // events for all cursor keys and allows our NSCollectionView manage navigation.
+        return 1
+    }
+
+    func previewPanel(_ panel: QLPreviewPanel!, previewItemAt index: Int) -> QLPreviewItem! {
+        let url = dataSource.itemIdentifier(for: activeSelectionIndexPath!)!
+        return PreviewItem(url: url)
+    }
+
+    func previewPanel(_ panel: QLPreviewPanel!, handle event: NSEvent!) -> Bool {
+        if event.type == .keyDown {
+            self.collectionView.keyDown(with: event)
+            return true
+        } else if event.type == .keyUp {
+            self.collectionView.keyUp(with: event)
+            return true
+        }
+        return false
+    }
+
+}
+
+class PreviewItem: NSObject, QLPreviewItem {
+
+    var previewItemURL: URL!
+    var previewItemTitle: String!
+
+    init(url: URL) {
+        self.previewItemURL = url
+        self.previewItemTitle = url.displayName
+    }
+
 }
 
 extension InnerGridView: DirectoryWatcherDelegate {
@@ -119,14 +184,15 @@ extension InnerGridView: DirectoryWatcherDelegate {
         var snapshot = Snapshot()
         snapshot.appendSections([.none])
         snapshot.appendItems(directoryWatcher.files, toSection: Section.none)
-        dataSource.apply(snapshot, animatingDifferences: true)
+        dataSource.apply(snapshot, animatingDifferences: false)
     }
 
     func directoryWatcher(_ directoryWatcher: DirectoryWatcher, didInsertURL url: URL, atIndex: Int) {
+        // TODO: This performs very poorly during initial update.
         var snapshot = Snapshot()
         snapshot.appendSections([.none])
         snapshot.appendItems(directoryWatcher.files, toSection: Section.none)
-        dataSource.apply(snapshot, animatingDifferences: true)
+        dataSource.apply(snapshot, animatingDifferences: false)
     }
 
 }
@@ -154,6 +220,24 @@ extension InnerGridView: InteractiveCollectionViewDelegate {
         }
     }
 
+    @objc func preview(sender: NSMenuItem) {
+        guard let urls = sender.representedObject as? [URL] else {
+            return
+        }
+        print(urls)
+        showPreview()
+    }
+
+    func showPreview() {
+        if QLPreviewPanel.sharedPreviewPanelExists() && QLPreviewPanel.shared().isVisible {
+            QLPreviewPanel.shared().orderOut(nil)
+        } else {
+            let previewPanel = QLPreviewPanel.shared()!
+            previewPanel.center()
+            previewPanel.makeKeyAndOrderFront(nil)
+        }
+    }
+
     func customCollectionView(_ customCollectionView: InteractiveCollectionView, contextMenuForSelection selection: IndexSet) -> NSMenu? {
         // TODO: Make this a utility.
         let selections = selection.compactMap { index in
@@ -164,20 +248,17 @@ extension InnerGridView: InteractiveCollectionViewDelegate {
         }
         let menu = NSMenu()
 
-        let revealMenuItem = NSMenuItem(title: "Reveal in Finder",
-                                        action: #selector(reveal(sender:)),
-                                        keyEquivalent: "")
-        revealMenuItem.representedObject = selections
-
-        let setWallpaperMenuItem = NSMenuItem(title: "Set Wallpaper",
-                                              action: #selector(setWallpaper(sender:)),
-                                              keyEquivalent: "")
-        setWallpaperMenuItem.representedObject = selections
-
-        menu.items = [
-            revealMenuItem,
-            setWallpaperMenuItem,
+        let items = [
+            NSMenuItem(title: "Reveal in Finder", action: #selector(reveal(sender:)), keyEquivalent: ""),
+            NSMenuItem(title: "Set Wallpaper", action: #selector(setWallpaper(sender:)), keyEquivalent: ""),
+            NSMenuItem(title: "Preview", action: #selector(preview(sender:)), keyEquivalent: ""),
         ]
+
+        for item in items {
+            item.representedObject = selections
+        }
+
+        menu.items = items
         return menu
     }
     
@@ -188,11 +269,16 @@ extension InnerGridView: InteractiveCollectionViewDelegate {
         }
     }
 
+    func customCollectionViewShowPreview(_ customCollectionView: InteractiveCollectionView) {
+        showPreview()
+    }
+
 }
 
 extension InnerGridView: NSCollectionViewDelegate {
 
     func collectionView(_ collectionView: NSCollectionView, didSelectItemsAt indexPaths: Set<IndexPath>) {
+        activeSelectionIndexPath = indexPaths.first
     }
 
 }
