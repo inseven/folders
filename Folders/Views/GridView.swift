@@ -22,8 +22,6 @@
 
 import SwiftUI
 import QuickLookThumbnailing
-
-import QuickLook
 import QuickLookUI
 
 struct GridView: NSViewRepresentable {
@@ -159,18 +157,6 @@ extension InnerGridView: QLPreviewPanelDataSource, QLPreviewPanelDelegate {
             return true
         }
         return false
-    }
-
-}
-
-class PreviewItem: NSObject, QLPreviewItem {
-
-    var previewItemURL: URL!
-    var previewItemTitle: String!
-
-    init(url: URL) {
-        self.previewItemURL = url
-        self.previewItemTitle = url.displayName
     }
 
 }

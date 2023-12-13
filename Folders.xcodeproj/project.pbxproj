@@ -40,6 +40,7 @@
 		D89622E22ACD4200006F7D2E /* Sidebar.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89622E12ACD4200006F7D2E /* Sidebar.swift */; };
 		D89622E42ACD4266006F7D2E /* LibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89622E32ACD4266006F7D2E /* LibraryView.swift */; };
 		D89622E62ACD42F2006F7D2E /* SceneModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89622E52ACD42F2006F7D2E /* SceneModel.swift */; };
+		D8DDBCC42B2A0F8E003EAF4E /* PreviewItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8DDBCC32B2A0F8E003EAF4E /* PreviewItem.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -94,6 +95,7 @@
 		D89622E12ACD4200006F7D2E /* Sidebar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sidebar.swift; sourceTree = "<group>"; };
 		D89622E32ACD4266006F7D2E /* LibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryView.swift; sourceTree = "<group>"; };
 		D89622E52ACD42F2006F7D2E /* SceneModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneModel.swift; sourceTree = "<group>"; };
+		D8DDBCC32B2A0F8E003EAF4E /* PreviewItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewItem.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -206,12 +208,12 @@
 		D87653E72AC9F5FB00E8B65D /* Views */ = {
 			isa = PBXGroup;
 			children = (
-				D8472A6D2B2518D00070DB64 /* InteractiveCollectionView.swift */,
 				D8472A652B2517DE0070DB64 /* DirectoryWatcher.swift */,
 				D87653E82AC9F6B900E8B65D /* FileView.swift */,
 				D8472A672B2518320070DB64 /* FixedItemSizeCollectionViewLayout.swift */,
 				D87653E52AC9F5D900E8B65D /* FolderView.swift */,
 				D82B957B2B23112C00C8B6FB /* GridView.swift */,
+				D8472A6D2B2518D00070DB64 /* InteractiveCollectionView.swift */,
 				D89622E32ACD4266006F7D2E /* LibraryView.swift */,
 				D838B5EA2ACE201C0042899E /* Selection.swift */,
 				D855DE212AD31EEF003FE04D /* SelectionLoop.swift */,
@@ -228,6 +230,7 @@
 				D89622DA2ACD394A006F7D2E /* ApplicationModel.swift */,
 				D87653E32AC9F5B300E8B65D /* FileModel.swift */,
 				D87653DE2AC9F19400E8B65D /* FolderModel.swift */,
+				D8DDBCC32B2A0F8E003EAF4E /* PreviewItem.swift */,
 				D89622E52ACD42F2006F7D2E /* SceneModel.swift */,
 				D89622DD2ACD3B82006F7D2E /* Settings.swift */,
 				D879E3442AD27C7B00A021E0 /* SidebarItem.swift */,
@@ -383,6 +386,7 @@
 				D87653E62AC9F5DA00E8B65D /* FolderView.swift in Sources */,
 				D87653E42AC9F5B300E8B65D /* FileModel.swift in Sources */,
 				D89622E42ACD4266006F7D2E /* LibraryView.swift in Sources */,
+				D8DDBCC42B2A0F8E003EAF4E /* PreviewItem.swift in Sources */,
 				D855DE242AD31F0E003FE04D /* SelectionTracker.swift in Sources */,
 				D87653E92AC9F6B900E8B65D /* FileView.swift in Sources */,
 				D855DE202AD31EC0003FE04D /* CGRect.swift in Sources */,
