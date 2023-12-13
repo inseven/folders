@@ -37,7 +37,9 @@ struct SidebarItem: Hashable, Identifiable {
 
     init(folderURL: URL) throws {
         let fileManager = FileManager.default
-        let children = try fileManager.contentsOfDirectory(at: folderURL, includingPropertiesForKeys: [.nameKey, .isDirectoryKey], options: .skipsHiddenFiles)
+        let children = try fileManager.contentsOfDirectory(at: folderURL,
+                                                           includingPropertiesForKeys: [.nameKey, .isDirectoryKey],
+                                                           options: .skipsHiddenFiles)
             .compactMap { fileURL -> URL? in
                 let isDirectory = try fileURL
                     .resourceValues(forKeys: [.isDirectoryKey])

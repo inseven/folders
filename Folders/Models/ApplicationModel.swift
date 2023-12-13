@@ -23,88 +23,6 @@
 import Combine
 import SwiftUI
 
-import FSEventsWrapper
-
-class DirectoryScanner {
-
-    let url: URL
-    let workQueue = DispatchQueue(label: "workQueue")
-    var stream: FSEventStream? = nil
-
-    init(url: URL) {
-        self.url = url
-    }
-
-    func start(callback: @escaping ([URL]) -> Void,
-               onFileCreation: @escaping (URL) -> Void,
-               onFileDeletion: @escaping (URL) -> Void) {
-
-        // TODO: Consider creating this in the constructor.
-        stream = FSEventStream(path: url.path,
-                               fsEventStreamFlags: FSEventStreamEventFlags(kFSEventStreamCreateFlagFileEvents),
-                               queue: workQueue) { stream, event in
-
-            let fileManager = FileManager.default
-
-            switch event {
-            case .itemClonedAtPath:
-                return
-            case .itemCreated(path: let path, itemType: let itemType, eventId: _, fromUs: _):
-                guard itemType != .dir else {
-                    return
-                }
-                let url = URL(filePath: path)
-                print("File created '\(url)'")
-                onFileCreation(url)
-            case .itemRenamed(path: let path, itemType: let itemType, eventId: _, fromUs: _):
-                guard itemType != .dir else {
-                    return
-                }
-                let url = URL(filePath: path)
-                // Helpfully, file renames can be additions or removals, so we check to see if the file exists at the
-                // new location to determine which.
-                if fileManager.fileExists(atPath: url.path) {
-                    print("File added by rename '\(url)'")
-                    onFileCreation(url)
-                } else {
-                    print("File removed by rename '\(url)'")
-                    onFileDeletion(url)
-                }
-            default:
-                print("Unhandled file event \(event).")
-            }
-        }
-
-        guard let stream else {
-            preconditionFailure("Failed to create event stream!")
-        }
-
-        workQueue.async { [url] in
-
-            // Start the event stream watching.
-            // We do this from here to ensure we don't miss any events, and that all individual change callbacks are
-            // enqueued after our initial scan.
-            stream.startWatching()
-
-            // TODO: Actually perform the iteration inline so we can pace ourselves.
-            // TODO: Handle this error.
-            let urls = try! FileManager.default.files(directoryURL: url)
-            callback(urls)
-        }
-
-        // TODO: Start an observer so we get updates!
-    }
-
-    func stop() {
-        stream?.stopWatching()
-        stream = nil
-    }
-
-}
-
-
-
-
 class ApplicationModel: ObservableObject {
 
     private let settings = Settings()
@@ -134,7 +52,8 @@ class ApplicationModel: ObservableObject {
             sidebarItems = []
         }
 
-        let applicationSupportURL = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
+        let applicationSupportURL = FileManager.default.urls(for: .applicationSupportDirectory,
+                                                             in: .userDomainMask).first!
         let storeURL = applicationSupportURL.appendingPathComponent("store.sqlite")
         self.store = try! Store(databaseURL: storeURL)
 

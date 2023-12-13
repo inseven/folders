@@ -35,6 +35,7 @@
 		D89622E62ACD42F2006F7D2E /* SceneModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89622E52ACD42F2006F7D2E /* SceneModel.swift */; };
 		D8DDBCC42B2A0F8E003EAF4E /* PreviewItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8DDBCC32B2A0F8E003EAF4E /* PreviewItem.swift */; };
 		D8DDBCC62B2A1317003EAF4E /* FileManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8DDBCC52B2A1317003EAF4E /* FileManager.swift */; };
+		D8DDBCC82B2A1582003EAF4E /* DirectoryScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8DDBCC72B2A1582003EAF4E /* DirectoryScanner.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -84,6 +85,7 @@
 		D89622E52ACD42F2006F7D2E /* SceneModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneModel.swift; sourceTree = "<group>"; };
 		D8DDBCC32B2A0F8E003EAF4E /* PreviewItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewItem.swift; sourceTree = "<group>"; };
 		D8DDBCC52B2A1317003EAF4E /* FileManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileManager.swift; sourceTree = "<group>"; };
+		D8DDBCC72B2A1582003EAF4E /* DirectoryScanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DirectoryScanner.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -212,6 +214,7 @@
 			isa = PBXGroup;
 			children = (
 				D89622DA2ACD394A006F7D2E /* ApplicationModel.swift */,
+				D8DDBCC72B2A1582003EAF4E /* DirectoryScanner.swift */,
 				D8DDBCC32B2A0F8E003EAF4E /* PreviewItem.swift */,
 				D89622E52ACD42F2006F7D2E /* SceneModel.swift */,
 				D89622DD2ACD3B82006F7D2E /* Settings.swift */,
@@ -366,6 +369,7 @@
 				D89622E42ACD4266006F7D2E /* LibraryView.swift in Sources */,
 				D8DDBCC42B2A0F8E003EAF4E /* PreviewItem.swift in Sources */,
 				D855DE202AD31EC0003FE04D /* CGRect.swift in Sources */,
+				D8DDBCC82B2A1582003EAF4E /* DirectoryScanner.swift in Sources */,
 				D87653B42AC9F01600E8B65D /* FoldersApp.swift in Sources */,
 				D89622DE2ACD3B82006F7D2E /* Settings.swift in Sources */,
 				D8DDBCC62B2A1317003EAF4E /* FileManager.swift in Sources */,
