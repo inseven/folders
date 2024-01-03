@@ -20,27 +20,17 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-import SwiftUI
+import Foundation
+import QuickLookUI
 
-struct SelectionTracker: View {
+class PreviewItem: NSObject, QLPreviewItem {
 
-    @Binding var selection: CGRect?
+    var previewItemURL: URL!
+    var previewItemTitle: String!
 
-    var body: some View {
-        HStack {
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color(NSColor.textBackgroundColor))
-        .gesture(DragGesture(minimumDistance: 0, coordinateSpace: .scrollView)
-            .onChanged { value in
-                let size = CGSize(width: value.location.x - value.startLocation.x,
-                                  height: value.location.y - value.startLocation.y)
-                self.selection = CGRect(origin: value.startLocation, size: size).normalized
-                print("\(value.startLocation), \(value.location)")
-            }
-            .onEnded { _ in
-                self.selection = nil
-            })
+    init(url: URL) {
+        self.previewItemURL = url
+        self.previewItemTitle = url.displayName
     }
 
 }

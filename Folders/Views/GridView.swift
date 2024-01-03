@@ -22,8 +22,6 @@
 
 import SwiftUI
 import QuickLookThumbnailing
-
-import QuickLook
 import QuickLookUI
 
 struct GridView: NSViewRepresentable {
@@ -163,18 +161,6 @@ extension InnerGridView: QLPreviewPanelDataSource, QLPreviewPanelDelegate {
 
 }
 
-class PreviewItem: NSObject, QLPreviewItem {
-
-    var previewItemURL: URL!
-    var previewItemTitle: String!
-
-    init(url: URL) {
-        self.previewItemURL = url
-        self.previewItemTitle = url.displayName
-    }
-
-}
-
 extension InnerGridView: DirectoryWatcherDelegate {
 
     func directoryWatcherDidUpdate(_ directoryWatcher: DirectoryWatcher) {
@@ -249,9 +235,11 @@ extension InnerGridView: InteractiveCollectionViewDelegate {
         let menu = NSMenu()
 
         let items = [
-            NSMenuItem(title: "Reveal in Finder", action: #selector(reveal(sender:)), keyEquivalent: ""),
-            NSMenuItem(title: "Set Wallpaper", action: #selector(setWallpaper(sender:)), keyEquivalent: ""),
             NSMenuItem(title: "Preview", action: #selector(preview(sender:)), keyEquivalent: ""),
+            .separator(),
+            NSMenuItem(title: "Reveal in Finder", action: #selector(reveal(sender:)), keyEquivalent: ""),
+            .separator(),
+            NSMenuItem(title: "Set Wallpaper", action: #selector(setWallpaper(sender:)), keyEquivalent: ""),
         ]
 
         for item in items {

@@ -26,10 +26,12 @@ class FixedItemSizeCollectionViewLayout: NSCollectionViewCompositionalLayout {
 
     init(spacing: CGFloat, size: CGSize, contentInsets: NSDirectionalEdgeInsets) {
 
-        let itemSize = NSCollectionLayoutSize(widthDimension: .absolute(size.width), heightDimension: .absolute(size.height))
+        let itemSize = NSCollectionLayoutSize(widthDimension: .absolute(size.width),
+                                              heightDimension: .absolute(size.height))
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
 
-        let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .absolute(size.height))
+        let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
+                                               heightDimension: .absolute(size.height))
         let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
         group.interItemSpacing = .fixed(spacing)
 
