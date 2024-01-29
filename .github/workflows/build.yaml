@@ -1,0 +1,47 @@
+name: build
+
+on:
+  pull_request:
+    branches: [ main ]
+  push:
+    branches: [ main ]
+  schedule:
+    - cron:  '0 1 * * *'
+  workflow_dispatch:
+
+jobs:
+  build:
+
+    name: build
+    runs-on: inseven-macos-14
+
+    steps:
+
+    - name: Checkout repository
+      uses: actions/checkout@v3
+      with:
+        submodules: recursive
+        fetch-depth: 0
+
+    - name: Build, test, and release
+      env:
+        APPLE_DISTRIBUTION_CERTIFICATE_BASE64: ${{ secrets.PERSONAL_APPLE_DISTRIBUTION_CERTIFICATE_BASE64 }}
+        APPLE_DISTRIBUTION_CERTIFICATE_PASSWORD: ${{ secrets.PERSONAL_APPLE_DISTRIBUTION_CERTIFICATE_PASSWORD }}
+        MACOS_DEVELOPER_INSTALLER_CERTIFICATE_BASE64: ${{ secrets.PERSONAL_MACOS_DEVELOPER_INSTALLER_CERTIFICATE_BASE64 }}
+        MACOS_DEVELOPER_INSTALLER_CERTIFICATE_PASSWORD: ${{ secrets.PERSONAL_MACOS_DEVELOPER_INSTALLER_CERTIFICATE_PASSWORD }}
+
+        APPLE_API_KEY_BASE64: ${{ secrets.PERSONAL_APPLE_API_KEY_BASE64 }}
+        APPLE_API_KEY_ISSUER_ID: ${{ secrets.PERSONAL_APPLE_API_KEY_ISSUER_ID }}
+        APPLE_API_KEY_ID: ${{ secrets.PERSONAL_APPLE_API_KEY_ID }}
+
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        RELEASE: ${{ github.ref == 'refs/heads/main' }}
+
+      run: |
+        Scripts/bootstrap.sh Scripts/build.sh
+
+    - name: Archive the build directory
+      uses: actions/upload-artifact@v3
+      with:
+        path: build
+        if-no-files-found: error
