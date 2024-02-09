@@ -38,7 +38,10 @@ class Store {
         static let files = Table("files")
         static let url = Expression<String>("url")
         static let name = Expression<String>("name")
+        static let contentType = Expression<String>("content_type")
     }
+
+    static let majorVersion = 1
 
     var observers: [StoreObserver] = []
 
@@ -52,6 +55,7 @@ class Store {
             try connection.run(Schema.files.create(ifNotExists: true) { t in
                 t.column(Schema.url, primaryKey: true)
                 t.column(Schema.name)
+                t.column(Schema.contentType)
             })
         },
     ]
@@ -132,23 +136,24 @@ class Store {
         }
     }
 
-    func insertBlocking(url: URL) throws {
+    func insertBlocking(details: Details) throws {
         return try runBlocking { [connection] in
             try connection.transaction {
 
                 // Check to see if the URL exists already.
-                let existingURL = try connection.pluck(Schema.files.filter(Schema.url == url.path).limit(1))
+                let existingURL = try connection.pluck(Schema.files.filter(Schema.url == details.url.path).limit(1))
                 guard existingURL == nil else {
                     return
                 }
 
                 // If it does not, we insert it.
                 try connection.run(Schema.files.insert(or: .fail,
-                                                       Schema.url <- url.path,
-                                                       Schema.name <- url.displayName))
+                                                       Schema.url <- details.url.path,
+                                                       Schema.name <- details.url.displayName,
+                                                       Schema.contentType <- details.contentType.identifier))
                 for observer in self.observers {
                     DispatchQueue.global(qos: .default).async {
-                        observer.store(self, didInsertURL: url)
+                        observer.store(self, didInsertURL: details.url)
                     }
                 }
 

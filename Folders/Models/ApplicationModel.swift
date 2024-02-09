@@ -54,7 +54,20 @@ class ApplicationModel: ObservableObject {
 
         let applicationSupportURL = FileManager.default.urls(for: .applicationSupportDirectory,
                                                              in: .userDomainMask).first!
-        let storeURL = applicationSupportURL.appendingPathComponent("store.sqlite")
+
+        // TODO: Remove the initialization into a separate state so we can capture errors and recover.
+
+        // Clean up older versions major versions (these contain breaking changes).
+        let fileManager = FileManager.default
+        for i in 0 ..< Store.majorVersion {
+            let storeURL = applicationSupportURL.appendingPathComponent("store_\(i).sqlite")
+            if fileManager.fileExists(atPath: storeURL.path) {
+                try! fileManager.removeItem(at: storeURL)
+            }
+        }
+
+        // Open the database, creating a new one if necessary.
+        let storeURL = applicationSupportURL.appendingPathComponent("store_\(Store.majorVersion).sqlite")
         self.store = try! Store(databaseURL: storeURL)
 
         // Start the scanners.
@@ -65,21 +78,21 @@ class ApplicationModel: ObservableObject {
     }
 
     func start(scanner: DirectoryScanner) {
-        scanner.start { [store] urls in
+        scanner.start { [store] details in
             // TODO: Maybe allow this to rethrow and catch it at the top level to make the code cleaner?
             do {
                 let insertStart = Date()
-                for url in urls {
-                    try store.insertBlocking(url: url)
+                for file in details {
+                    try store.insertBlocking(details: file)
                 }
                 let insertDuration = insertStart.distance(to: Date())
                 print("Insert took \(insertDuration.formatted()) seconds.")
             } catch {
                 print("FAILED TO INSERT UPDATES WITH ERROR \(error).")
             }
-        } onFileCreation: { [store] url in
+        } onFileCreation: { [store] details in
             do {
-                try store.insertBlocking(url: url)
+                try store.insertBlocking(details: details)
             } catch {
                 print("Failed to perform creation update with error \(error).")
             }

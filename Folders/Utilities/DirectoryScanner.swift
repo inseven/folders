@@ -24,6 +24,20 @@ import SwiftUI
 
 import FSEventsWrapper
 
+extension FileManager {
+
+    func details(for path: String) throws -> Details {
+        let url = URL(filePath: path)
+
+        guard let contentType = try url.resourceValues(forKeys: [.contentTypeKey]).contentType else {
+            throw FoldersError.general("Unable to get content type for file '\(path)'.")
+        }
+
+        return Details(url: url, contentType: contentType)
+    }
+
+}
+
 class DirectoryScanner {
 
     let url: URL
@@ -34,8 +48,8 @@ class DirectoryScanner {
         self.url = url
     }
 
-    func start(callback: @escaping ([URL]) -> Void,
-               onFileCreation: @escaping (URL) -> Void,
+    func start(callback: @escaping ([Details]) -> Void,
+               onFileCreation: @escaping (Details) -> Void,  // TODO: This should be Details
                onFileDeletion: @escaping (URL) -> Void) {
 
         // TODO: Consider creating this in the constructor.
@@ -49,12 +63,17 @@ class DirectoryScanner {
             case .itemClonedAtPath:
                 return
             case .itemCreated(path: let path, itemType: let itemType, eventId: _, fromUs: _):
+                // TODO: We want to support directories in the future.
                 guard itemType != .dir else {
                     return
                 }
-                let url = URL(filePath: path)
-                print("File created '\(url)'")
-                onFileCreation(url)
+                print("File created at path '\(path)'")
+                do {
+                    onFileCreation(try FileManager.default.details(for: path))
+                } catch {
+                    print("Failed to handle file creation with error \(error).")
+                }
+
             case .itemRenamed(path: let path, itemType: let itemType, eventId: _, fromUs: _):
                 guard itemType != .dir else {
                     return
@@ -62,11 +81,25 @@ class DirectoryScanner {
                 let url = URL(filePath: path)
                 // Helpfully, file renames can be additions or removals, so we check to see if the file exists at the
                 // new location to determine which.
-                if fileManager.fileExists(atPath: url.path) {
-                    print("File added by rename '\(url)'")
-                    onFileCreation(url)
-                } else {
-                    print("File removed by rename '\(url)'")
+                do {
+                    if fileManager.fileExists(atPath: url.path) {
+                        print("File added by rename '\(url)'")
+                        onFileCreation(try FileManager.default.details(for: path))
+                    } else {
+                        print("File removed by rename '\(url)'")
+                        onFileDeletion(url)
+                    }
+                } catch {
+                    print("Failed to handle file deletion with error \(error).")
+                }
+
+            case .itemRemoved(path: let path, itemType: let itemType, eventId: _, fromUs: _):
+                guard itemType != .dir else {
+                    return
+                }
+                let url = URL(filePath: path)
+                do {
+                    print("File removed '\(url)'")
                     onFileDeletion(url)
                 }
             default:

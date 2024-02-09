@@ -73,7 +73,12 @@ class InnerGridView: NSView {
 
         collectionView = InteractiveCollectionView()
         collectionView.translatesAutoresizingMaskIntoConstraints = false
-        collectionView.collectionViewLayout = FixedItemSizeCollectionViewLayout(spacing: 16.0, size: CGSize(width: 300, height: 300), contentInsets: NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+        collectionView.collectionViewLayout = FixedItemSizeCollectionViewLayout(spacing: 16.0,
+                                                                                size: CGSize(width: 300, height: 300),
+                                                                                contentInsets: NSDirectionalEdgeInsets(top: 0,
+                                                                                                                       leading: 0,
+                                                                                                                       bottom: 0,
+                                                                                                                       trailing: 0))
 
         super.init(frame: .zero)
 
