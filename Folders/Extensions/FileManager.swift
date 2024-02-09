@@ -21,17 +21,23 @@
 // SOFTWARE.
 
 import Foundation
+import UniformTypeIdentifiers
+
+struct Details {
+    let url: URL
+    let contentType: UTType
+}
 
 extension FileManager {
 
-    func files(directoryURL: URL) throws -> [URL]  {
+    func files(directoryURL: URL) throws -> [Details]  {
         let date = Date()
         let resourceKeys = Set<URLResourceKey>([.nameKey, .isDirectoryKey, .contentTypeKey])
         let directoryEnumerator = enumerator(at: directoryURL,
                                              includingPropertiesForKeys: Array(resourceKeys),
                                              options: [.skipsHiddenFiles, .producesRelativePathURLs])!
 
-        var files: [URL] = []
+        var files: [Details] = []
         for case let fileURL as URL in directoryEnumerator {
             // Get the file metadata.
             let isDirectory = try fileURL
@@ -54,7 +60,7 @@ extension FileManager {
                 continue
             }
 
-            files.append(fileURL)
+            files.append(Details(url: fileURL, contentType: contentType))
         }
 
         let duration = date.distance(to: Date())
