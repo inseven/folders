@@ -182,7 +182,12 @@ extension InnerGridView: DirectoryWatcherDelegate {
         // TODO: Insert in the correct place.
         // TODO: We may need to rate-limit these updates.
         var snapshot = dataSource.snapshot()
-        snapshot.appendItems([url])
+
+        if snapshot.numberOfSections < 1 {
+            snapshot.appendSections([.none])
+        }
+
+        snapshot.appendItems([url], toSection: Section.none)
         dataSource.apply(snapshot, animatingDifferences: true)
     }
 

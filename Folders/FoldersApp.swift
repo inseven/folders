@@ -36,6 +36,7 @@ struct FoldersApp: App {
 
         WindowGroup {
             LibraryView(applicationModel: applicationModel)
+                .environmentObject(applicationModel)
         }
 
     }

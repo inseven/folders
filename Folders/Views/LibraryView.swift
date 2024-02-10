@@ -22,6 +22,87 @@
 
 import SwiftUI
 
+struct FolderSettings: Codable {
+
+    let url: URL
+
+}
+
+
+class FolderModel: ObservableObject {
+
+    let url: URL
+
+    @Published var settings: FolderSettings?
+
+    init(url: URL) {
+        self.url = url
+    }
+
+    func start() {
+        let settingsURL = url.appendingPathComponent("folders-settings.json")  // TODO: Could I get macOS to hide these for me?
+        guard FileManager.default.fileExists(atPath: settingsURL.path) else {
+            return
+        }
+        do {
+            let data = try Data(contentsOf: settingsURL)
+            let decoder = JSONDecoder()
+            let settings = try decoder.decode(FolderSettings.self, from: data)
+            self.settings = settings
+        } catch {
+            print("Failed to load folder settings with error \(error).")
+        }
+    }
+
+    func stop() {
+
+    }
+
+}
+
+struct FolderView: View {
+
+    @EnvironmentObject var applicationModel: ApplicationModel
+
+    @Environment(\.openURL) var openURL
+
+    @StateObject var folderModel: FolderModel
+
+    let url: URL
+
+    init(url: URL) {
+        self.url = url
+        _folderModel = StateObject(wrappedValue: FolderModel(url: url))
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            GridView(store: applicationModel.store, directoryURL: url)
+            if let url = folderModel.settings?.url {
+                Divider()
+                HStack {
+                    Button {
+                        openURL(url)
+                    } label: {
+                        Text(url.absoluteString)
+                    }
+                    .buttonStyle(.link)
+                }
+                .padding(8)
+                .background(.thinMaterial)
+            }
+        }
+        .navigationTitle(url.displayName)
+        .onAppear {
+            folderModel.start()
+        }
+        .onDisappear {
+            folderModel.stop()
+        }
+    }
+
+}
+
 struct LibraryView: View {
 
     @ObservedObject var applicationModel: ApplicationModel
@@ -38,8 +119,7 @@ struct LibraryView: View {
             Sidebar(applicationModel: applicationModel, sceneModel: sceneModel)
         } detail: {
             if let folderURL = sceneModel.selection?.folderURL {
-                GridView(store: applicationModel.store, directoryURL: folderURL)
-                    .navigationTitle(folderURL.displayName)
+                FolderView(url: folderURL)
                     .id(folderURL)
             }
         }
