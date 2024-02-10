@@ -23,11 +23,6 @@
 import Foundation
 import UniformTypeIdentifiers
 
-struct Details {
-    let url: URL
-    let contentType: UTType
-}
-
 extension FileManager {
 
     func files(directoryURL: URL) throws -> [Details]  {
@@ -39,21 +34,10 @@ extension FileManager {
 
         var files: [Details] = []
         for case let fileURL as URL in directoryEnumerator {
-            // Get the file metadata.
-            let isDirectory = try fileURL
-                .resourceValues(forKeys: [.isDirectoryKey])
-                .isDirectory!
-
-            // Ignore directories.
-            if isDirectory {
-                continue
-            }
-
-            // Only show images; we'll want to make this test dynamic in the future.
             guard let contentType = try fileURL.resourceValues(forKeys: [.contentTypeKey]).contentType else {
+                print("Failed to determine content type for \(fileURL).")
                 continue
             }
-
             files.append(Details(url: fileURL, contentType: contentType))
         }
 

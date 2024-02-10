@@ -179,11 +179,11 @@ extension InnerGridView: DirectoryWatcherDelegate {
     }
 
     func directoryWatcher(_ directoryWatcher: DirectoryWatcher, didInsertURL url: URL, atIndex: Int) {
-        // TODO: This performs very poorly during initial update.
-        var snapshot = Snapshot()
-        snapshot.appendSections([.none])
-        snapshot.appendItems(directoryWatcher.files, toSection: Section.none)
-        dataSource.apply(snapshot, animatingDifferences: false)
+        // TODO: Insert in the correct place.
+        // TODO: We may need to rate-limit these updates.
+        var snapshot = dataSource.snapshot()
+        snapshot.appendItems([url])
+        dataSource.apply(snapshot, animatingDifferences: true)
     }
 
 }

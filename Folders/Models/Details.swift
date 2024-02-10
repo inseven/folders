@@ -23,22 +23,7 @@
 import Foundation
 import UniformTypeIdentifiers
 
-extension UTType {
-
-    var type: String? {
-        guard let type = preferredMIMEType?.split(separator: "/").first else {
-            return nil
-        }
-        return String(type)
-    }
-
-    var subtype: String? {
-        guard let components = preferredMIMEType?.split(separator: "/"),
-              components.count > 1
-        else {
-            return nil
-        }
-        return String(components[1])
-    }
-
+struct Details {
+    let url: URL
+    let contentType: UTType
 }

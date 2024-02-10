@@ -27,7 +27,7 @@ import SQLite
 
 protocol StoreObserver: NSObject {
 
-    func store(_ store: Store, didInsertURL url: URL)
+    func store(_ store: Store, didInsert details: Details)
     func store(_ store: Store, didRemoveURL url: URL)
 
 }
@@ -42,7 +42,7 @@ class Store {
         static let subtype = Expression<String?>("subtype")
     }
 
-    static let majorVersion = 3
+    static let majorVersion = 7
 
     var observers: [StoreObserver] = []
 
@@ -153,10 +153,10 @@ class Store {
                                                        Schema.url <- details.url.path,
                                                        Schema.name <- details.url.displayName,
                                                        Schema.type <- details.contentType.type,
-                                                       Schema.subtype <- details.contentType.subtytpe))
+                                                       Schema.subtype <- details.contentType.subtype))
                 for observer in self.observers {
                     DispatchQueue.global(qos: .default).async {
-                        observer.store(self, didInsertURL: details.url)
+                        observer.store(self, didInsert: details)
                     }
                 }
 
@@ -178,11 +178,9 @@ class Store {
         }
     }
 
-    func files(parent: URL, filter: Filter = TrueFilter()) async throws -> [URL] {
+    func files(filter: Filter = TrueFilter()) async throws -> [URL] {
         return try await run { [connection] in
-            print("parent = \(parent.path), filter = \(filter)")
             return try connection.prepareRowIterator(Schema.files.select(Schema.url)
-                .filter(Schema.url.like("\(parent.path)%"))
                 .filter(filter.filter)
                 .order(Schema.name.desc))
                 .map { URL(filePath: $0[Schema.url]) }

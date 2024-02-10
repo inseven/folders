@@ -36,6 +36,7 @@ class DirectoryWatcher: NSObject, StoreObserver {
     let store: Store
     let url: URL
     let workQueue = DispatchQueue(label: "DirectoryWatcher.workQueue")
+    let filter: Filter
     var files: [URL] = []
 
     weak var delegate: DirectoryWatcherDelegate? = nil
@@ -43,6 +44,14 @@ class DirectoryWatcher: NSObject, StoreObserver {
     init(store: Store, url: URL) {
         self.store = store
         self.url = url
+
+        let pdf = UTType(mimeType: "application/pdf")!
+        let image = UTType(mimeType: "image/*")!
+        let video = UTType(mimeType: "video/*")!
+        filter = ParentFilter(parent: url.path) && (TypeFilter.conformsTo(pdf) ||
+                                                    TypeFilter.conformsTo(image) ||
+                                                    TypeFilter.conformsTo(video))
+        
         super.init()
     }
 
@@ -56,12 +65,7 @@ class DirectoryWatcher: NSObject, StoreObserver {
                 // Get them out sorted.
                 let queryStart = Date()
                 let queryDuration = queryStart.distance(to: Date())
-
-                let pdf = UTType(mimeType: "application/pdf")!
-                let image = UTType(mimeType: "image/*")!
-                let video = UTType(mimeType: "video/*")!
-
-                let sortedFiles = try await store.files(parent: url, filter: TypeFilter.conformsTo(pdf) || TypeFilter.conformsTo(image) || TypeFilter.conformsTo(video))
+                let sortedFiles = try await store.files(filter: filter)
                 print("Query took \(queryDuration.formatted()) seconds and returned \(sortedFiles.count) files.")
 
                 DispatchQueue.main.async { [self] in
@@ -80,7 +84,7 @@ class DirectoryWatcher: NSObject, StoreObserver {
         store.remove(observer: self)
     }
 
-    func store(_ store: Store, didInsertURL url: URL) {
+    func store(_ store: Store, didInsert details: Details) {
         dispatchPrecondition(condition: .notOnQueue(.main))
 
         // Ignore updates that don't match our filter (currently just the parent URL).
@@ -89,8 +93,13 @@ class DirectoryWatcher: NSObject, StoreObserver {
         }
 
         DispatchQueue.main.async {
-            self.files.append(url)
-            self.delegate?.directoryWatcher(self, didInsertURL: url, atIndex: self.files.count - 1)
+            guard self.filter.matches(details: details) else {
+                return
+            }
+
+            // TODO: Work out where to insert this and pass this through to our observer.
+            self.files.append(details.url)
+            self.delegate?.directoryWatcher(self, didInsertURL: details.url, atIndex: self.files.count - 1)
         }
     }
 
