@@ -92,7 +92,7 @@ struct OrFilter<A: Filter, B: Filter>: Filter {
     }
 
     func matches(details: Details) -> Bool {
-        return lhs.matches(details: details) || lhs.matches(details: details)
+        return lhs.matches(details: details) || rhs.matches(details: details)
     }
 
 }
@@ -120,7 +120,7 @@ struct ParentFilter: Filter {
     }
 
     func matches(details: Details) -> Bool {
-        details.url.path.starts(with: parent)
+        return details.url.path.starts(with: parent)
     }
 
 }

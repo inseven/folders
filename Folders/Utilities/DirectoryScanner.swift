@@ -62,7 +62,7 @@ class DirectoryScanner {
             switch event {
             case .itemClonedAtPath:
                 return
-            case .itemCreated(path: let path, itemType: let itemType, eventId: _, fromUs: _):
+            case .itemCreated(path: let path, itemType: _, eventId: _, fromUs: _):
                 print("File created at path '\(path)'")
                 do {
                     onFileCreation(try FileManager.default.details(for: path))
