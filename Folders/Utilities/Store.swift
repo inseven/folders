@@ -21,10 +21,10 @@
 // SOFTWARE.
 
 import Foundation
+import UniformTypeIdentifiers
 
 import SQLite
 
-// TODO: Does this need to be an NSObject?
 protocol StoreObserver: NSObject {
 
     func store(_ store: Store, didInsertURL url: URL)
@@ -38,10 +38,11 @@ class Store {
         static let files = Table("files")
         static let url = Expression<String>("url")
         static let name = Expression<String>("name")
-        static let contentType = Expression<String>("content_type")
+        static let type = Expression<String?>("type")
+        static let subtype = Expression<String?>("subtype")
     }
 
-    static let majorVersion = 1
+    static let majorVersion = 2
 
     var observers: [StoreObserver] = []
 
@@ -55,7 +56,8 @@ class Store {
             try connection.run(Schema.files.create(ifNotExists: true) { t in
                 t.column(Schema.url, primaryKey: true)
                 t.column(Schema.name)
-                t.column(Schema.contentType)
+                t.column(Schema.type)
+                t.column(Schema.subtype)
             })
         },
     ]
@@ -150,7 +152,8 @@ class Store {
                 try connection.run(Schema.files.insert(or: .fail,
                                                        Schema.url <- details.url.path,
                                                        Schema.name <- details.url.displayName,
-                                                       Schema.contentType <- details.contentType.identifier))
+                                                       Schema.type <- details.contentType.type,
+                                                       Schema.subtype <- details.contentType.subtytpe))
                 for observer in self.observers {
                     DispatchQueue.global(qos: .default).async {
                         observer.store(self, didInsertURL: details.url)
@@ -175,11 +178,12 @@ class Store {
         }
     }
 
-    func files(parent: URL) async throws -> [URL] {
+    func files(parent: URL, filter: Filter = TrueFilter()) async throws -> [URL] {
         return try await run { [connection] in
-            print("FILTER: \(parent.path)")
+            print("parent = \(parent.path), filter = \(filter)")
             return try connection.prepareRowIterator(Schema.files.select(Schema.url)
                 .filter(Schema.url.like("\(parent.path)%"))
+                .filter(filter.filter)
                 .order(Schema.name.desc))
                 .map { URL(filePath: $0[Schema.url]) }
         }
