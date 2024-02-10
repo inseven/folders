@@ -57,10 +57,11 @@ class DirectoryWatcher: NSObject, StoreObserver {
                 let queryStart = Date()
                 let queryDuration = queryStart.distance(to: Date())
 
+                let pdf = UTType(mimeType: "application/pdf")!
                 let image = UTType(mimeType: "image/*")!
                 let video = UTType(mimeType: "video/*")!
 
-                let sortedFiles = try await store.files(parent: url, filter: TypeFilter.conformsTo(image) || TypeFilter.conformsTo(video))
+                let sortedFiles = try await store.files(parent: url, filter: TypeFilter.conformsTo(pdf) || TypeFilter.conformsTo(image) || TypeFilter.conformsTo(video))
                 print("Query took \(queryDuration.formatted()) seconds and returned \(sortedFiles.count) files.")
 
                 DispatchQueue.main.async { [self] in
