@@ -42,7 +42,7 @@ class Store {
         static let subtype = Expression<String?>("subtype")
     }
 
-    static let majorVersion = 7
+    static let majorVersion = 17
 
     var observers: [StoreObserver] = []
 

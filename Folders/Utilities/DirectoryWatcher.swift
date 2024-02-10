@@ -87,11 +87,6 @@ class DirectoryWatcher: NSObject, StoreObserver {
     func store(_ store: Store, didInsert details: Details) {
         dispatchPrecondition(condition: .notOnQueue(.main))
 
-        // Ignore updates that don't match our filter (currently just the parent URL).
-        guard url.path.starts(with: self.url.path) else {
-            return
-        }
-
         DispatchQueue.main.async {
             guard self.filter.matches(details: details) else {
                 return
