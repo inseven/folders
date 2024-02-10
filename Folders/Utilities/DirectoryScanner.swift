@@ -63,10 +63,6 @@ class DirectoryScanner {
             case .itemClonedAtPath:
                 return
             case .itemCreated(path: let path, itemType: let itemType, eventId: _, fromUs: _):
-                // TODO: We want to support directories in the future.
-                guard itemType != .dir else {
-                    return
-                }
                 print("File created at path '\(path)'")
                 do {
                     onFileCreation(try FileManager.default.details(for: path))
@@ -94,6 +90,9 @@ class DirectoryScanner {
                 }
 
             case .itemRemoved(path: let path, itemType: let itemType, eventId: _, fromUs: _):
+
+                // TODO: Check if we receive individual deletions for files in a directory.
+
                 guard itemType != .dir else {
                     return
                 }

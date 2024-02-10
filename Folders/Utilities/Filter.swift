@@ -28,7 +28,8 @@ import SQLite
 
 protocol Filter {
 
-    var filter: Expression<Bool?> { get }
+    var filter: Expression<Bool> { get }
+    func matches(details: Details) -> Bool
 
 }
 
@@ -42,8 +43,12 @@ extension Filter {
 
 struct TrueFilter: Filter {
 
-    var filter: Expression<Bool?> {
+    var filter: Expression<Bool> {
         return Expression(value: true)
+    }
+
+    func matches(details: Details) -> Bool {
+        return true
     }
 
 }
@@ -58,8 +63,12 @@ struct AndFilter<A: Filter, B: Filter>: Filter {
         self.rhs = rhs
     }
 
-    var filter: Expression<Bool?> {
+    var filter: Expression<Bool> {
         return lhs.filter && rhs.filter
+    }
+
+    func matches(details: Details) -> Bool {
+        return lhs.matches(details: details) && rhs.matches(details: details)
     }
 
 }
@@ -78,8 +87,12 @@ struct OrFilter<A: Filter, B: Filter>: Filter {
         self.rhs = rhs
     }
 
-    var filter: Expression<Bool?> {
+    var filter: Expression<Bool> {
         return lhs.filter || rhs.filter
+    }
+
+    func matches(details: Details) -> Bool {
+        return lhs.matches(details: details) || lhs.matches(details: details)
     }
 
 }
@@ -94,19 +107,56 @@ enum TypeFilter {
 
 }
 
+struct ParentFilter: Filter {
+
+    let parent: String
+
+    init(parent: String) {
+        self.parent = parent
+    }
+
+    var filter: Expression<Bool> {
+        return Store.Schema.url.like("\(parent)%")
+    }
+
+    func matches(details: Details) -> Bool {
+        details.url.path.starts(with: parent)
+    }
+
+}
+
 extension TypeFilter: Filter {
 
-    var filter: Expression<Bool?> {
+    var filter: Expression<Bool> {
         switch self {
-        case .conformsTo(let type):
+        case .conformsTo(let contentType):
             var expression = Expression<Bool?>(value: true)
-            if let type = type.type {
+            if let type = contentType.type {
                 expression = expression && Store.Schema.type == type
             }
-            if let subtytpe = type.subtytpe, subtytpe != "*" {
-                expression = expression && Store.Schema.subtype == subtytpe
+            if let subtype = contentType.subtype, subtype != "*" {
+                expression = expression && Store.Schema.subtype == subtype
             }
-            return expression
+            return expression ?? false
+        }
+    }
+
+    func matches(details: Details) -> Bool {
+        switch self {
+        case .conformsTo(let contentType):
+            guard let type = contentType.type else {
+                return true
+            }
+            guard details.contentType.type == type else {
+                return false
+            }
+            guard let subtype = contentType.subtype, subtype != "*" else {
+                return true
+            }
+            guard details.contentType.subtype == subtype else {
+                return false
+            }
+            return true
         }
     }
 
