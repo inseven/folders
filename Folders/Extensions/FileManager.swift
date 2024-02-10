@@ -50,13 +50,7 @@ extension FileManager {
             }
 
             // Only show images; we'll want to make this test dynamic in the future.
-            guard let contentType = try fileURL.resourceValues(forKeys: [.contentTypeKey]).contentType,
-                  (contentType.conforms(to: .image)
-                   || contentType.conforms(to: .video)
-                   || contentType.conforms(to: .movie)
-                   || fileURL.pathExtension == "cbz"
-                   || contentType.conforms(to: .pdf))
-            else {
+            guard let contentType = try fileURL.resourceValues(forKeys: [.contentTypeKey]).contentType else {
                 continue
             }
 
