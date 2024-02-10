@@ -21,6 +21,7 @@
 // SOFTWARE.
 
 import Foundation
+import UniformTypeIdentifiers
 
 protocol DirectoryWatcherDelegate: NSObject {
 
@@ -55,7 +56,11 @@ class DirectoryWatcher: NSObject, StoreObserver {
                 // Get them out sorted.
                 let queryStart = Date()
                 let queryDuration = queryStart.distance(to: Date())
-                let sortedFiles = try await store.files(parent: url)
+
+                let image = UTType(mimeType: "image/*")!
+                let video = UTType(mimeType: "video/*")!
+
+                let sortedFiles = try await store.files(parent: url, filter: TypeFilter.conformsTo(image) || TypeFilter.conformsTo(video))
                 print("Query took \(queryDuration.formatted()) seconds and returned \(sortedFiles.count) files.")
 
                 DispatchQueue.main.async { [self] in
