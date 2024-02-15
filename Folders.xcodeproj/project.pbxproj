@@ -21,6 +21,7 @@
 		D8472A6C2B2518900070DB64 /* NSCollectionViewDiffableDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8472A6B2B2518900070DB64 /* NSCollectionViewDiffableDataSource.swift */; };
 		D8472A6E2B2518D00070DB64 /* InteractiveCollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8472A6D2B2518D00070DB64 /* InteractiveCollectionView.swift */; };
 		D855DE202AD31EC0003FE04D /* CGRect.swift in Sources */ = {isa = PBXBuildFile; fileRef = D855DE1F2AD31EC0003FE04D /* CGRect.swift */; };
+		D85C07B12B7EBC3A00C8BAA6 /* FolderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D85C07B02B7EBC3A00C8BAA6 /* FolderView.swift */; };
 		D87653B42AC9F01600E8B65D /* FoldersApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D87653B32AC9F01600E8B65D /* FoldersApp.swift */; };
 		D87653B82AC9F01800E8B65D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D87653B72AC9F01800E8B65D /* Assets.xcassets */; };
 		D87653BB2AC9F01800E8B65D /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D87653BA2AC9F01800E8B65D /* Preview Assets.xcassets */; };
@@ -71,6 +72,7 @@
 		D8472A6B2B2518900070DB64 /* NSCollectionViewDiffableDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSCollectionViewDiffableDataSource.swift; sourceTree = "<group>"; };
 		D8472A6D2B2518D00070DB64 /* InteractiveCollectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InteractiveCollectionView.swift; sourceTree = "<group>"; };
 		D855DE1F2AD31EC0003FE04D /* CGRect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CGRect.swift; sourceTree = "<group>"; };
+		D85C07B02B7EBC3A00C8BAA6 /* FolderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolderView.swift; sourceTree = "<group>"; };
 		D87653B02AC9F01600E8B65D /* Folders.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Folders.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D87653B32AC9F01600E8B65D /* FoldersApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoldersApp.swift; sourceTree = "<group>"; };
 		D87653B72AC9F01800E8B65D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -213,6 +215,7 @@
 			isa = PBXGroup;
 			children = (
 				D8472A672B2518320070DB64 /* FixedItemSizeCollectionViewLayout.swift */,
+				D85C07B02B7EBC3A00C8BAA6 /* FolderView.swift */,
 				D82B957B2B23112C00C8B6FB /* GridView.swift */,
 				D8472A6D2B2518D00070DB64 /* InteractiveCollectionView.swift */,
 				D89622E32ACD4266006F7D2E /* LibraryView.swift */,
@@ -380,6 +383,7 @@
 				D89622E42ACD4266006F7D2E /* LibraryView.swift in Sources */,
 				D8DDBCC42B2A0F8E003EAF4E /* PreviewItem.swift in Sources */,
 				D855DE202AD31EC0003FE04D /* CGRect.swift in Sources */,
+				D85C07B12B7EBC3A00C8BAA6 /* FolderView.swift in Sources */,
 				D814EA012B7EB620008BF46C /* Sort.swift in Sources */,
 				D8DDBCC82B2A1582003EAF4E /* DirectoryScanner.swift in Sources */,
 				D87653B42AC9F01600E8B65D /* FoldersApp.swift in Sources */,

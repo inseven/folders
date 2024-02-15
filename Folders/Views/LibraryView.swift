@@ -60,49 +60,6 @@ class FolderModel: ObservableObject {
 
 }
 
-struct FolderView: View {
-
-    @EnvironmentObject var applicationModel: ApplicationModel
-
-    @Environment(\.openURL) var openURL
-
-    @StateObject var folderModel: FolderModel
-
-    let url: URL
-
-    init(url: URL) {
-        self.url = url
-        _folderModel = StateObject(wrappedValue: FolderModel(url: url))
-    }
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            GridView(store: applicationModel.store, directoryURL: url)
-            if let url = folderModel.settings?.url {
-                Divider()
-                HStack {
-                    Button {
-                        openURL(url)
-                    } label: {
-                        Text(url.absoluteString)
-                    }
-                    .buttonStyle(.link)
-                }
-                .padding(8)
-                .background(.thinMaterial)
-            }
-        }
-        .navigationTitle(url.displayName)
-        .onAppear {
-            folderModel.start()
-        }
-        .onDisappear {
-            folderModel.stop()
-        }
-    }
-
-}
-
 struct LibraryView: View {
 
     @ObservedObject var applicationModel: ApplicationModel
