@@ -80,17 +80,6 @@ struct LibraryView: View {
                     .id(folderURL)
             }
         }
-        .toolbar(id: "main") {
-            ToolbarItem(id: "scale") {
-                LabeledContent {
-                    Slider(value: $size, in: 100...600)
-                        .frame(minWidth: 100)
-                } label: {
-                    Text("Preview Size")
-                }
-            }
-        }
-
     }
 
 }
