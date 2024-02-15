@@ -38,7 +38,7 @@ class Store {
         static let files = Table("files")
         static let id = Expression<Int64>("id")
         static let owner = Expression<String>("owner")
-        static let path = Expression<String>("path")  // TODO: Path?
+        static let path = Expression<String>("path")
         static let name = Expression<String>("name")
         static let type = Expression<String>("type")
     }
