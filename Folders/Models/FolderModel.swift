@@ -22,26 +22,39 @@
 
 import SwiftUI
 
-struct LibraryView: View {
+struct FolderSettings: Codable {
 
-    @ObservedObject var applicationModel: ApplicationModel
-    @StateObject var sceneModel: SceneModel
-    @State var size: CGFloat = 400
+    let url: URL
 
-    init(applicationModel: ApplicationModel) {
-        self.applicationModel = applicationModel
-        _sceneModel = StateObject(wrappedValue: SceneModel(applicationModel: applicationModel))
+}
+
+class FolderModel: ObservableObject {
+
+    let url: URL
+
+    @Published var settings: FolderSettings?
+
+    init(url: URL) {
+        self.url = url
     }
 
-    var body: some View {
-        NavigationSplitView {
-            Sidebar(applicationModel: applicationModel, sceneModel: sceneModel)
-        } detail: {
-            if let folderURL = sceneModel.selection?.folderURL {
-                FolderView(url: folderURL)
-                    .id(folderURL)
-            }
+    func start() {
+        let settingsURL = url.appendingPathComponent("folders-settings.json")  // TODO: Could I get macOS to hide these for me?
+        guard FileManager.default.fileExists(atPath: settingsURL.path) else {
+            return
         }
+        do {
+            let data = try Data(contentsOf: settingsURL)
+            let decoder = JSONDecoder()
+            let settings = try decoder.decode(FolderSettings.self, from: data)
+            self.settings = settings
+        } catch {
+            print("Failed to load folder settings with error \(error).")
+        }
+    }
+
+    func stop() {
+
     }
 
 }
