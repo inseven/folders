@@ -23,60 +23,12 @@
 import Foundation
 import UniformTypeIdentifiers
 
-import SQLite
-
 protocol StoreViewDelegate: NSObject {
 
     // TODO: Rename this.
     func directoryWatcherDidUpdate(_ directoryWatcher: StoreView)
     func directoryWatcher(_ directoryWatcher: StoreView, didInsertURL url: URL, atIndex: Int)
     func directoryWatcher(_ directoryWatcher: StoreView, didRemoveURL url: URL, atIndex: Int)
-
-}
-
-protocol Sort {
-
-    func compare(_ lhs: Details, _ rhs: Details) -> Bool
-    var order: [Expressible] { get }
-}
-
-struct DisplayNameAscending: Sort {
-
-    func compare(_ lhs: Details, _ rhs: Details) -> Bool {
-        return lhs.url.displayName.localizedStandardCompare(rhs.url.displayName) == .orderedAscending
-    }
-    
-    var order: [Expressible] {
-        return [Store.Schema.name.asc]
-    }
-
-}
-
-extension Sort where Self == DisplayNameAscending {
-
-    static var displayNameAscending: DisplayNameAscending {
-        return DisplayNameAscending()
-    }
-
-}
-
-struct DisplayNameDescending: Sort {
-
-    func compare(_ lhs: Details, _ rhs: Details) -> Bool {
-        return lhs.url.displayName.localizedStandardCompare(rhs.url.displayName) == .orderedDescending
-    }
-
-    var order: [Expressible] {
-        return [Store.Schema.name.desc]
-    }
-
-}
-
-extension Sort where Self == DisplayNameDescending {
-
-    static var displayNameDescending: DisplayNameDescending {
-        return DisplayNameDescending()
-    }
 
 }
 

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		D814EA012B7EB620008BF46C /* Sort.swift in Sources */ = {isa = PBXBuildFile; fileRef = D814EA002B7EB620008BF46C /* Sort.swift */; };
 		D82B957C2B23112C00C8B6FB /* GridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D82B957B2B23112C00C8B6FB /* GridView.swift */; };
 		D82B957F2B231A7900C8B6FB /* SQLite in Frameworks */ = {isa = PBXBuildFile; productRef = D82B957E2B231A7900C8B6FB /* SQLite */; };
 		D82B95812B231AD000C8B6FB /* Store.swift in Sources */ = {isa = PBXBuildFile; fileRef = D82B95802B231AD000C8B6FB /* Store.swift */; };
@@ -58,6 +59,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		D814EA002B7EB620008BF46C /* Sort.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sort.swift; sourceTree = "<group>"; };
 		D82B957B2B23112C00C8B6FB /* GridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GridView.swift; sourceTree = "<group>"; };
 		D82B95802B231AD000C8B6FB /* Store.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Store.swift; sourceTree = "<group>"; };
 		D83312E22B76FE4E00B994B3 /* Filter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Filter.swift; sourceTree = "<group>"; };
@@ -126,6 +128,7 @@
 			children = (
 				D8DDBCC72B2A1582003EAF4E /* DirectoryScanner.swift */,
 				D83312E22B76FE4E00B994B3 /* Filter.swift */,
+				D814EA002B7EB620008BF46C /* Sort.swift */,
 				D82B95802B231AD000C8B6FB /* Store.swift */,
 				D8472A652B2517DE0070DB64 /* StoreView.swift */,
 			);
@@ -377,6 +380,7 @@
 				D89622E42ACD4266006F7D2E /* LibraryView.swift in Sources */,
 				D8DDBCC42B2A0F8E003EAF4E /* PreviewItem.swift in Sources */,
 				D855DE202AD31EC0003FE04D /* CGRect.swift in Sources */,
+				D814EA012B7EB620008BF46C /* Sort.swift in Sources */,
 				D8DDBCC82B2A1582003EAF4E /* DirectoryScanner.swift in Sources */,
 				D87653B42AC9F01600E8B65D /* FoldersApp.swift in Sources */,
 				D89622DE2ACD3B82006F7D2E /* Settings.swift in Sources */,
