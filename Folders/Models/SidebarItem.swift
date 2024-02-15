@@ -25,36 +25,41 @@ import SwiftUI
 
 struct SidebarItem: Hashable, Identifiable {
 
-    let id = UUID()
+    enum Kind {
+        case owner
+        case folder
+    }
 
+    // TODO: This will crash if the user adds overlapping folders and needs fixing by adding the concept of a top-level owner.
+    var id: URL {
+        return folderURL
+    }
+
+    var displayName: String {
+        return folderURL.displayName
+    }
+
+    let kind: Kind
     let folderURL: URL
     let children: [SidebarItem]?
 
-    init(folderURL: URL, children: [SidebarItem]?) {
+    init(kind: Kind, folderURL: URL, children: [SidebarItem]?) {
+        self.kind = kind
         self.folderURL = folderURL
         self.children = children
     }
 
-    init(folderURL: URL) throws {
-        let fileManager = FileManager.default
-        let children = try fileManager.contentsOfDirectory(at: folderURL,
-                                                           includingPropertiesForKeys: [.nameKey, .isDirectoryKey],
-                                                           options: .skipsHiddenFiles)
-            .compactMap { fileURL -> URL? in
-                let isDirectory = try fileURL
-                    .resourceValues(forKeys: [.isDirectoryKey])
-                    .isDirectory!
-                guard isDirectory else {
-                    return nil
-                }
-                return fileURL
-            }
-            .map { folderURL in
-                return try SidebarItem(folderURL: folderURL)
-            }
-            .sorted { $0.folderURL.displayName.localizedStandardCompare($1.folderURL.displayName) == .orderedAscending }
-        self.folderURL = folderURL
-        self.children = children.isEmpty ? nil : children
+}
+
+extension SidebarItem {
+
+    var systemImage: String {
+        switch kind {
+        case .owner:
+            return "archivebox"
+        case .folder:
+            return "folder"
+        }
     }
 
 }

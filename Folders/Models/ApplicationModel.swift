@@ -23,33 +23,30 @@
 import Combine
 import SwiftUI
 
-class ApplicationModel: ObservableObject {
+class ApplicationModel: NSObject, ObservableObject {
 
     private let settings = Settings()
 
     let store: Store
     var scanners: [DirectoryScanner] = []
+    var directoriesView: StoreView
 
     @Published var sidebarItems: [SidebarItem]
+    @Published var lookup: [URL: SidebarItem] = [:]
+    @Published var dynamicSidebarItems: [SidebarItem] = []
 
     var cancellables = Set<AnyCancellable>()
 
-    init() {
-        do {
+    override init() {
 
-            // Load the scanners.
-            scanners = settings.rootURLs.map { url in
-                DirectoryScanner(url: url)
-            }
+        // Load the scanners.
+        scanners = settings.rootURLs.map { url in
+            DirectoryScanner(url: url)
+        }
 
-            // Load the sidebar items.
-            sidebarItems = try settings.rootURLs.map { folderURL in
-                return try SidebarItem(folderURL: folderURL)
-            }
-
-        } catch {
-            print("Failed to load sidebar items with error \(error).")
-            sidebarItems = []
+        // Load the sidebar items.
+        sidebarItems = settings.rootURLs.map { folderURL in
+            return SidebarItem(kind: .owner, folderURL: folderURL, children: nil)
         }
 
         let applicationSupportURL = FileManager.default.urls(for: .applicationSupportDirectory,
@@ -68,7 +65,14 @@ class ApplicationModel: ObservableObject {
 
         // Open the database, creating a new one if necessary.
         let storeURL = applicationSupportURL.appendingPathComponent("store_\(Store.majorVersion).sqlite")
+        print("Opening database at '\(storeURL.path)'...")
         self.store = try! Store(databaseURL: storeURL)
+
+        self.directoriesView = StoreView(store: store, filter: .conforms(to: .directory) || .conforms(to: .folder))
+
+        super.init()
+
+        self.directoriesView.delegate = self
 
         // Start the scanners.
         for scanner in scanners {
@@ -78,6 +82,8 @@ class ApplicationModel: ObservableObject {
     }
 
     func start(scanner: DirectoryScanner) {
+
+        // TODO: This should be extracted out from here.
         scanner.start { [store] details in
             // TODO: Maybe allow this to rethrow and catch it at the top level to make the code cleaner?
             do {
@@ -88,7 +94,7 @@ class ApplicationModel: ObservableObject {
                 let insertDuration = insertStart.distance(to: Date())
                 print("Insert took \(insertDuration.formatted()) seconds.")
             } catch {
-                print("FAILED TO INSERT UPDATES WITH ERROR \(error).")
+                print("Failed to insert updates with error \(error).")
             }
         } onFileCreation: { [store] details in
             do {
@@ -103,6 +109,22 @@ class ApplicationModel: ObservableObject {
                 print("Failed to perform deletion update with error \(error).")
             }
         }
+
+        $sidebarItems
+            .combineLatest($lookup)
+            .receive(on: DispatchQueue.main)
+            .map { sidebarItems, lookup in
+                return sidebarItems.map { sidebarItem in
+                    let children = lookup[sidebarItem.folderURL]?.children ?? nil
+                    return SidebarItem(kind: sidebarItem.kind, folderURL: sidebarItem.folderURL, children: children)
+                }.sorted { lhs, rhs in
+                    return lhs.displayName.localizedStandardCompare(rhs.displayName) == .orderedAscending
+                }
+                // TODO: Consider sorting here.
+            }
+            .assign(to: \.dynamicSidebarItems, on: self)
+            .store(in: &cancellables)
+
     }
 
     func start() {
@@ -112,10 +134,12 @@ class ApplicationModel: ObservableObject {
             .receive(on: DispatchQueue.main)
             .assign(to: \.rootURLs, on: settings)
             .store(in: &cancellables)
+        directoriesView.start()
     }
 
     func stop() {
         cancellables.removeAll()
+        directoriesView.stop()
     }
 
     func add() -> SidebarItem? {
@@ -135,7 +159,7 @@ class ApplicationModel: ObservableObject {
         }
 
         // Create the new sidebar item.
-        let sidebarItem = try! SidebarItem(folderURL: url)
+        let sidebarItem = SidebarItem(kind: .owner, folderURL: url, children: nil)
         sidebarItems.append(sidebarItem)
 
         // Create a new scanner.
@@ -153,9 +177,65 @@ class ApplicationModel: ObservableObject {
             scanner.stop()
         }
 
-        // TODO: Delete the entries from the database.
+        // Remove the entires from the database.
+        do {
+            try store.removeBlocking(owner: url)
+        } catch {
+            // TODO: Better error handling.
+            print("Failed to remove files with error \(error).")
+        }
 
         sidebarItems.removeAll { $0.folderURL == url }
+    }
+
+}
+
+extension ApplicationModel: StoreViewDelegate {
+
+    // TODO: Static?
+    func sidebarItems(for files: [Details]) -> [URL: SidebarItem] {
+        var owners = Set<URL>()
+
+        var items = [URL: SidebarItem]()
+
+        // TODO: This is copying the structure. It would be better not to do that.
+        for details in files {
+
+            owners.insert(details.owner)
+
+            // Get or create the current node and parent node.
+            let item = items[details.url] ?? SidebarItem(kind: .folder, folderURL: details.url, children: nil)
+            var parent = items[details.parentURL] ?? SidebarItem(kind: .folder, folderURL: details.parentURL, children: nil)
+
+            // Update the parent node.
+            parent = SidebarItem(kind: parent.kind, folderURL: parent.folderURL, children: (parent.children ?? []) + [item])
+
+            // Set the nodes.
+            items[item.folderURL] = item
+            items[parent.folderURL] = parent
+        }
+
+        return items
+    }
+
+    func directoryWatcherDidUpdate(_ directoryWatcher: StoreView) {
+        self.lookup = sidebarItems(for: directoryWatcher.files)
+    }
+
+    func debugPrint(sidebarItem: SidebarItem, indent: Int = 0) {
+        let padding = String(repeating: " ", count: indent)
+        print("\(padding)\(sidebarItem.folderURL.path) (\(sidebarItem.children?.count ?? 0))")
+        for child in sidebarItem.children ?? [] {
+            debugPrint(sidebarItem: child, indent: indent + 2)
+        }
+    }
+
+    func directoryWatcher(_ directoryWatcher: StoreView, didInsertURL url: URL, atIndex: Int) {
+        self.lookup = sidebarItems(for: directoryWatcher.files)
+    }
+
+    func directoryWatcher(_ directoryWatcher: StoreView, didRemoveURL url: URL, atIndex: Int) {
+        self.lookup = sidebarItems(for: directoryWatcher.files)
     }
 
 }

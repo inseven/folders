@@ -12,10 +12,9 @@
 		D82B95812B231AD000C8B6FB /* Store.swift in Sources */ = {isa = PBXBuildFile; fileRef = D82B95802B231AD000C8B6FB /* Store.swift */; };
 		D82B95842B23DC2B00C8B6FB /* FSEventsWrapper in Frameworks */ = {isa = PBXBuildFile; productRef = D82B95832B23DC2B00C8B6FB /* FSEventsWrapper */; };
 		D83312E32B76FE4E00B994B3 /* Filter.swift in Sources */ = {isa = PBXBuildFile; fileRef = D83312E22B76FE4E00B994B3 /* Filter.swift */; };
-		D83312E72B7700DA00B994B3 /* UTType.swift in Sources */ = {isa = PBXBuildFile; fileRef = D83312E62B7700DA00B994B3 /* UTType.swift */; };
 		D83312E92B77132B00B994B3 /* Details.swift in Sources */ = {isa = PBXBuildFile; fileRef = D83312E82B77132B00B994B3 /* Details.swift */; };
 		D8472A642B2517A50070DB64 /* ShortcutItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8472A632B2517A50070DB64 /* ShortcutItemView.swift */; };
-		D8472A662B2517DE0070DB64 /* DirectoryWatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8472A652B2517DE0070DB64 /* DirectoryWatcher.swift */; };
+		D8472A662B2517DE0070DB64 /* StoreView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8472A652B2517DE0070DB64 /* StoreView.swift */; };
 		D8472A682B2518320070DB64 /* FixedItemSizeCollectionViewLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8472A672B2518320070DB64 /* FixedItemSizeCollectionViewLayout.swift */; };
 		D8472A6A2B2518600070DB64 /* NSWorkspace.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8472A692B2518600070DB64 /* NSWorkspace.swift */; };
 		D8472A6C2B2518900070DB64 /* NSCollectionViewDiffableDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8472A6B2B2518900070DB64 /* NSCollectionViewDiffableDataSource.swift */; };
@@ -62,10 +61,9 @@
 		D82B957B2B23112C00C8B6FB /* GridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GridView.swift; sourceTree = "<group>"; };
 		D82B95802B231AD000C8B6FB /* Store.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Store.swift; sourceTree = "<group>"; };
 		D83312E22B76FE4E00B994B3 /* Filter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Filter.swift; sourceTree = "<group>"; };
-		D83312E62B7700DA00B994B3 /* UTType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UTType.swift; sourceTree = "<group>"; };
 		D83312E82B77132B00B994B3 /* Details.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Details.swift; sourceTree = "<group>"; };
 		D8472A632B2517A50070DB64 /* ShortcutItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShortcutItemView.swift; sourceTree = "<group>"; };
-		D8472A652B2517DE0070DB64 /* DirectoryWatcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DirectoryWatcher.swift; sourceTree = "<group>"; };
+		D8472A652B2517DE0070DB64 /* StoreView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreView.swift; sourceTree = "<group>"; };
 		D8472A672B2518320070DB64 /* FixedItemSizeCollectionViewLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FixedItemSizeCollectionViewLayout.swift; sourceTree = "<group>"; };
 		D8472A692B2518600070DB64 /* NSWorkspace.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSWorkspace.swift; sourceTree = "<group>"; };
 		D8472A6B2B2518900070DB64 /* NSCollectionViewDiffableDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSCollectionViewDiffableDataSource.swift; sourceTree = "<group>"; };
@@ -127,9 +125,9 @@
 			isa = PBXGroup;
 			children = (
 				D8DDBCC72B2A1582003EAF4E /* DirectoryScanner.swift */,
-				D8472A652B2517DE0070DB64 /* DirectoryWatcher.swift */,
-				D82B95802B231AD000C8B6FB /* Store.swift */,
 				D83312E22B76FE4E00B994B3 /* Filter.swift */,
+				D82B95802B231AD000C8B6FB /* Store.swift */,
+				D8472A652B2517DE0070DB64 /* StoreView.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -204,7 +202,6 @@
 				D8472A6B2B2518900070DB64 /* NSCollectionViewDiffableDataSource.swift */,
 				D8472A692B2518600070DB64 /* NSWorkspace.swift */,
 				D87653E12AC9F39100E8B65D /* URL.swift */,
-				D83312E62B7700DA00B994B3 /* UTType.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -304,7 +301,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1500;
-				LastUpgradeCheck = 1500;
+				LastUpgradeCheck = 1520;
 				TargetAttributes = {
 					D87653AF2AC9F01600E8B65D = {
 						CreatedOnToolsVersion = 15.0;
@@ -386,13 +383,12 @@
 				D8DDBCC62B2A1317003EAF4E /* FileManager.swift in Sources */,
 				D89622DB2ACD394A006F7D2E /* ApplicationModel.swift in Sources */,
 				D89622E22ACD4200006F7D2E /* Sidebar.swift in Sources */,
-				D83312E72B7700DA00B994B3 /* UTType.swift in Sources */,
 				D8472A682B2518320070DB64 /* FixedItemSizeCollectionViewLayout.swift in Sources */,
 				D8472A6E2B2518D00070DB64 /* InteractiveCollectionView.swift in Sources */,
 				D83312E92B77132B00B994B3 /* Details.swift in Sources */,
 				D83312E32B76FE4E00B994B3 /* Filter.swift in Sources */,
 				D879E3452AD27C7B00A021E0 /* SidebarItem.swift in Sources */,
-				D8472A662B2517DE0070DB64 /* DirectoryWatcher.swift in Sources */,
+				D8472A662B2517DE0070DB64 /* StoreView.swift in Sources */,
 				D82B95812B231AD000C8B6FB /* Store.swift in Sources */,
 				D89622E02ACD3B9A006F7D2E /* FoldersError.swift in Sources */,
 				D82B957C2B23112C00C8B6FB /* GridView.swift in Sources */,
@@ -469,6 +465,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -532,6 +529,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -562,8 +560,9 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"Folders/Preview Content\"";
-				DEVELOPMENT_TEAM = QS82QFHKWB;
+				DEVELOPMENT_TEAM = 9GNGYP6YR7;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -592,6 +591,7 @@
 				CODE_SIGN_STYLE = Manual;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"Folders/Preview Content\"";
 				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=macosx*]" = QS82QFHKWB;
@@ -622,7 +622,8 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = S4WXAUZQEV;
+				DEAD_CODE_STRIPPING = YES;
+				DEVELOPMENT_TEAM = 9GNGYP6YR7;
 				GENERATE_INFOPLIST_FILE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MARKETING_VERSION = 1.0;
@@ -641,6 +642,7 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = S4WXAUZQEV;
 				GENERATE_INFOPLIST_FILE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
@@ -659,6 +661,7 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = S4WXAUZQEV;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
@@ -676,6 +679,7 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = S4WXAUZQEV;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;

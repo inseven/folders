@@ -36,13 +36,14 @@ class Store {
 
     struct Schema {
         static let files = Table("files")
-        static let url = Expression<String>("url")
+        static let id = Expression<Int64>("id")
+        static let owner = Expression<String>("owner")
+        static let path = Expression<String>("path")  // TODO: Path?
         static let name = Expression<String>("name")
-        static let type = Expression<String?>("type")
-        static let subtype = Expression<String?>("subtype")
+        static let type = Expression<String>("type")
     }
 
-    static let majorVersion = 18
+    static let majorVersion = 25
 
     var observers: [StoreObserver] = []
 
@@ -54,11 +55,13 @@ class Store {
         1: { connection in
             print("create the files table...")
             try connection.run(Schema.files.create(ifNotExists: true) { t in
-                t.column(Schema.url, primaryKey: true)
+                t.column(Schema.id, primaryKey: true)
+                t.column(Schema.owner)
+                t.column(Schema.path)
                 t.column(Schema.name)
                 t.column(Schema.type)
-                t.column(Schema.subtype)
             })
+            try connection.run(Schema.files.createIndex(Schema.path))
         },
     ]
 
@@ -143,17 +146,17 @@ class Store {
             try connection.transaction {
 
                 // Check to see if the URL exists already.
-                let existingURL = try connection.pluck(Schema.files.filter(Schema.url == details.url.path).limit(1))
+                let existingURL = try connection.pluck(Schema.files.filter(Schema.path == details.url.path).limit(1))
                 guard existingURL == nil else {
                     return
                 }
 
                 // If it does not, we insert it.
                 try connection.run(Schema.files.insert(or: .fail,
-                                                       Schema.url <- details.url.path,
+                                                       Schema.owner <- details.owner.path,
+                                                       Schema.path <- details.url.path,
                                                        Schema.name <- details.url.displayName,
-                                                       Schema.type <- details.contentType.type,
-                                                       Schema.subtype <- details.contentType.subtype))
+                                                       Schema.type <- details.contentType.identifier))
                 for observer in self.observers {
                     DispatchQueue.global(qos: .default).async {
                         observer.store(self, didInsert: details)
@@ -166,24 +169,55 @@ class Store {
 
     func removeBlocking(url: URL) throws {
         return try runBlocking { [connection] in
-            let count = try connection.run(Schema.files.filter(Schema.url == url.path).delete())
+            let count = try connection.run(Schema.files.filter(Schema.path == url.path).delete())
             print("Deleted \(count) rows.")
-            if count > 0 {
-                for observer in self.observers {
-                    DispatchQueue.global(qos: .default).async {
-                        observer.store(self, didRemoveURL: url)
-                    }
+            guard count > 0 else {
+                return
+            }
+            for observer in self.observers {
+                DispatchQueue.global(qos: .default).async {
+                    observer.store(self, didRemoveURL: url)
                 }
             }
         }
     }
 
-    func files(filter: Filter = TrueFilter()) async throws -> [URL] {
+    func removeBlocking(owner: URL) throws {
+        return try runBlocking { [connection] in
+            let count = try connection.run(Schema.files.filter(Schema.owner == owner.path).delete())
+            print("Deleted \(count) rows.")
+            // TODO: Consider notifying our clients (though this is probably unnecessary and noisy).
+        }
+    }
+
+    // TODO: Convenience constructor?
+    func mime(type: String?, subtype: String?) -> String {
+        guard let type else {
+            return "*"
+        }
+        guard let subtype else {
+            return "\(type)/*"
+        }
+        return "\(type)/\(subtype)"
+    }
+
+    func files(filter: Filter, sort: Sort) async throws -> [Details] {
         return try await run { [connection] in
-            return try connection.prepareRowIterator(Schema.files.select(Schema.url)
+            return try connection.prepareRowIterator(Schema.files.select(Schema.owner, Schema.path, Schema.type)
                 .filter(filter.filter)
-                .order(Schema.name.desc))
-                .map { URL(filePath: $0[Schema.url]) }
+                .order(sort.order))
+            .map { row in
+                // TODO: Support opaque owners?
+                let type = UTType(row[Schema.type])!
+                let owner = URL(filePath: row[Schema.owner], directoryHint: .isDirectory)
+                let url = URL(filePath: row[Schema.path], directoryHint: type == .folder ? .isDirectory : .notDirectory)
+
+
+                // TODO: Should the mime type be required?
+                // TODO: This isn't guarnateed to reconstruct the correct UTType
+
+                return Details(owner: owner, url: url, contentType: type)
+            }
         }
     }
 

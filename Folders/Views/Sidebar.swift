@@ -28,19 +28,21 @@ struct Sidebar: View {
     @ObservedObject var sceneModel: SceneModel
 
     var body: some View {
-        List(applicationModel.sidebarItems, id: \.self, children: \.children, selection: $sceneModel.selection) { item in
-            Label(item.folderURL.displayName, systemImage: "folder")
+        List(applicationModel.dynamicSidebarItems, id: \.self, children: \.children, selection: $sceneModel.selection) { item in
+            Label(item.folderURL.displayName, systemImage: item.systemImage)
                 .contextMenu {
                     Button {
                         NSWorkspace.shared.reveal(item.folderURL)
                     } label: {
                         Text("Reveal in Finder")
                     }
-                    Divider()
-                    Button(role: .destructive) {
-                        applicationModel.remove(item.folderURL)
-                    } label: {
-                        Label("Remove", systemImage: "trash")
+                    if item.kind == .owner {
+                        Divider()
+                        Button(role: .destructive) {
+                            applicationModel.remove(item.folderURL)
+                        } label: {
+                            Label("Remove", systemImage: "trash")
+                        }
                     }
                 }
         }
