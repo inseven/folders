@@ -23,35 +23,77 @@
 import Foundation
 import UniformTypeIdentifiers
 
-protocol DirectoryWatcherDelegate: NSObject {
+import SQLite
 
-    func directoryWatcherDidUpdate(_ directoryWatcher: DirectoryWatcher)
-    func directoryWatcher(_ directoryWatcher: DirectoryWatcher, didInsertURL url: URL, atIndex: Int)
+protocol StoreViewDelegate: NSObject {
+
+    // TODO: Rename this.
+    func directoryWatcherDidUpdate(_ directoryWatcher: StoreView)
+    func directoryWatcher(_ directoryWatcher: StoreView, didInsertURL url: URL, atIndex: Int)
+    func directoryWatcher(_ directoryWatcher: StoreView, didRemoveURL url: URL, atIndex: Int)
 
 }
 
-// TODO: Maybe don't make this an NSObject
-class DirectoryWatcher: NSObject, StoreObserver {
+protocol Sort {
+
+    func compare(_ lhs: Details, _ rhs: Details) -> Bool
+    var order: [Expressible] { get }
+}
+
+struct DisplayNameAscending: Sort {
+
+    func compare(_ lhs: Details, _ rhs: Details) -> Bool {
+        return lhs.url.displayName.localizedStandardCompare(rhs.url.displayName) == .orderedAscending
+    }
+    
+    var order: [Expressible] {
+        return [Store.Schema.name.asc]
+    }
+
+}
+
+extension Sort where Self == DisplayNameAscending {
+
+    static var displayNameAscending: DisplayNameAscending {
+        return DisplayNameAscending()
+    }
+
+}
+
+struct DisplayNameDescending: Sort {
+
+    func compare(_ lhs: Details, _ rhs: Details) -> Bool {
+        return lhs.url.displayName.localizedStandardCompare(rhs.url.displayName) == .orderedDescending
+    }
+
+    var order: [Expressible] {
+        return [Store.Schema.name.desc]
+    }
+
+}
+
+extension Sort where Self == DisplayNameDescending {
+
+    static var displayNameDescending: DisplayNameDescending {
+        return DisplayNameDescending()
+    }
+
+}
+
+class StoreView: NSObject, StoreObserver {
 
     let store: Store
-    let url: URL
-    let workQueue = DispatchQueue(label: "DirectoryWatcher.workQueue")
+    let workQueue = DispatchQueue(label: "StoreView.workQueue")
     let filter: Filter
-    var files: [URL] = []
+    let sort: Sort
+    var files: [Details] = []
 
-    weak var delegate: DirectoryWatcherDelegate? = nil
+    weak var delegate: StoreViewDelegate? = nil
 
-    init(store: Store, url: URL) {
+    init(store: Store, filter: Filter = TrueFilter(), sort: Sort = .displayNameAscending) {
         self.store = store
-        self.url = url
-
-        let pdf = UTType(mimeType: "application/pdf")!
-        let image = UTType(mimeType: "image/*")!
-        let video = UTType(mimeType: "video/*")!
-        filter = ParentFilter(parent: url.path) && (TypeFilter.conformsTo(pdf) ||
-                                                    TypeFilter.conformsTo(image) ||
-                                                    TypeFilter.conformsTo(video))
-        
+        self.filter = filter
+        self.sort = sort
         super.init()
     }
 
@@ -65,7 +107,7 @@ class DirectoryWatcher: NSObject, StoreObserver {
                 // Get them out sorted.
                 let queryStart = Date()
                 let queryDuration = queryStart.distance(to: Date())
-                let sortedFiles = try await store.files(filter: filter)
+                let sortedFiles = try await store.files(filter: filter, sort: sort)
                 print("Query took \(queryDuration.formatted()) seconds and returned \(sortedFiles.count) files.")
 
                 DispatchQueue.main.async { [self] in
@@ -86,23 +128,28 @@ class DirectoryWatcher: NSObject, StoreObserver {
 
     func store(_ store: Store, didInsert details: Details) {
         dispatchPrecondition(condition: .notOnQueue(.main))
-
         DispatchQueue.main.async {
             guard self.filter.matches(details: details) else {
                 return
             }
 
             // TODO: Work out where to insert this and pass this through to our observer.
-            self.files.append(details.url)
+            self.files.append(details)
+//            self.files.sorted(using: SortComparator)
             self.delegate?.directoryWatcher(self, didInsertURL: details.url, atIndex: self.files.count - 1)
         }
     }
 
+    // TODO: Delegate remove!!
+    // TODO: This call back needs to accept details?
     func store(_ store: Store, didRemoveURL url: URL) {
         dispatchPrecondition(condition: .notOnQueue(.main))
         DispatchQueue.main.async {
-            self.files.removeAll { $0 == url }
-            self.delegate?.directoryWatcher(self, didInsertURL: url, atIndex: self.files.count - 1)
+            guard let index = self.files.firstIndex(where: { $0.url == url }) else {
+                return
+            }
+            self.files.remove(at: index)
+            self.delegate?.directoryWatcher(self, didRemoveURL: url, atIndex: index)
         }
     }
 

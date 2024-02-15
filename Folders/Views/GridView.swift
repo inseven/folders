@@ -41,7 +41,7 @@ struct GridView: NSViewRepresentable {
 
 class InnerGridView: NSView {
 
-    let directoryWatcher: DirectoryWatcher
+    let directoryWatcher: StoreView
     var previewPanel: QLPreviewPanel?
 
     enum Section {
@@ -63,7 +63,8 @@ class InnerGridView: NSView {
     }
 
     init(store: Store, directoryURL: URL) {
-        self.directoryWatcher = DirectoryWatcher(store: store, url: directoryURL)
+        let filter: Filter = .parent(directoryURL) && (.conforms(to: .pdf) || .conforms(to: .jpeg) || .conforms(to: .gif) || .conforms(to: .png) || .conforms(to: .video) || .conforms(to: .mpeg4Movie) || .conforms(to: UTType(filenameExtension: "cbz")!) || .conforms(to: UTType(filenameExtension: "stl")!))
+        self.directoryWatcher = StoreView(store: store, filter: filter, sort: .displayNameDescending)
 
         scrollView = NSScrollView()
         scrollView.translatesAutoresizingMaskIntoConstraints = false
@@ -166,19 +167,19 @@ extension InnerGridView: QLPreviewPanelDataSource, QLPreviewPanelDelegate {
 
 }
 
-extension InnerGridView: DirectoryWatcherDelegate {
+extension InnerGridView: StoreViewDelegate {
 
-    func directoryWatcherDidUpdate(_ directoryWatcher: DirectoryWatcher) {
+    func directoryWatcherDidUpdate(_ directoryWatcher: StoreView) {
         print("Scanned \(directoryWatcher.files.count) files.")
 
         // Update the items.
         var snapshot = Snapshot()
         snapshot.appendSections([.none])
-        snapshot.appendItems(directoryWatcher.files, toSection: Section.none)
+        snapshot.appendItems(directoryWatcher.files.map({ $0.url }), toSection: Section.none)
         dataSource.apply(snapshot, animatingDifferences: false)
     }
 
-    func directoryWatcher(_ directoryWatcher: DirectoryWatcher, didInsertURL url: URL, atIndex: Int) {
+    func directoryWatcher(_ directoryWatcher: StoreView, didInsertURL url: URL, atIndex: Int) {
         // TODO: Insert in the correct place.
         // TODO: We may need to rate-limit these updates.
         var snapshot = dataSource.snapshot()
@@ -188,6 +189,12 @@ extension InnerGridView: DirectoryWatcherDelegate {
         }
 
         snapshot.appendItems([url], toSection: Section.none)
+        dataSource.apply(snapshot, animatingDifferences: true)
+    }
+
+    func directoryWatcher(_ directoryWatcher: StoreView, didRemoveURL url: URL, atIndex: Int) {
+        var snapshot = dataSource.snapshot()
+        snapshot.deleteItems([url])
         dataSource.apply(snapshot, animatingDifferences: true)
     }
 
@@ -220,8 +227,20 @@ extension InnerGridView: InteractiveCollectionViewDelegate {
         guard let urls = sender.representedObject as? [URL] else {
             return
         }
-        print(urls)
         showPreview()
+    }
+
+    @objc func moveToTrash(sender: NSMenuItem) {
+        guard let urls = sender.representedObject as? [URL] else {
+            return
+        }
+        for url in urls {
+            do {
+                try FileManager.default.trashItem(at: url, resultingItemURL: nil)
+            } catch {
+                print("Failed to trash item with error \(error).")
+            }
+        }
     }
 
     func showPreview() {
@@ -248,6 +267,8 @@ extension InnerGridView: InteractiveCollectionViewDelegate {
             NSMenuItem(title: "Preview", action: #selector(preview(sender:)), keyEquivalent: ""),
             .separator(),
             NSMenuItem(title: "Reveal in Finder", action: #selector(reveal(sender:)), keyEquivalent: ""),
+            .separator(),
+            NSMenuItem(title: "Move to Trash", action: #selector(moveToTrash(sender:)), keyEquivalent: ""),
             .separator(),
             NSMenuItem(title: "Set Wallpaper", action: #selector(setWallpaper(sender:)), keyEquivalent: ""),
         ]

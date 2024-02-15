@@ -38,13 +38,30 @@ extension FileManager {
                 print("Failed to determine content type for \(fileURL).")
                 continue
             }
-            files.append(Details(url: fileURL, contentType: contentType))
+            files.append(Details(owner: directoryURL, url: fileURL, contentType: contentType))
         }
 
         let duration = date.distance(to: Date())
         print("Listing for '\(directoryURL.displayName)' took \(duration.formatted()) seconds (\(files.count) files).")
 
         return files
+    }
+
+    func details(for path: String, owner: URL) throws -> Details {
+        let url = URL(filePath: path)
+        return try details(for: url, owner: owner)
+    }
+
+    func details(for url: URL, owner: URL) throws -> Details {
+        guard let isDirectory = try url.resourceValues(forKeys: [.isDirectoryKey]).isDirectory else {
+            throw FoldersError.general("Unable to get directory type for file '\(url.path)'.")
+        }
+
+        guard let contentType = try url.resourceValues(forKeys: [.contentTypeKey]).contentType else {
+            throw FoldersError.general("Unable to get content type for file '\(url.path)'.")
+        }
+
+        return Details(owner: owner, url: url, contentType: isDirectory ? .directory : contentType)
     }
 
 }

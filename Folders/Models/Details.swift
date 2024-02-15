@@ -24,6 +24,12 @@ import Foundation
 import UniformTypeIdentifiers
 
 struct Details {
+    let owner: URL
     let url: URL
     let contentType: UTType
+
+    var parentURL: URL {
+        return url.deletingLastPathComponent()
+    }
+
 }

@@ -33,10 +33,22 @@ protocol Filter {
 
 }
 
-extension Filter {
+extension Filter where Self == TypeFilter {
 
-    static func conforms(to type: UTType) -> Filter {
+    static func conforms(to type: UTType) -> TypeFilter {
         return TypeFilter.conformsTo(type)
+    }
+
+}
+
+extension Filter where Self == ParentFilter {
+
+    static func parent(_ url: URL) -> ParentFilter {
+        return ParentFilter(parent: url.path)
+    }
+
+    static func parent(_ parent: String) -> ParentFilter {
+        return ParentFilter(parent: parent)
     }
 
 }
@@ -116,11 +128,41 @@ struct ParentFilter: Filter {
     }
 
     var filter: Expression<Bool> {
-        return Store.Schema.url.like("\(parent)%")
+        return Store.Schema.path.like("\(parent)%")
     }
 
     func matches(details: Details) -> Bool {
         return details.url.path.starts(with: parent)
+    }
+
+}
+
+struct OwnerFilter: Filter {
+
+    let owner: String
+
+    init(owner: String) {
+        self.owner = owner
+    }
+
+    var filter: Expression<Bool> {
+        return Store.Schema.path == owner
+    }
+
+    func matches(details: Details) -> Bool {
+        return details.owner.path == owner
+    }
+
+}
+
+extension Filter where Self == OwnerFilter {
+
+    static func owner(_ owner: URL) -> OwnerFilter {
+        return OwnerFilter(owner: owner.path)
+    }
+
+    static func owner(_ owner: String) -> OwnerFilter {
+        return OwnerFilter(owner: owner)
     }
 
 }
@@ -130,33 +172,14 @@ extension TypeFilter: Filter {
     var filter: Expression<Bool> {
         switch self {
         case .conformsTo(let contentType):
-            var expression = Expression<Bool?>(value: true)
-            if let type = contentType.type {
-                expression = expression && Store.Schema.type == type
-            }
-            if let subtype = contentType.subtype, subtype != "*" {
-                expression = expression && Store.Schema.subtype == subtype
-            }
-            return expression ?? false
+            return Store.Schema.type == contentType.identifier
         }
     }
 
     func matches(details: Details) -> Bool {
         switch self {
         case .conformsTo(let contentType):
-            guard let type = contentType.type else {
-                return true
-            }
-            guard details.contentType.type == type else {
-                return false
-            }
-            guard let subtype = contentType.subtype, subtype != "*" else {
-                return true
-            }
-            guard details.contentType.subtype == subtype else {
-                return false
-            }
-            return true
+            return details.contentType == contentType
         }
     }
 
