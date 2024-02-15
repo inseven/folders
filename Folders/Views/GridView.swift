@@ -41,7 +41,7 @@ struct GridView: NSViewRepresentable {
 
 class InnerGridView: NSView {
 
-    let directoryWatcher: StoreView
+    let storeView: StoreView
     var previewPanel: QLPreviewPanel?
 
     enum Section {
@@ -64,7 +64,7 @@ class InnerGridView: NSView {
 
     init(store: Store, directoryURL: URL) {
         let filter: Filter = .parent(directoryURL) && (.conforms(to: .pdf) || .conforms(to: .jpeg) || .conforms(to: .gif) || .conforms(to: .png) || .conforms(to: .video) || .conforms(to: .mpeg4Movie) || .conforms(to: UTType(filenameExtension: "cbz")!) || .conforms(to: UTType(filenameExtension: "stl")!) || .conforms(to: .mp3))
-        self.directoryWatcher = StoreView(store: store, filter: filter, sort: .displayNameDescending)
+        self.storeView = StoreView(store: store, filter: filter, sort: .displayNameDescending)
 
         scrollView = NSScrollView()
         scrollView.translatesAutoresizingMaskIntoConstraints = false
@@ -115,8 +115,8 @@ class InnerGridView: NSView {
         collectionView.isSelectable = true
         collectionView.allowsMultipleSelection = true
 
-        self.directoryWatcher.delegate = self
-        self.directoryWatcher.start()
+        self.storeView.delegate = self
+        self.storeView.start()
     }
     
     required init?(coder: NSCoder) {
@@ -169,17 +169,17 @@ extension InnerGridView: QLPreviewPanelDataSource, QLPreviewPanelDelegate {
 
 extension InnerGridView: StoreViewDelegate {
 
-    func directoryWatcherDidUpdate(_ directoryWatcher: StoreView) {
-        print("Scanned \(directoryWatcher.files.count) files.")
+    func storeViewDidUpdate(_ storeView: StoreView) {
+        print("Scanned \(storeView.files.count) files.")
 
         // Update the items.
         var snapshot = Snapshot()
         snapshot.appendSections([.none])
-        snapshot.appendItems(directoryWatcher.files.map({ $0.url }), toSection: Section.none)
+        snapshot.appendItems(storeView.files.map({ $0.url }), toSection: Section.none)
         dataSource.apply(snapshot, animatingDifferences: false)
     }
 
-    func directoryWatcher(_ directoryWatcher: StoreView, didInsertURL url: URL, atIndex: Int) {
+    func storeView(_ storeView: StoreView, didInsertURL url: URL, atIndex: Int) {
         // TODO: Insert in the correct place.
         // TODO: We may need to rate-limit these updates.
         var snapshot = dataSource.snapshot()
@@ -192,7 +192,7 @@ extension InnerGridView: StoreViewDelegate {
         dataSource.apply(snapshot, animatingDifferences: true)
     }
 
-    func directoryWatcher(_ directoryWatcher: StoreView, didRemoveURL url: URL, atIndex: Int) {
+    func storeView(_ storeView: StoreView, didRemoveURL url: URL, atIndex: Int) {
         var snapshot = dataSource.snapshot()
         snapshot.deleteItems([url])
         dataSource.apply(snapshot, animatingDifferences: true)

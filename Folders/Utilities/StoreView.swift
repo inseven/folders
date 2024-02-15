@@ -25,10 +25,9 @@ import UniformTypeIdentifiers
 
 protocol StoreViewDelegate: NSObject {
 
-    // TODO: Rename this.
-    func directoryWatcherDidUpdate(_ directoryWatcher: StoreView)
-    func directoryWatcher(_ directoryWatcher: StoreView, didInsertURL url: URL, atIndex: Int)
-    func directoryWatcher(_ directoryWatcher: StoreView, didRemoveURL url: URL, atIndex: Int)
+    func storeViewDidUpdate(_ storeView: StoreView)
+    func storeView(_ storeView: StoreView, didInsertURL url: URL, atIndex: Int)
+    func storeView(_ storeView: StoreView, didRemoveURL url: URL, atIndex: Int)
 
 }
 
@@ -64,7 +63,7 @@ class StoreView: NSObject, StoreObserver {
 
                 DispatchQueue.main.async { [self] in
                     self.files = sortedFiles
-                    self.delegate?.directoryWatcherDidUpdate(self)
+                    self.delegate?.storeViewDidUpdate(self)
                 }
 
             } catch {
@@ -87,13 +86,10 @@ class StoreView: NSObject, StoreObserver {
 
             // TODO: Work out where to insert this and pass this through to our observer.
             self.files.append(details)
-//            self.files.sorted(using: SortComparator)
-            self.delegate?.directoryWatcher(self, didInsertURL: details.url, atIndex: self.files.count - 1)
+            self.delegate?.storeView(self, didInsertURL: details.url, atIndex: self.files.count - 1)
         }
     }
 
-    // TODO: Delegate remove!!
-    // TODO: This call back needs to accept details?
     func store(_ store: Store, didRemoveURL url: URL) {
         dispatchPrecondition(condition: .notOnQueue(.main))
         DispatchQueue.main.async {
@@ -101,7 +97,7 @@ class StoreView: NSObject, StoreObserver {
                 return
             }
             self.files.remove(at: index)
-            self.delegate?.directoryWatcher(self, didRemoveURL: url, atIndex: index)
+            self.delegate?.storeView(self, didRemoveURL: url, atIndex: index)
         }
     }
 
