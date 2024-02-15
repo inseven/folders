@@ -23,6 +23,7 @@
 		D855DE202AD31EC0003FE04D /* CGRect.swift in Sources */ = {isa = PBXBuildFile; fileRef = D855DE1F2AD31EC0003FE04D /* CGRect.swift */; };
 		D85C07B12B7EBC3A00C8BAA6 /* FolderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D85C07B02B7EBC3A00C8BAA6 /* FolderView.swift */; };
 		D870EC9E2B7EC47B00704688 /* FolderModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D870EC9D2B7EC47B00704688 /* FolderModel.swift */; };
+		D870ECA12B7ED5D700704688 /* Algorithms in Frameworks */ = {isa = PBXBuildFile; productRef = D870ECA02B7ED5D700704688 /* Algorithms */; };
 		D87653B42AC9F01600E8B65D /* FoldersApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D87653B32AC9F01600E8B65D /* FoldersApp.swift */; };
 		D87653B82AC9F01800E8B65D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D87653B72AC9F01800E8B65D /* Assets.xcassets */; };
 		D87653BB2AC9F01800E8B65D /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D87653BA2AC9F01800E8B65D /* Preview Assets.xcassets */; };
@@ -104,6 +105,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D870ECA12B7ED5D700704688 /* Algorithms in Frameworks */,
 				D82B95842B23DC2B00C8B6FB /* FSEventsWrapper in Frameworks */,
 				D82B957F2B231A7900C8B6FB /* SQLite in Frameworks */,
 				D89622D92ACD1ECD006F7D2E /* OrderedCollections in Frameworks */,
@@ -261,6 +263,7 @@
 				D89622D82ACD1ECD006F7D2E /* OrderedCollections */,
 				D82B957E2B231A7900C8B6FB /* SQLite */,
 				D82B95832B23DC2B00C8B6FB /* FSEventsWrapper */,
+				D870ECA02B7ED5D700704688 /* Algorithms */,
 			);
 			productName = Folders;
 			productReference = D87653B02AC9F01600E8B65D /* Folders.app */;
@@ -338,6 +341,7 @@
 				D89622D72ACD1ECD006F7D2E /* XCRemoteSwiftPackageReference "swift-collections" */,
 				D82B957D2B231A7900C8B6FB /* XCRemoteSwiftPackageReference "SQLite.swift" */,
 				D82B95822B23DC2B00C8B6FB /* XCRemoteSwiftPackageReference "FSEventsWrapper" */,
+				D870EC9F2B7ED5D700704688 /* XCRemoteSwiftPackageReference "swift-algorithms" */,
 			);
 			productRefGroup = D87653B12AC9F01600E8B65D /* Products */;
 			projectDirPath = "";
@@ -761,6 +765,14 @@
 				minimumVersion = 2.1.0;
 			};
 		};
+		D870EC9F2B7ED5D700704688 /* XCRemoteSwiftPackageReference "swift-algorithms" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-algorithms.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.2.0;
+			};
+		};
 		D89622D72ACD1ECD006F7D2E /* XCRemoteSwiftPackageReference "swift-collections" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/apple/swift-collections/";
@@ -781,6 +793,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = D82B95822B23DC2B00C8B6FB /* XCRemoteSwiftPackageReference "FSEventsWrapper" */;
 			productName = FSEventsWrapper;
+		};
+		D870ECA02B7ED5D700704688 /* Algorithms */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D870EC9F2B7ED5D700704688 /* XCRemoteSwiftPackageReference "swift-algorithms" */;
+			productName = Algorithms;
 		};
 		D89622D82ACD1ECD006F7D2E /* OrderedCollections */ = {
 			isa = XCSwiftPackageProductDependency;

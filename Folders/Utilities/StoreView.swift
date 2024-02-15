@@ -23,6 +23,8 @@
 import Foundation
 import UniformTypeIdentifiers
 
+import Algorithms
+
 protocol StoreViewDelegate: NSObject {
 
     func storeViewDidUpdate(_ storeView: StoreView)
@@ -83,10 +85,11 @@ class StoreView: NSObject, StoreObserver {
             guard self.filter.matches(details: details) else {
                 return
             }
-
-            // TODO: Work out where to insert this and pass this through to our observer.
-            self.files.append(details)
-            self.delegate?.storeView(self, didInsertURL: details.url, atIndex: self.files.count - 1)
+            let index = self.files.partitioningIndex {
+                return self.sort.compare(details, $0)
+            }
+            self.files.insert(details, at: index)
+            self.delegate?.storeView(self, didInsertURL: details.url, atIndex: index)
         }
     }
 

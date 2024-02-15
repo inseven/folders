@@ -179,7 +179,8 @@ extension InnerGridView: StoreViewDelegate {
         dataSource.apply(snapshot, animatingDifferences: false)
     }
 
-    func storeView(_ storeView: StoreView, didInsertURL url: URL, atIndex: Int) {
+    // TODO: Insert details.
+    func storeView(_ storeView: StoreView, didInsertURL url: URL, atIndex index: Int) {
         // TODO: Insert in the correct place.
         // TODO: We may need to rate-limit these updates.
         var snapshot = dataSource.snapshot()
@@ -188,7 +189,13 @@ extension InnerGridView: StoreViewDelegate {
             snapshot.appendSections([.none])
         }
 
-        snapshot.appendItems([url], toSection: Section.none)
+        if index >= snapshot.itemIdentifiers.count {
+            snapshot.appendItems([url])
+        } else {
+            let beforeItem = snapshot.itemIdentifiers[index]
+            snapshot.insertItems([url], beforeItem: beforeItem)
+        }
+
         dataSource.apply(snapshot, animatingDifferences: true)
     }
 
