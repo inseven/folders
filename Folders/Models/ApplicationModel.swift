@@ -218,8 +218,8 @@ extension ApplicationModel: StoreViewDelegate {
         return items
     }
 
-    func directoryWatcherDidUpdate(_ directoryWatcher: StoreView) {
-        self.lookup = sidebarItems(for: directoryWatcher.files)
+    func storeViewDidUpdate(_ storeView: StoreView) {
+        self.lookup = sidebarItems(for: storeView.files)
     }
 
     func debugPrint(sidebarItem: SidebarItem, indent: Int = 0) {
@@ -230,12 +230,12 @@ extension ApplicationModel: StoreViewDelegate {
         }
     }
 
-    func directoryWatcher(_ directoryWatcher: StoreView, didInsertURL url: URL, atIndex: Int) {
-        self.lookup = sidebarItems(for: directoryWatcher.files)
+    func storeView(_ storeView: StoreView, didInsertURL url: URL, atIndex: Int) {
+        self.lookup = sidebarItems(for: storeView.files)
     }
 
-    func directoryWatcher(_ directoryWatcher: StoreView, didRemoveURL url: URL, atIndex: Int) {
-        self.lookup = sidebarItems(for: directoryWatcher.files)
+    func storeView(_ storeView: StoreView, didRemoveURL url: URL, atIndex: Int) {
+        self.lookup = sidebarItems(for: storeView.files)
     }
 
 }
