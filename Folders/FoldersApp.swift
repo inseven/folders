@@ -22,6 +22,9 @@
 
 import SwiftUI
 
+import Diligence
+import Interact
+
 @main
 struct FoldersApp: App {
 
@@ -37,6 +40,25 @@ struct FoldersApp: App {
         WindowGroup {
             LibraryView(applicationModel: applicationModel)
                 .environmentObject(applicationModel)
+        }
+
+        let subject = "Folders Support (\(Bundle.main.version ?? "Unknown Version"))"
+
+        About(repository: "inseven/folders", copyright: "Copyright © 2023-2024 Jason Morley") {
+            Diligence.Action("GitHub", url: URL(string: "https://github.com/inseven/folders")!)
+            Diligence.Action("Support", url: URL(address: "support@jbmorley.co.uk", subject: subject)!)
+        } acknowledgements: {
+            Acknowledgements("Developers") {
+                Credit("Jason Morley", url: URL(string: "https://jbmorley.co.uk"))
+            }
+            Acknowledgements("Thanks") {
+                Credit("Lukas Fittl")
+                Credit("Pavlos Vinieratos")
+                Credit("Sarah Barbour")
+            }
+        } licenses: {
+            License("Folders", author: "Jason Morley", filename: "folders-license")
+            License(Interact.Package.name, author: Interact.Package.author, url: Interact.Package.licenseURL)
         }
 
     }

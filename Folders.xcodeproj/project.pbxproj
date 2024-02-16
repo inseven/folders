@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 56;
+	objectVersion = 60;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -24,6 +24,9 @@
 		D85C07B12B7EBC3A00C8BAA6 /* FolderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D85C07B02B7EBC3A00C8BAA6 /* FolderView.swift */; };
 		D870EC9E2B7EC47B00704688 /* FolderModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D870EC9D2B7EC47B00704688 /* FolderModel.swift */; };
 		D870ECA12B7ED5D700704688 /* Algorithms in Frameworks */ = {isa = PBXBuildFile; productRef = D870ECA02B7ED5D700704688 /* Algorithms */; };
+		D870ECA42B7EDD8A00704688 /* Diligence in Frameworks */ = {isa = PBXBuildFile; productRef = D870ECA32B7EDD8A00704688 /* Diligence */; };
+		D870ECA72B7EDDD100704688 /* folders-license in Resources */ = {isa = PBXBuildFile; fileRef = D870ECA62B7EDDD100704688 /* folders-license */; };
+		D870ECAA2B7EDE0700704688 /* Interact in Frameworks */ = {isa = PBXBuildFile; productRef = D870ECA92B7EDE0700704688 /* Interact */; };
 		D87653B42AC9F01600E8B65D /* FoldersApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D87653B32AC9F01600E8B65D /* FoldersApp.swift */; };
 		D87653B82AC9F01800E8B65D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D87653B72AC9F01800E8B65D /* Assets.xcassets */; };
 		D87653BB2AC9F01800E8B65D /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D87653BA2AC9F01800E8B65D /* Preview Assets.xcassets */; };
@@ -76,6 +79,7 @@
 		D855DE1F2AD31EC0003FE04D /* CGRect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CGRect.swift; sourceTree = "<group>"; };
 		D85C07B02B7EBC3A00C8BAA6 /* FolderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolderView.swift; sourceTree = "<group>"; };
 		D870EC9D2B7EC47B00704688 /* FolderModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolderModel.swift; sourceTree = "<group>"; };
+		D870ECA62B7EDDD100704688 /* folders-license */ = {isa = PBXFileReference; lastKnownFileType = text; path = "folders-license"; sourceTree = "<group>"; };
 		D87653B02AC9F01600E8B65D /* Folders.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Folders.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D87653B32AC9F01600E8B65D /* FoldersApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoldersApp.swift; sourceTree = "<group>"; };
 		D87653B72AC9F01800E8B65D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -107,6 +111,8 @@
 			files = (
 				D870ECA12B7ED5D700704688 /* Algorithms in Frameworks */,
 				D82B95842B23DC2B00C8B6FB /* FSEventsWrapper in Frameworks */,
+				D870ECAA2B7EDE0700704688 /* Interact in Frameworks */,
+				D870ECA42B7EDD8A00704688 /* Diligence in Frameworks */,
 				D82B957F2B231A7900C8B6FB /* SQLite in Frameworks */,
 				D89622D92ACD1ECD006F7D2E /* OrderedCollections in Frameworks */,
 			);
@@ -141,6 +147,14 @@
 			path = Utilities;
 			sourceTree = "<group>";
 		};
+		D870ECA52B7EDDB100704688 /* Licenses */ = {
+			isa = PBXGroup;
+			children = (
+				D870ECA62B7EDDD100704688 /* folders-license */,
+			);
+			path = Licenses;
+			sourceTree = "<group>";
+		};
 		D87653A72AC9F01600E8B65D = {
 			isa = PBXGroup;
 			children = (
@@ -164,12 +178,13 @@
 		D87653B22AC9F01600E8B65D /* Folders */ = {
 			isa = PBXGroup;
 			children = (
-				D8ED594E2B687FE800010FB3 /* Info.plist */,
 				D87653BC2AC9F01800E8B65D /* Folders.entitlements */,
+				D8ED594E2B687FE800010FB3 /* Info.plist */,
 				D87653B32AC9F01600E8B65D /* FoldersApp.swift */,
 				D89622DF2ACD3B9A006F7D2E /* FoldersError.swift */,
 				D87653B72AC9F01800E8B65D /* Assets.xcassets */,
 				D87653E02AC9F38700E8B65D /* Extensions */,
+				D870ECA52B7EDDB100704688 /* Licenses */,
 				D89622DC2ACD3952006F7D2E /* Models */,
 				D87653B92AC9F01800E8B65D /* Preview Content */,
 				D82B95852B23DC5500C8B6FB /* Utilities */,
@@ -264,6 +279,8 @@
 				D82B957E2B231A7900C8B6FB /* SQLite */,
 				D82B95832B23DC2B00C8B6FB /* FSEventsWrapper */,
 				D870ECA02B7ED5D700704688 /* Algorithms */,
+				D870ECA32B7EDD8A00704688 /* Diligence */,
+				D870ECA92B7EDE0700704688 /* Interact */,
 			);
 			productName = Folders;
 			productReference = D87653B02AC9F01600E8B65D /* Folders.app */;
@@ -342,6 +359,8 @@
 				D82B957D2B231A7900C8B6FB /* XCRemoteSwiftPackageReference "SQLite.swift" */,
 				D82B95822B23DC2B00C8B6FB /* XCRemoteSwiftPackageReference "FSEventsWrapper" */,
 				D870EC9F2B7ED5D700704688 /* XCRemoteSwiftPackageReference "swift-algorithms" */,
+				D870ECA22B7EDD8A00704688 /* XCLocalSwiftPackageReference "diligence" */,
+				D870ECA82B7EDE0700704688 /* XCLocalSwiftPackageReference "interact" */,
 			);
 			productRefGroup = D87653B12AC9F01600E8B65D /* Products */;
 			projectDirPath = "";
@@ -360,6 +379,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D87653BB2AC9F01800E8B65D /* Preview Assets.xcassets in Resources */,
+				D870ECA72B7EDDD100704688 /* folders-license in Resources */,
 				D87653B82AC9F01800E8B65D /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -578,7 +598,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"Folders/Preview Content\"";
-				DEVELOPMENT_TEAM = 9GNGYP6YR7;
+				DEVELOPMENT_TEAM = QS82QFHKWB;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -639,7 +659,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = YES;
-				DEVELOPMENT_TEAM = 9GNGYP6YR7;
+				DEVELOPMENT_TEAM = QS82QFHKWB;
 				GENERATE_INFOPLIST_FILE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MARKETING_VERSION = 1.0;
@@ -678,7 +698,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = YES;
-				DEVELOPMENT_TEAM = S4WXAUZQEV;
+				DEVELOPMENT_TEAM = QS82QFHKWB;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = uk.co.jbmorley.folders.apps.appstore.uitests;
@@ -748,6 +768,17 @@
 		};
 /* End XCConfigurationList section */
 
+/* Begin XCLocalSwiftPackageReference section */
+		D870ECA22B7EDD8A00704688 /* XCLocalSwiftPackageReference "diligence" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = diligence;
+		};
+		D870ECA82B7EDE0700704688 /* XCLocalSwiftPackageReference "interact" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = interact;
+		};
+/* End XCLocalSwiftPackageReference section */
+
 /* Begin XCRemoteSwiftPackageReference section */
 		D82B957D2B231A7900C8B6FB /* XCRemoteSwiftPackageReference "SQLite.swift" */ = {
 			isa = XCRemoteSwiftPackageReference;
@@ -798,6 +829,14 @@
 			isa = XCSwiftPackageProductDependency;
 			package = D870EC9F2B7ED5D700704688 /* XCRemoteSwiftPackageReference "swift-algorithms" */;
 			productName = Algorithms;
+		};
+		D870ECA32B7EDD8A00704688 /* Diligence */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Diligence;
+		};
+		D870ECA92B7EDE0700704688 /* Interact */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Interact;
 		};
 		D89622D82ACD1ECD006F7D2E /* OrderedCollections */ = {
 			isa = XCSwiftPackageProductDependency;
