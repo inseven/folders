@@ -28,7 +28,7 @@ struct Sidebar: View {
     @ObservedObject var sceneModel: SceneModel
 
     var body: some View {
-        List(applicationModel.dynamicSidebarItems, id: \.self, children: \.children, selection: $sceneModel.selection) { item in
+        List(applicationModel.dynamicSidebarItems, id: \.folderURL, children: \.children, selection: $sceneModel.selection) { item in
             Label(item.folderURL.displayName, systemImage: item.systemImage)
                 .contextMenu {
                     Button {
@@ -52,7 +52,7 @@ struct Sidebar: View {
                     guard let sidebarItem = applicationModel.add() else {
                         return
                     }
-                    sceneModel.selection = sidebarItem
+                    sceneModel.selection = sidebarItem.folderURL
                 } label: {
                     Label("Add", systemImage: "plus")
                 }

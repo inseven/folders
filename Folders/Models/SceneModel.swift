@@ -27,11 +27,11 @@ class SceneModel: ObservableObject {
 
     let applicationModel: ApplicationModel
 
-    @Published var selection: SidebarItem? = nil
+    @Published var selection: URL? = nil
 
     init(applicationModel: ApplicationModel) {
         self.applicationModel = applicationModel
-        self.selection = applicationModel.sidebarItems.first
+        self.selection = applicationModel.sidebarItems.first?.folderURL
     }
 
 }

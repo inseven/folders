@@ -37,7 +37,7 @@ struct LibraryView: View {
         NavigationSplitView {
             Sidebar(applicationModel: applicationModel, sceneModel: sceneModel)
         } detail: {
-            if let folderURL = sceneModel.selection?.folderURL {
+            if let folderURL = sceneModel.selection {
                 FolderView(url: folderURL)
                     .id(folderURL)
             }
