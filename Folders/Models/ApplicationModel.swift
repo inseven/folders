@@ -194,21 +194,22 @@ extension ApplicationModel: StoreViewDelegate {
 
     // TODO: Static?
     func sidebarItems(for files: [Details]) -> [URL: SidebarItem] {
-        var owners = Set<URL>()
 
         var items = [URL: SidebarItem]()
 
         // TODO: This is copying the structure. It would be better not to do that.
         for details in files {
 
-            owners.insert(details.owner)
-
             // Get or create the current node and parent node.
             let item = items[details.url] ?? SidebarItem(kind: .folder, folderURL: details.url, children: nil)
-            var parent = items[details.parentURL] ?? SidebarItem(kind: .folder, folderURL: details.parentURL, children: nil)
+            let parent = items[details.parentURL] ?? SidebarItem(kind: .folder, folderURL: details.parentURL, children: nil)
 
-            // Update the parent node.
-            parent = SidebarItem(kind: parent.kind, folderURL: parent.folderURL, children: (parent.children ?? []) + [item])
+            // Update the parent's children.
+            if parent.children != nil {
+                parent.children!.append(item)
+            } else {
+                parent.children = [item]
+            }
 
             // Set the nodes.
             items[item.folderURL] = item
@@ -224,7 +225,7 @@ extension ApplicationModel: StoreViewDelegate {
 
     func debugPrint(sidebarItem: SidebarItem, indent: Int = 0) {
         let padding = String(repeating: " ", count: indent)
-        print("\(padding)\(sidebarItem.folderURL.path) (\(sidebarItem.children?.count ?? 0))")
+        print("> \(padding)\(sidebarItem.folderURL.absoluteString) (\(sidebarItem.children?.count ?? 0))")
         for child in sidebarItem.children ?? [] {
             debugPrint(sidebarItem: child, indent: indent + 2)
         }

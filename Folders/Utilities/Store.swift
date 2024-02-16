@@ -210,8 +210,7 @@ class Store {
                 // TODO: Support opaque owners?
                 let type = UTType(row[Schema.type])!
                 let owner = URL(filePath: row[Schema.owner], directoryHint: .isDirectory)
-                let url = URL(filePath: row[Schema.path], directoryHint: type == .folder ? .isDirectory : .notDirectory)
-
+                let url = URL(filePath: row[Schema.path], directoryHint: type.conforms(to: .directory) ? .isDirectory : .notDirectory)
 
                 // TODO: Should the mime type be required?
                 // TODO: This isn't guarnateed to reconstruct the correct UTType

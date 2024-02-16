@@ -50,11 +50,12 @@ class DirectoryScanner {
             switch event {
             case .itemClonedAtPath:
                 return
-            case .itemCreated(path: let path, itemType: _, eventId: _, fromUs: _):
+            case .itemCreated(path: let path, itemType: let itemType, eventId: _, fromUs: _):
 
                 print("File created at path '\(path)'")
                 do {
-                    onFileCreation(try FileManager.default.details(for: path, owner: owner))
+                    let url = URL(filePath: path, directoryHint: itemType == .dir ? .isDirectory : .notDirectory)
+                    onFileCreation(try FileManager.default.details(for: url, owner: owner))
                 } catch {
                     print("Failed to handle file creation with error \(error).")
                 }
@@ -67,7 +68,7 @@ class DirectoryScanner {
                     let url = URL(filePath: path, directoryHint: itemType == .dir ? .isDirectory : .notDirectory)
                     if fileManager.fileExists(atPath: url.path) {
                         print("File added by rename '\(url)'")
-                        onFileCreation(try FileManager.default.details(for: path, owner: owner))
+                        onFileCreation(try FileManager.default.details(for: url, owner: owner))
                     } else {
                         print("File removed by rename '\(url)'")
                         onFileDeletion(url)
