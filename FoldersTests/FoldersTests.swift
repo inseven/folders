@@ -23,6 +23,13 @@
 import XCTest
 @testable import Folders
 
+import UniformTypeIdentifiers
+
 final class FoldersTests: XCTestCase {
+
+    func testTypes() {
+        XCTAssertTrue(UTType.folder.conforms(to: .directory))
+        XCTAssertFalse(UTType.directory.conforms(to: .folder))
+    }
 
 }

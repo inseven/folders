@@ -23,7 +23,17 @@
 import Combine
 import SwiftUI
 
-struct SidebarItem: Hashable, Identifiable {
+class SidebarItem: Hashable, Identifiable, Equatable {
+
+    static func == (lhs: SidebarItem, rhs: SidebarItem) -> Bool {
+        return lhs.kind == rhs.kind && lhs.folderURL == rhs.folderURL && lhs.children == rhs.children
+    }
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(kind)
+        hasher.combine(folderURL)
+        hasher.combine(children)
+    }
 
     enum Kind {
         case owner
@@ -41,9 +51,10 @@ struct SidebarItem: Hashable, Identifiable {
 
     let kind: Kind
     let folderURL: URL
-    let children: [SidebarItem]?
+    var children: [SidebarItem]?
 
     init(kind: Kind, folderURL: URL, children: [SidebarItem]?) {
+        precondition(folderURL.hasDirectoryPath)
         self.kind = kind
         self.folderURL = folderURL
         self.children = children
