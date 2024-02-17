@@ -63,7 +63,7 @@ class InnerGridView: NSView {
     }
 
     init(store: Store, directoryURL: URL) {
-        let filter: Filter = .parent(directoryURL) && (.conforms(to: .pdf) || .conforms(to: .jpeg) || .conforms(to: .gif) || .conforms(to: .png) || .conforms(to: .video) || .conforms(to: .mpeg4Movie) || .conforms(to: UTType(filenameExtension: "cbz")!) || .conforms(to: UTType(filenameExtension: "stl")!) || .conforms(to: .mp3))
+        let filter: Filter = .parent(directoryURL) && (.conforms(to: .pdf) || .conforms(to: .jpeg) || .conforms(to: .gif) || .conforms(to: .png) || .conforms(to: .video) || .conforms(to: .mpeg4Movie) || .conforms(to: .cbz) || .conforms(to: .stl) || .conforms(to: .mp3) || .conforms(to: .tap))
         self.storeView = StoreView(store: store, filter: filter, sort: .displayNameDescending)
 
         scrollView = NSScrollView()
