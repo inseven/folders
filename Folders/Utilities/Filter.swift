@@ -146,7 +146,7 @@ struct OwnerFilter: Filter {
     }
 
     var filter: Expression<Bool> {
-        return Store.Schema.path == owner
+        return Store.Schema.owner == owner
     }
 
     func matches(details: Details) -> Bool {
@@ -159,10 +159,6 @@ extension Filter where Self == OwnerFilter {
 
     static func owner(_ owner: URL) -> OwnerFilter {
         return OwnerFilter(owner: owner.path)
-    }
-
-    static func owner(_ owner: String) -> OwnerFilter {
-        return OwnerFilter(owner: owner)
     }
 
 }

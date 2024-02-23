@@ -93,14 +93,24 @@ class StoreView: NSObject, StoreObserver {
         }
     }
 
-    func store(_ store: Store, didRemoveURL url: URL) {
+    func store(_ store: Store, didRemoveURLs urls: [URL]) {
         dispatchPrecondition(condition: .notOnQueue(.main))
+        // TODO: Maybe this shouldn't live on main queue
         DispatchQueue.main.async {
-            guard let index = self.files.firstIndex(where: { $0.url == url }) else {
-                return
+            if urls.count < 10 {
+                for url in urls {
+                    guard let index = self.files.firstIndex(where: { $0.url == url }) else {
+                        return
+                    }
+                    self.files.remove(at: index)
+                    self.delegate?.storeView(self, didRemoveURL: url, atIndex: index)
+                }
+            } else {
+                for url in urls {
+                    _ = self.files.firstIndex(where: { $0.url == url })
+                }
+                self.delegate?.storeViewDidUpdate(self)
             }
-            self.files.remove(at: index)
-            self.delegate?.storeView(self, didRemoveURL: url, atIndex: index)
         }
     }
 

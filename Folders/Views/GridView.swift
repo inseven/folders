@@ -170,9 +170,6 @@ extension InnerGridView: QLPreviewPanelDataSource, QLPreviewPanelDelegate {
 extension InnerGridView: StoreViewDelegate {
 
     func storeViewDidUpdate(_ storeView: StoreView) {
-        print("Scanned \(storeView.files.count) files.")
-
-        // Update the items.
         var snapshot = Snapshot()
         snapshot.appendSections([.none])
         snapshot.appendItems(storeView.files.map({ $0.url }), toSection: Section.none)
