@@ -85,14 +85,38 @@ class ApplicationModel: NSObject, ObservableObject {
 
         // TODO: This should be extracted out from here.
         scanner.start { [store] details in
+
             // TODO: Maybe allow this to rethrow and catch it at the top level to make the code cleaner?
+            // TODO: Make this async so we can use async APIs exclusively in the Store.
+
             do {
                 let insertStart = Date()
+
+                // Take an in-memory snapshot of everything within this owner and use it to track deletions.
+                // We can do this safely (and outside of a transaction) as we can guarantee we're the only observer
+                // modifying the files within this owner.
+                var existingFiles = try store.filesBlocking(filter: .owner(scanner.url), sort: .displayNameAscending)
+                    .reduce(into: Set<URL>()) { partialResult, details in
+                        partialResult.insert(details.url)
+                    }
+
+                // Add just the new files.
                 for file in details {
-                    try store.insertBlocking(details: file)
+                    print(file.url)
+                    if existingFiles.contains(file.url) {
+                        existingFiles.remove(file.url)
+                    } else {
+                        try store.insertBlocking(details: file)
+                    }
                 }
+
+                // Remove remaining files.
+                print("Cleaning up \(existingFiles.count) files...")
+                try store.removeBlocking(owner: scanner.url, urls: existingFiles)
+
                 let insertDuration = insertStart.distance(to: Date())
-                print("Insert took \(insertDuration.formatted()) seconds.")
+                print("Update took \(insertDuration.formatted()) seconds.")
+
             } catch {
                 print("Failed to insert updates with error \(error).")
             }
@@ -104,7 +128,7 @@ class ApplicationModel: NSObject, ObservableObject {
             }
         } onFileDeletion: { [store] url in
             do {
-                try store.removeBlocking(url: url)
+                try store.removeBlocking(owner: scanner.url, urls: [url])
             } catch {
                 print("Failed to perform deletion update with error \(error).")
             }

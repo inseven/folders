@@ -28,7 +28,8 @@ import SQLite
 protocol StoreObserver: NSObject {
 
     func store(_ store: Store, didInsert details: Details)
-    func store(_ store: Store, didRemoveURL url: URL)
+    // TODO: Add owner!
+    func store(_ store: Store, didRemoveURLs urls: [URL])
 
 }
 
@@ -43,7 +44,7 @@ class Store {
         static let type = Expression<String>("type")
     }
 
-    static let majorVersion = 25
+    static let majorVersion = 26
 
     var observers: [StoreObserver] = []
 
@@ -167,16 +168,23 @@ class Store {
         }
     }
 
-    func removeBlocking(url: URL) throws {
+    func removeBlocking(owner: URL, urls: any Collection<URL>) throws {
         return try runBlocking { [connection] in
-            let count = try connection.run(Schema.files.filter(Schema.path == url.path).delete())
-            print("Deleted \(count) rows.")
-            guard count > 0 else {
-                return
-            }
-            for observer in self.observers {
-                DispatchQueue.global(qos: .default).async {
-                    observer.store(self, didRemoveURL: url)
+            try connection.transaction {
+                var removals = [URL]()
+                for url in urls {
+                    let count = try connection.run(Schema.files.filter(Schema.owner == owner.path && Schema.path == url.path).delete())
+                    if count > 0 {
+                        removals.append(url)
+                    }
+                }
+                guard removals.count > 0 else {
+                    return
+                }
+                for observer in self.observers {
+                    DispatchQueue.global(qos: .default).async {
+                        observer.store(self, didRemoveURLs: removals)
+                    }
                 }
             }
         }
@@ -190,33 +198,28 @@ class Store {
         }
     }
 
-    // TODO: Convenience constructor?
-    func mime(type: String?, subtype: String?) -> String {
-        guard let type else {
-            return "*"
+    func syncQueue_files(filter: Filter, sort: Sort) throws -> [Details] {
+        dispatchPrecondition(condition: .onQueue(syncQueue))
+        return try connection.prepareRowIterator(Schema.files.select(Schema.owner, Schema.path, Schema.type)
+            .filter(filter.filter)
+            .order(sort.order))
+        .map { row in
+            let type = UTType(row[Schema.type])!
+            let owner = URL(filePath: row[Schema.owner], directoryHint: .isDirectory)
+            let url = URL(filePath: row[Schema.path], directoryHint: type.conforms(to: .directory) ? .isDirectory : .notDirectory)
+            return Details(owner: owner, url: url, contentType: type)
         }
-        guard let subtype else {
-            return "\(type)/*"
+    }
+
+    func filesBlocking(filter: Filter, sort: Sort) throws -> [Details] {
+        return try runBlocking {
+            return try self.syncQueue_files(filter: filter, sort: sort)
         }
-        return "\(type)/\(subtype)"
     }
 
     func files(filter: Filter, sort: Sort) async throws -> [Details] {
-        return try await run { [connection] in
-            return try connection.prepareRowIterator(Schema.files.select(Schema.owner, Schema.path, Schema.type)
-                .filter(filter.filter)
-                .order(sort.order))
-            .map { row in
-                // TODO: Support opaque owners?
-                let type = UTType(row[Schema.type])!
-                let owner = URL(filePath: row[Schema.owner], directoryHint: .isDirectory)
-                let url = URL(filePath: row[Schema.path], directoryHint: type.conforms(to: .directory) ? .isDirectory : .notDirectory)
-
-                // TODO: Should the mime type be required?
-                // TODO: This isn't guarnateed to reconstruct the correct UTType
-
-                return Details(owner: owner, url: url, contentType: type)
-            }
+        return try await run {
+            return try self.syncQueue_files(filter: filter, sort: sort)
         }
     }
 

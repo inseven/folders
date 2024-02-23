@@ -30,7 +30,7 @@ extension FileManager {
         let resourceKeys = Set<URLResourceKey>([.nameKey, .isDirectoryKey, .contentTypeKey])
         let directoryEnumerator = enumerator(at: directoryURL,
                                              includingPropertiesForKeys: Array(resourceKeys),
-                                             options: [.skipsHiddenFiles, .producesRelativePathURLs])!
+                                             options: [.skipsHiddenFiles])!
 
         var files: [Details] = []
         for case let fileURL as URL in directoryEnumerator {
