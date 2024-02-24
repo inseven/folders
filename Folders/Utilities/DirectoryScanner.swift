@@ -92,12 +92,12 @@ class DirectoryScanner {
                         print("File removed by rename '\(url)'")
 
                         // If it's a directory, then we need to work out what files are being removed.
+                        let identifier = Details.Identifier(ownerURL: ownerURL, url: url)
                         if itemType == .dir {
-                            let identifiers = self.identifiers.filter { $0.url.path.hasPrefix(url.path) }
+                            let identifiers = self.identifiers.filter { $0.url.path.hasPrefix(url.path + "/") } + [identifier]
                             onFileDeletion(Array(identifiers))
                             self.identifiers.subtract(identifiers)
                         } else {
-                            let identifier = Details.Identifier(ownerURL: ownerURL, url: url)
                             onFileDeletion([identifier])
                             self.identifiers.remove(identifier)
                         }
