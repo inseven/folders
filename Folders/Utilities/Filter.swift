@@ -128,7 +128,8 @@ struct ParentFilter: Filter {
     }
 
     var filter: Expression<Bool> {
-        return Store.Schema.path.like("\(parent)%")
+        // TODO: Delimit parent!
+        return Store.Schema.path.like("\(parent)/%")
     }
 
     func matches(details: Details) -> Bool {

@@ -104,7 +104,7 @@ class StoreView: NSObject, StoreObserver {
             if identifiers.count < self.threshold {
                 for identifier in identifiers {
                     guard let index = self.files.firstIndex(where: { $0.identifier == identifier }) else {
-                        return
+                        continue
                     }
                     self.files.remove(at: index)
                     self.delegate?.storeView(self, didRemoveURL: identifier.url, atIndex: index)

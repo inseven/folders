@@ -99,15 +99,15 @@ class ApplicationModel: NSObject, ObservableObject {
                 // We can do this safely (and outside of a transaction) as we can guarantee we're the only observer
                 // modifying the files within this owner.
                 var existingFiles = try store.filesBlocking(filter: .owner(scanner.url), sort: .displayNameAscending)
-                    .reduce(into: Set<URL>()) { partialResult, details in
-                        partialResult.insert(details.url)
+                    .reduce(into: Set<Details.Identifier>()) { partialResult, details in
+                        partialResult.insert(details.identifier)
                     }
 
                 // Add just the new files.
                 for file in details {
                     print(file.url)
-                    if existingFiles.contains(file.url) {
-                        existingFiles.remove(file.url)
+                    if existingFiles.contains(file.identifier) {
+                        existingFiles.remove(file.identifier)
                     } else {
                         try store.insertBlocking(details: file)
                     }
@@ -115,7 +115,9 @@ class ApplicationModel: NSObject, ObservableObject {
 
                 // Remove remaining files.
                 print("Cleaning up \(existingFiles.count) files...")
-                try store.removeBlocking(owner: scanner.url, urls: existingFiles)
+                if existingFiles.count > 0 {
+                    try store.removeBlocking(identifiers: existingFiles)
+                }
 
                 let insertDuration = insertStart.distance(to: Date())
                 print("Update took \(insertDuration.formatted()) seconds.")
@@ -129,9 +131,9 @@ class ApplicationModel: NSObject, ObservableObject {
             } catch {
                 print("Failed to perform creation update with error \(error).")
             }
-        } onFileDeletion: { [store] url in
+        } onFileDeletion: { [store] identifiers in
             do {
-                try store.removeBlocking(owner: scanner.url, urls: [url])
+                try store.removeBlocking(identifiers: identifiers)
             } catch {
                 print("Failed to perform deletion update with error \(error).")
             }

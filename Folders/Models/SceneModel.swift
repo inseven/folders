@@ -27,18 +27,18 @@ class SceneModel: ObservableObject {
 
     let applicationModel: ApplicationModel
 
-    @Published var selection: URL? = nil
+    @Published var selection: Details.Identifier? = nil
 
     init(applicationModel: ApplicationModel) {
         self.applicationModel = applicationModel
-        self.selection = applicationModel.sidebarItems.first?.url
+        self.selection = applicationModel.sidebarItems.first?.id
     }
 
     func add() {
         guard let sidebarItem = applicationModel.add() else {
             return
         }
-        selection = sidebarItem.url
+        selection = sidebarItem.id
     }
 
 }
