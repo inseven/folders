@@ -45,9 +45,12 @@ class ApplicationModel: NSObject, ObservableObject {
         }
 
         // Load the sidebar items.
-        sidebarItems = settings.rootURLs.map { folderURL in
-            return SidebarItem(kind: .owner, ownerURL: folderURL, url: folderURL, children: nil)
-        }
+        sidebarItems = settings
+            .rootURLs
+            .map { folderURL in
+                return SidebarItem(kind: .owner, ownerURL: folderURL, url: folderURL, children: nil)
+            }
+            .sorted()
 
         let applicationSupportURL = FileManager.default.urls(for: .applicationSupportDirectory,
                                                              in: .userDomainMask).first!
@@ -141,10 +144,7 @@ class ApplicationModel: NSObject, ObservableObject {
                 return sidebarItems.map { sidebarItem in
                     let children = lookup[sidebarItem.id]?.children ?? nil
                     return sidebarItem.setting(children: children)
-                }.sorted { lhs, rhs in
-                    return lhs.displayName.localizedStandardCompare(rhs.displayName) == .orderedAscending
-                }
-                // TODO: Consider sorting here.
+                }.sorted()
             }
             .assign(to: \.dynamicSidebarItems, on: self)
             .store(in: &cancellables)
