@@ -49,10 +49,7 @@ struct Sidebar: View {
         .toolbar {
             ToolbarItem {
                 Button {
-                    guard let sidebarItem = applicationModel.add() else {
-                        return
-                    }
-                    sceneModel.selection = sidebarItem.url
+                    sceneModel.add()
                 } label: {
                     Label("Add", systemImage: "plus")
                 }

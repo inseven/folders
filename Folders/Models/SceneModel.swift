@@ -34,4 +34,11 @@ class SceneModel: ObservableObject {
         self.selection = applicationModel.sidebarItems.first?.url
     }
 
+    func add() {
+        guard let sidebarItem = applicationModel.add() else {
+            return
+        }
+        selection = sidebarItem.url
+    }
+
 }
