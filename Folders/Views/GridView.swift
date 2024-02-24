@@ -26,12 +26,13 @@ import QuickLookUI
 
 struct GridView: NSViewRepresentable {
 
+    let sceneModel: SceneModel
     let store: Store
     let ownerURL: URL
     let directoryURL: URL
 
     func makeNSView(context: Context) -> InnerGridView {
-        return InnerGridView(store: store, ownerURL: ownerURL, directoryURL: directoryURL)
+        return InnerGridView(sceneModel: sceneModel, store: store, ownerURL: ownerURL, directoryURL: directoryURL)
     }
 
     func updateNSView(_ nsView: NSViewType, context: Context) {
@@ -42,6 +43,7 @@ struct GridView: NSViewRepresentable {
 
 class InnerGridView: NSView {
 
+    let sceneModel: SceneModel
     let storeView: StoreView
     var previewPanel: QLPreviewPanel?
 
@@ -49,8 +51,8 @@ class InnerGridView: NSView {
         case none
     }
 
-    typealias Snapshot = NSDiffableDataSourceSnapshot<Section, URL>
-    typealias DataSource = NSCollectionViewDiffableDataSource<Section, URL>
+    typealias Snapshot = NSDiffableDataSourceSnapshot<Section, Details.Identifier>
+    typealias DataSource = NSCollectionViewDiffableDataSource<Section, Details.Identifier>
     typealias Cell = ShortcutItemView
 
     private let scrollView: NSScrollView
@@ -63,7 +65,8 @@ class InnerGridView: NSView {
         }
     }
 
-    init(store: Store, ownerURL: URL, directoryURL: URL) {
+    init(sceneModel: SceneModel, store: Store, ownerURL: URL, directoryURL: URL) {
+        self.sceneModel = sceneModel
         let filter: Filter = .owner(ownerURL) && .parent(directoryURL) && (.conforms(to: .pdf) || .conforms(to: .jpeg) || .conforms(to: .gif) || .conforms(to: .png) || .conforms(to: .video) || .conforms(to: .mpeg4Movie) || .conforms(to: .cbz) || .conforms(to: .stl) || .conforms(to: .mp3) || .conforms(to: .tap))
         self.storeView = StoreView(store: store, filter: filter, sort: .displayNameDescending)
 
@@ -94,7 +97,7 @@ class InnerGridView: NSView {
                                                      for: indexPath) as? ShortcutItemView else {
                 return ShortcutItemView()
             }
-            view.configure(url: item)
+            view.configure(url: item.url)
             return view
         }
 
@@ -151,8 +154,8 @@ extension InnerGridView: QLPreviewPanelDataSource, QLPreviewPanelDelegate {
     }
 
     func previewPanel(_ panel: QLPreviewPanel!, previewItemAt index: Int) -> QLPreviewItem! {
-        let url = dataSource.itemIdentifier(for: activeSelectionIndexPath!)!
-        return PreviewItem(url: url)
+        let identifier = dataSource.itemIdentifier(for: activeSelectionIndexPath!)!
+        return PreviewItem(url: identifier.url)
     }
 
     func previewPanel(_ panel: QLPreviewPanel!, handle event: NSEvent!) -> Bool {
@@ -173,12 +176,12 @@ extension InnerGridView: StoreViewDelegate {
     func storeViewDidUpdate(_ storeView: StoreView) {
         var snapshot = Snapshot()
         snapshot.appendSections([.none])
-        snapshot.appendItems(storeView.files.map({ $0.url }), toSection: Section.none)
+        snapshot.appendItems(storeView.files.map({ $0.identifier }), toSection: Section.none)
         dataSource.apply(snapshot, animatingDifferences: false)
     }
 
     // TODO: Insert details.
-    func storeView(_ storeView: StoreView, didInsertURL url: URL, atIndex index: Int) {
+    func storeView(_ storeView: StoreView, didInsertFile file: Details, atIndex index: Int) {
         // TODO: Insert in the correct place.
         // TODO: We may need to rate-limit these updates.
         var snapshot = dataSource.snapshot()
@@ -188,18 +191,18 @@ extension InnerGridView: StoreViewDelegate {
         }
 
         if index >= snapshot.itemIdentifiers.count {
-            snapshot.appendItems([url])
+            snapshot.appendItems([file.identifier])
         } else {
             let beforeItem = snapshot.itemIdentifiers[index]
-            snapshot.insertItems([url], beforeItem: beforeItem)
+            snapshot.insertItems([file.identifier], beforeItem: beforeItem)
         }
 
         dataSource.apply(snapshot, animatingDifferences: true)
     }
 
-    func storeView(_ storeView: StoreView, didRemoveURL url: URL, atIndex: Int) {
+    func storeView(_ storeView: StoreView, didRemoveFileWithIdentifier identifier: Details.Identifier, atIndex: Int) {
         var snapshot = dataSource.snapshot()
-        snapshot.deleteItems([url])
+        snapshot.deleteItems([identifier])
         dataSource.apply(snapshot, animatingDifferences: true)
     }
 
@@ -208,28 +211,30 @@ extension InnerGridView: StoreViewDelegate {
 extension InnerGridView: InteractiveCollectionViewDelegate {
 
     @objc func reveal(sender: NSMenuItem) {
-        guard let urls = sender.representedObject as? [URL] else {
+        guard let identifiers = sender.representedObject as? [Details.Identifier] else {
             return
         }
-        for url in urls {
-            NSWorkspace.shared.reveal(url)
+        // TODO: Scene.
+        for identifier in identifiers {
+            NSWorkspace.shared.reveal(identifier.url)
         }
     }
 
     @objc func setWallpaper(sender: NSMenuItem) {
-        guard let urls = sender.representedObject as? [URL] else {
+        guard let identifiers = sender.representedObject as? [Details.Identifier] else {
             return
         }
         guard let screen = window?.screen else {
             return
         }
-        for url in urls {
-            try? NSWorkspace.shared.setDesktopImageURL(url, for: screen)
+        // TODO: SceneModel or ApplicationModel?
+        for identifier in identifiers {
+            try? NSWorkspace.shared.setDesktopImageURL(identifier.url, for: screen)
         }
     }
 
     @objc func preview(sender: NSMenuItem) {
-        guard let urls = sender.representedObject as? [URL] else {
+        guard let urls = sender.representedObject as? [Details.Identifier] else {
             return
         }
         showPreview()
@@ -287,9 +292,9 @@ extension InnerGridView: InteractiveCollectionViewDelegate {
     }
     
     func customCollectionView(_ customCollectionView: InteractiveCollectionView, didDoubleClickSelection selection: Set<IndexPath>) {
-        let urls = dataSource.itemIdentifiers(for: selection)
-        for url in urls {
-            NSWorkspace.shared.open(url)
+        let identifiers = dataSource.itemIdentifiers(for: selection)
+        for identifier in identifiers {
+            NSWorkspace.shared.open(identifier.url)
         }
     }
 

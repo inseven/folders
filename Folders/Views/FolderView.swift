@@ -25,6 +25,7 @@ import SwiftUI
 struct FolderView: View {
 
     @EnvironmentObject var applicationModel: ApplicationModel
+    @EnvironmentObject var sceneModel: SceneModel
 
     @Environment(\.openURL) var openURL
 
@@ -41,7 +42,7 @@ struct FolderView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            GridView(store: applicationModel.store, ownerURL: ownerURL, directoryURL: url)
+            GridView(sceneModel: sceneModel, store: applicationModel.store, ownerURL: ownerURL, directoryURL: url)
             if let url = folderModel.settings?.url {
                 Divider()
                 HStack {
