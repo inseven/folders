@@ -27,7 +27,7 @@ import SQLite
 
 protocol StoreObserver: NSObject {
 
-    func store(_ store: Store, didInsert details: Details)
+    func store(_ store: Store, didInsertFiles files: [Details])
     func store(_ store: Store, didRemoveFilesWithIdentifiers identifiers: [Details.Identifier])
 
 }
@@ -141,25 +141,32 @@ class Store {
         }
     }
 
-    func insertBlocking(details: Details) throws {
+    func insertBlocking(files: any Collection<Details>) throws {
         return try runBlocking { [connection] in
             try connection.transaction {
 
-                // Check to see if the URL exists already.
-                let existingURL = try connection.pluck(Schema.files.filter(Schema.path == details.url.path).limit(1))
-                guard existingURL == nil else {
-                    return
-                }
+                var insertions = [Details]()
+                for file in files {
 
-                // If it does not, we insert it.
-                try connection.run(Schema.files.insert(or: .fail,
-                                                       Schema.owner <- details.ownerURL.path,
-                                                       Schema.path <- details.url.path,
-                                                       Schema.name <- details.url.displayName,
-                                                       Schema.type <- details.contentType.identifier))
+                    // Check to see if the URL exists already.
+                    let existingURL = try connection.pluck(Schema.files.filter(Schema.path == file.url.path).limit(1))
+                    guard existingURL == nil else {
+                        continue
+                    }
+
+                    // If it does not, we insert it.
+                    try connection.run(Schema.files.insert(or: .fail,
+                                                           Schema.owner <- file.ownerURL.path,
+                                                           Schema.path <- file.url.path,
+                                                           Schema.name <- file.url.displayName,
+                                                           Schema.type <- file.contentType.identifier))
+
+                    // Track the inserted files to notify our observers.
+                    insertions.append(file)
+                }
                 for observer in self.observers {
                     DispatchQueue.global(qos: .default).async {
-                        observer.store(self, didInsert: details)
+                        observer.store(self, didInsertFiles: insertions)
                     }
                 }
 

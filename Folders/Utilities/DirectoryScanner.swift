@@ -36,7 +36,7 @@ class DirectoryScanner {
     }
 
     func start(callback: @escaping ([Details]) -> Void,
-               onFileCreation: @escaping (Details) -> Void,
+               onFileCreation: @escaping ([Details]) -> Void,
                onFileDeletion: @escaping ([Details.Identifier]) -> Void) {
 
         let ownerURL = url
@@ -57,7 +57,7 @@ class DirectoryScanner {
                 do {
                     let url = URL(filePath: path, directoryHint: itemType == .dir ? .isDirectory : .notDirectory)
                     let details = try FileManager.default.details(for: url, owner: ownerURL)
-                    onFileCreation(details)
+                    onFileCreation([details])
                     self.identifiers.insert(details.identifier)
                 } catch {
                     print("Failed to handle file creation with error \(error).")
@@ -72,20 +72,17 @@ class DirectoryScanner {
                     if fileManager.fileExists(atPath: url.path) {
                         print("File added by rename '\(url)'")
                         let details = try FileManager.default.details(for: url, owner: ownerURL)
-                        onFileCreation(details)
+                        onFileCreation([details])
                         self.identifiers.insert(details.identifier)
 
                         // We don't get notified about files contained within a directory, so we walk those explicitly.
-                        // TODO: Use a bulk import method here.
                         if itemType == .dir {
                             let files = try fileManager.files(directoryURL: url)
                                 .map { details in
                                     return Details(ownerURL: ownerURL, url: details.url, contentType: details.contentType)
                                 }
-                            for file in files {
-                                onFileCreation(file)
-                                self.identifiers.insert(file.identifier)
-                            }
+                            onFileCreation(files)
+                            self.identifiers.formUnion(files.map({ $0.identifier }))
                         }
 
                     } else {
@@ -130,11 +127,8 @@ class DirectoryScanner {
             // enqueued after our initial scan.
             stream.startWatching()
 
-            // TODO: Actually perform the iteration inline so we can pace ourselves.
-            // TODO: Handle this error.
-
+            // TODO: Handle errors.
             let fileManager = FileManager.default
-
             let files = try! fileManager.files(directoryURL: url) + [fileManager.details(for: url, owner: url)]
             callback(files)
 
@@ -143,7 +137,6 @@ class DirectoryScanner {
             })
         }
 
-        // TODO: Start an observer so we get updates!
     }
 
     func stop() {
