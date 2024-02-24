@@ -256,11 +256,11 @@ extension ApplicationModel: StoreViewDelegate {
         }
     }
 
-    func storeView(_ storeView: StoreView, didInsertURL url: URL, atIndex: Int) {
+    func storeView(_ storeView: StoreView, didInsertFile file: Details, atIndex: Int) {
         self.lookup = sidebarItems(for: storeView.files)
     }
 
-    func storeView(_ storeView: StoreView, didRemoveURL url: URL, atIndex: Int) {
+    func storeView(_ storeView: StoreView, didRemoveFileWithIdentifier identifier: Details.Identifier, atIndex: Int) {
         self.lookup = sidebarItems(for: storeView.files)
     }
 

@@ -29,8 +29,8 @@ protocol StoreViewDelegate: NSObject {
 
     func storeViewDidUpdate(_ storeView: StoreView)
     // TODO: Expose the details directly in the update.
-    func storeView(_ storeView: StoreView, didInsertURL url: URL, atIndex: Int)
-    func storeView(_ storeView: StoreView, didRemoveURL url: URL, atIndex: Int)
+    func storeView(_ storeView: StoreView, didInsertFile file: Details, atIndex: Int)
+    func storeView(_ storeView: StoreView, didRemoveFileWithIdentifier identifier: Details.Identifier, atIndex: Int)
 
 }
 
@@ -95,7 +95,7 @@ class StoreView: NSObject, StoreObserver {
                         return self.sort.compare(file, $0)
                     }
                     self.files.insert(file, at: index)
-                    self.delegate?.storeView(self, didInsertURL: file.url, atIndex: index)
+                    self.delegate?.storeView(self, didInsertFile: file, atIndex: index)
                 }
             } else {
                 for file in files {
@@ -122,7 +122,7 @@ class StoreView: NSObject, StoreObserver {
                         continue
                     }
                     self.files.remove(at: index)
-                    self.delegate?.storeView(self, didRemoveURL: identifier.url, atIndex: index)
+                    self.delegate?.storeView(self, didRemoveFileWithIdentifier: identifier, atIndex: index)
                 }
             } else {
                 for identifier in identifiers {

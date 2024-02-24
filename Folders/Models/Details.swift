@@ -28,6 +28,10 @@ struct Details: Hashable {
     struct Identifier: Equatable, Hashable {
         let ownerURL: URL
         let url: URL
+
+        var parent: Identifier {
+            return Identifier(ownerURL: ownerURL, url: url.deletingLastPathComponent())
+        }
     }
 
     let identifier: Identifier

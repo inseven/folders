@@ -52,6 +52,7 @@ struct LibraryView: View {
                 }
             }
         }
+        .environmentObject(sceneModel)
     }
 
 }
