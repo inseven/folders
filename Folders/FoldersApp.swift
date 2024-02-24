@@ -57,8 +57,25 @@ struct FoldersApp: App {
                 Credit("Sarah Barbour")
             }
         } licenses: {
-            License("Folders", author: "Jason Morley", filename: "folders-license")
-            License(Interact.Package.name, author: Interact.Package.author, url: Interact.Package.licenseURL)
+            .interact
+            License("Folders",
+                    author: "Jason Morley",
+                    filename: "folders-license")
+            License("FSEventsWrapper",
+                    author: "François Lamboley",
+                    filename: "fs-events-wrapper-license")
+            License("SQLite.swift",
+                    author: "Stephen Celis",
+                    filename: "sqlite-swift-license")
+            License("Swift Algorithms",
+                    author: "Apple Inc. and the Swift Project Authors",
+                    filename: "swift-algorithms-license")
+            License("Swift Collections",
+                    author: "Apple Inc. and the Swift Project Authors",
+                    filename: "swift-collections-license")
+            License("Swift Numerics",
+                    author: "Apple Inc. and the Swift Numerics Project Authors",
+                    filename: "swift-numerics-license")
         }
 
     }

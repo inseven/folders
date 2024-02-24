@@ -42,6 +42,11 @@
 		D89622E22ACD4200006F7D2E /* Sidebar.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89622E12ACD4200006F7D2E /* Sidebar.swift */; };
 		D89622E42ACD4266006F7D2E /* LibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89622E32ACD4266006F7D2E /* LibraryView.swift */; };
 		D89622E62ACD42F2006F7D2E /* SceneModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89622E52ACD42F2006F7D2E /* SceneModel.swift */; };
+		D8D499C32B897B8E00946CE9 /* swift-numerics-license in Resources */ = {isa = PBXBuildFile; fileRef = D8D499C22B897B8E00946CE9 /* swift-numerics-license */; };
+		D8D499C52B897C9200946CE9 /* swift-collections-license in Resources */ = {isa = PBXBuildFile; fileRef = D8D499C42B897C9200946CE9 /* swift-collections-license */; };
+		D8D499C72B897D7E00946CE9 /* swift-algorithms-license in Resources */ = {isa = PBXBuildFile; fileRef = D8D499C62B897D7E00946CE9 /* swift-algorithms-license */; };
+		D8D499C92B897E9E00946CE9 /* sqlite-swift-license in Resources */ = {isa = PBXBuildFile; fileRef = D8D499C82B897E9E00946CE9 /* sqlite-swift-license */; };
+		D8D499CB2B897F4200946CE9 /* fs-events-wrapper-license in Resources */ = {isa = PBXBuildFile; fileRef = D8D499CA2B897F4200946CE9 /* fs-events-wrapper-license */; };
 		D8DDBCC42B2A0F8E003EAF4E /* PreviewItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8DDBCC32B2A0F8E003EAF4E /* PreviewItem.swift */; };
 		D8DDBCC62B2A1317003EAF4E /* FileManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8DDBCC52B2A1317003EAF4E /* FileManager.swift */; };
 		D8DDBCC82B2A1582003EAF4E /* DirectoryScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8DDBCC72B2A1582003EAF4E /* DirectoryScanner.swift */; };
@@ -99,6 +104,11 @@
 		D89622E12ACD4200006F7D2E /* Sidebar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sidebar.swift; sourceTree = "<group>"; };
 		D89622E32ACD4266006F7D2E /* LibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryView.swift; sourceTree = "<group>"; };
 		D89622E52ACD42F2006F7D2E /* SceneModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneModel.swift; sourceTree = "<group>"; };
+		D8D499C22B897B8E00946CE9 /* swift-numerics-license */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "swift-numerics-license"; sourceTree = "<group>"; };
+		D8D499C42B897C9200946CE9 /* swift-collections-license */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "swift-collections-license"; sourceTree = "<group>"; };
+		D8D499C62B897D7E00946CE9 /* swift-algorithms-license */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "swift-algorithms-license"; sourceTree = "<group>"; };
+		D8D499C82B897E9E00946CE9 /* sqlite-swift-license */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "sqlite-swift-license"; sourceTree = "<group>"; };
+		D8D499CA2B897F4200946CE9 /* fs-events-wrapper-license */ = {isa = PBXFileReference; lastKnownFileType = text; path = "fs-events-wrapper-license"; sourceTree = "<group>"; };
 		D8DDBCC32B2A0F8E003EAF4E /* PreviewItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewItem.swift; sourceTree = "<group>"; };
 		D8DDBCC52B2A1317003EAF4E /* FileManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileManager.swift; sourceTree = "<group>"; };
 		D8DDBCC72B2A1582003EAF4E /* DirectoryScanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DirectoryScanner.swift; sourceTree = "<group>"; };
@@ -152,7 +162,12 @@
 		D870ECA52B7EDDB100704688 /* Licenses */ = {
 			isa = PBXGroup;
 			children = (
+				D8D499C82B897E9E00946CE9 /* sqlite-swift-license */,
 				D870ECA62B7EDDD100704688 /* folders-license */,
+				D8D499C62B897D7E00946CE9 /* swift-algorithms-license */,
+				D8D499C42B897C9200946CE9 /* swift-collections-license */,
+				D8D499C22B897B8E00946CE9 /* swift-numerics-license */,
+				D8D499CA2B897F4200946CE9 /* fs-events-wrapper-license */,
 			);
 			path = Licenses;
 			sourceTree = "<group>";
@@ -381,6 +396,11 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D8D499C72B897D7E00946CE9 /* swift-algorithms-license in Resources */,
+				D8D499C32B897B8E00946CE9 /* swift-numerics-license in Resources */,
+				D8D499CB2B897F4200946CE9 /* fs-events-wrapper-license in Resources */,
+				D8D499C52B897C9200946CE9 /* swift-collections-license in Resources */,
+				D8D499C92B897E9E00946CE9 /* sqlite-swift-license in Resources */,
 				D87653BB2AC9F01800E8B65D /* Preview Assets.xcassets in Resources */,
 				D870ECA72B7EDDD100704688 /* folders-license in Resources */,
 				D87653B82AC9F01800E8B65D /* Assets.xcassets in Resources */,
