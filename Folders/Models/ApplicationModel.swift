@@ -95,29 +95,24 @@ class ApplicationModel: NSObject, ObservableObject {
             do {
                 let insertStart = Date()
 
+                let currentFiles = Set(details)
+
                 // Take an in-memory snapshot of everything within this owner and use it to track deletions.
                 // We can do this safely (and outside of a transaction) as we can guarantee we're the only observer
                 // modifying the files within this owner.
-                var existingFiles = try store.filesBlocking(filter: .owner(scanner.url), sort: .displayNameAscending)
-                    .reduce(into: Set<Details.Identifier>()) { partialResult, details in
-                        partialResult.insert(details.identifier)
+                let storedFiles = try store.filesBlocking(filter: .owner(scanner.url), sort: .displayNameAscending)
+                    .reduce(into: Set<Details>()) { partialResult, details in
+                        partialResult.insert(details)
                     }
 
                 // Add just the new files.
-                for file in details {
-                    print(file.url)
-                    if existingFiles.contains(file.identifier) {
-                        existingFiles.remove(file.identifier)
-                    } else {
-                        try store.insertBlocking(details: file)
-                    }
-                }
+                let newFiles = currentFiles.subtracting(storedFiles)
+                try store.insertBlocking(files: newFiles)
 
-                // Remove remaining files.
-                print("Cleaning up \(existingFiles.count) files...")
-                if existingFiles.count > 0 {
-                    try store.removeBlocking(identifiers: existingFiles)
-                }
+                // Remove the remaining files.
+                let deletedIdentifiers = storedFiles.subtracting(currentFiles)
+                    .map { $0.identifier }
+                try store.removeBlocking(identifiers: deletedIdentifiers)
 
                 let insertDuration = insertStart.distance(to: Date())
                 print("Update took \(insertDuration.formatted()) seconds.")
@@ -125,9 +120,9 @@ class ApplicationModel: NSObject, ObservableObject {
             } catch {
                 print("Failed to insert updates with error \(error).")
             }
-        } onFileCreation: { [store] details in
+        } onFileCreation: { [store] files in
             do {
-                try store.insertBlocking(details: details)
+                try store.insertBlocking(files: files)
             } catch {
                 print("Failed to perform creation update with error \(error).")
             }

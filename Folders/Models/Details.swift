@@ -23,7 +23,7 @@
 import Foundation
 import UniformTypeIdentifiers
 
-struct Details {
+struct Details: Hashable {
 
     struct Identifier: Equatable, Hashable {
         let ownerURL: URL

@@ -83,17 +83,32 @@ class StoreView: NSObject, StoreObserver {
         store.remove(observer: self)
     }
 
-    func store(_ store: Store, didInsert details: Details) {
+    func store(_ store: Store, didInsertFiles files: [Details]) {
         dispatchPrecondition(condition: .notOnQueue(.main))
         DispatchQueue.main.async {
-            guard self.filter.matches(details: details) else {
-                return
+            if files.count < self.threshold {
+                for file in files {
+                    guard self.filter.matches(details: file) else {
+                        continue
+                    }
+                    let index = self.files.partitioningIndex {
+                        return self.sort.compare(file, $0)
+                    }
+                    self.files.insert(file, at: index)
+                    self.delegate?.storeView(self, didInsertURL: file.url, atIndex: index)
+                }
+            } else {
+                for file in files {
+                    guard self.filter.matches(details: file) else {
+                        continue
+                    }
+                    let index = self.files.partitioningIndex {
+                        return self.sort.compare(file, $0)
+                    }
+                    self.files.insert(file, at: index)
+                }
+                self.delegate?.storeViewDidUpdate(self)
             }
-            let index = self.files.partitioningIndex {
-                return self.sort.compare(details, $0)
-            }
-            self.files.insert(details, at: index)
-            self.delegate?.storeView(self, didInsertURL: details.url, atIndex: index)
         }
     }
 
