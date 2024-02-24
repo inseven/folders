@@ -65,11 +65,45 @@ class InteractiveCollectionView: NSCollectionView {
         }
     }
 
+
     override func keyDown(with event: NSEvent) {
+
+        // Show preview.
         if event.keyCode == kVK_Space {
             interactionDelegate?.customCollectionViewShowPreview(self)
             return
         }
+
+        // Handle custom selection wrapping behavior.
+        if event.keyCode == kVK_LeftArrow || event.keyCode == kVK_RightArrow {
+
+            let isRightArrow = event.keyCode == kVK_RightArrow
+            let itemCount = dataSource?.collectionView(self, numberOfItemsInSection: 0) ?? 0
+            guard itemCount > 0 else {
+                return
+            }
+
+            let newIndex: Int
+            if let selectedIndex = selectionIndexPaths.first?.item {
+                newIndex = isRightArrow ? selectedIndex + 1 : selectedIndex - 1
+            } else {
+                newIndex = isRightArrow ? 0 : itemCount - 1
+            }
+
+            guard newIndex >= 0 && newIndex < itemCount else {
+                return
+            }
+
+            let newIndexPath = IndexPath(item: newIndex, section: 0)
+            selectionIndexes = []
+            selectItems(at: [newIndexPath], scrollPosition: .nearestHorizontalEdge)
+            scrollToItems(at: [newIndexPath], scrollPosition: .nearestHorizontalEdge)
+
+            delegate?.collectionView?(self, didSelectItemsAt: [newIndexPath])
+
+            return
+        }
+
         super.keyDown(with: event)
     }
 
