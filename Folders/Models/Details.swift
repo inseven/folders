@@ -25,19 +25,19 @@ import UniformTypeIdentifiers
 
 struct Details {
 
-    struct Identifier: Equatable {
+    struct Identifier: Equatable, Hashable {
         let ownerURL: URL
         let url: URL
     }
 
     let identifier: Identifier
-    let owner: URL
+    let ownerURL: URL
     let url: URL
     let contentType: UTType
 
     init(ownerURL: URL, url: URL, contentType: UTType) {
         self.identifier = Identifier(ownerURL: ownerURL, url: url)
-        self.owner = ownerURL
+        self.ownerURL = ownerURL
         self.url = url
         self.contentType = contentType
     }

@@ -26,12 +26,12 @@ import SwiftUI
 class SidebarItem: Hashable, Identifiable, Equatable {
 
     static func == (lhs: SidebarItem, rhs: SidebarItem) -> Bool {
-        return lhs.kind == rhs.kind && lhs.folderURL == rhs.folderURL && lhs.children == rhs.children
+        return lhs.kind == rhs.kind && lhs.url == rhs.url && lhs.children == rhs.children
     }
 
     func hash(into hasher: inout Hasher) {
         hasher.combine(kind)
-        hasher.combine(folderURL)
+        hasher.combine(url)
         hasher.combine(children)
     }
 
@@ -40,24 +40,27 @@ class SidebarItem: Hashable, Identifiable, Equatable {
         case folder
     }
 
-    // TODO: This will crash if the user adds overlapping folders and needs fixing by adding the concept of a top-level owner.
-    var id: URL {
-        return folderURL
-    }
-
     var displayName: String {
-        return folderURL.displayName
+        return url.displayName
     }
 
+    let id: Details.Identifier
     let kind: Kind
-    let folderURL: URL
+    let ownerURL: URL
+    let url: URL
     var children: [SidebarItem]?
 
-    init(kind: Kind, folderURL: URL, children: [SidebarItem]?) {
-        precondition(folderURL.hasDirectoryPath)
+    init(kind: Kind, ownerURL: URL, url: URL, children: [SidebarItem]?) {
+        precondition(url.hasDirectoryPath)
+        self.id = Details.Identifier(ownerURL: ownerURL, url: url)
         self.kind = kind
-        self.folderURL = folderURL
+        self.ownerURL = url
+        self.url = url
         self.children = children
+    }
+
+    func setting(children: [SidebarItem]? = nil) -> SidebarItem {
+        return SidebarItem(kind: self.kind, ownerURL: self.ownerURL, url: self.url, children: children)
     }
 
 }
