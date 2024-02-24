@@ -30,16 +30,18 @@ struct FolderView: View {
 
     @StateObject var folderModel: FolderModel
 
+    let ownerURL: URL
     let url: URL
 
-    init(url: URL) {
+    init(ownerURL: URL, url: URL) {
+        self.ownerURL = ownerURL
         self.url = url
         _folderModel = StateObject(wrappedValue: FolderModel(url: url))
     }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            GridView(store: applicationModel.store, directoryURL: url)
+            GridView(store: applicationModel.store, ownerURL: ownerURL, directoryURL: url)
             if let url = folderModel.settings?.url {
                 Divider()
                 HStack {

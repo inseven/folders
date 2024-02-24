@@ -29,16 +29,17 @@ class DirectoryScanner {
     let url: URL
     let workQueue = DispatchQueue(label: "workQueue")
     var stream: FSEventStream? = nil
+    var identifiers: Set<Details.Identifier> = []  // Work Queue
 
     init(url: URL) {
         self.url = url
     }
 
     func start(callback: @escaping ([Details]) -> Void,
-               onFileCreation: @escaping (Details) -> Void,  // TODO: This should be Details
-               onFileDeletion: @escaping (URL) -> Void) {
+               onFileCreation: @escaping (Details) -> Void,
+               onFileDeletion: @escaping ([Details.Identifier]) -> Void) {
 
-        let owner = url
+        let ownerURL = url
 
         // TODO: Consider creating this in the constructor.
         stream = FSEventStream(path: url.path,
@@ -55,7 +56,9 @@ class DirectoryScanner {
                 print("File created at path '\(path)'")
                 do {
                     let url = URL(filePath: path, directoryHint: itemType == .dir ? .isDirectory : .notDirectory)
-                    onFileCreation(try FileManager.default.details(for: url, owner: owner))
+                    let details = try FileManager.default.details(for: url, owner: ownerURL)
+                    onFileCreation(details)
+                    self.identifiers.insert(details.identifier)
                 } catch {
                     print("Failed to handle file creation with error \(error).")
                 }
@@ -68,10 +71,36 @@ class DirectoryScanner {
                     let url = URL(filePath: path, directoryHint: itemType == .dir ? .isDirectory : .notDirectory)
                     if fileManager.fileExists(atPath: url.path) {
                         print("File added by rename '\(url)'")
-                        onFileCreation(try FileManager.default.details(for: url, owner: owner))
+                        let details = try FileManager.default.details(for: url, owner: ownerURL)
+                        onFileCreation(details)
+                        self.identifiers.insert(details.identifier)
+
+                        // We don't get notified about files contained within a directory, so we walk those explicitly.
+                        // TODO: Use a bulk import method here.
+                        if itemType == .dir {
+                            let files = try fileManager.files(directoryURL: url)
+                                .map { details in
+                                    return Details(ownerURL: ownerURL, url: details.url, contentType: details.contentType)
+                                }
+                            for file in files {
+                                onFileCreation(file)
+                                self.identifiers.insert(file.identifier)
+                            }
+                        }
+
                     } else {
                         print("File removed by rename '\(url)'")
-                        onFileDeletion(url)
+
+                        // If it's a directory, then we need to work out what files are being removed.
+                        let identifier = Details.Identifier(ownerURL: ownerURL, url: url)
+                        if itemType == .dir {
+                            let identifiers = self.identifiers.filter { $0.url.path.hasPrefix(url.path + "/") } + [identifier]
+                            onFileDeletion(Array(identifiers))
+                            self.identifiers.subtract(identifiers)
+                        } else {
+                            onFileDeletion([identifier])
+                            self.identifiers.remove(identifier)
+                        }
                     }
                 } catch {
                     print("Failed to handle file deletion with error \(error).")
@@ -79,10 +108,11 @@ class DirectoryScanner {
 
             case .itemRemoved(path: let path, itemType: let itemType, eventId: _, fromUs: _):
 
-                // TODO: Check if we receive individual deletions for files in a directory.
                 let url = URL(filePath: path, directoryHint: itemType == .dir ? .isDirectory : .notDirectory)
                 print("File removed '\(url)'")
-                onFileDeletion(url)
+                let identifier = Details.Identifier(ownerURL: ownerURL, url: url)
+                onFileDeletion([identifier])
+                self.identifiers.remove(identifier)
 
             default:
                 print("Unhandled file event \(event).")
@@ -105,8 +135,12 @@ class DirectoryScanner {
 
             let fileManager = FileManager.default
 
-            let urls = try! fileManager.files(directoryURL: url) + [fileManager.details(for: url, owner: url)]
-            callback(urls)
+            let files = try! fileManager.files(directoryURL: url) + [fileManager.details(for: url, owner: url)]
+            callback(files)
+
+            self.identifiers = files.map({ $0.identifier }).reduce(into: Set<Details.Identifier>(), { partialResult, identifier in
+                partialResult.insert(identifier)
+            })
         }
 
         // TODO: Start an observer so we get updates!

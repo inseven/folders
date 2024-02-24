@@ -28,7 +28,7 @@ struct Sidebar: View {
     @ObservedObject var sceneModel: SceneModel
 
     var body: some View {
-        List(applicationModel.dynamicSidebarItems, id: \.url, children: \.children, selection: $sceneModel.selection) { item in
+        List(applicationModel.dynamicSidebarItems, children: \.children, selection: $sceneModel.selection) { item in
             Label(item.url.displayName, systemImage: item.systemImage)
                 .contextMenu {
                     Button {

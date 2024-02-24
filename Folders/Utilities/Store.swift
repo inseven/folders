@@ -43,7 +43,7 @@ class Store {
         static let type = Expression<String>("type")
     }
 
-    static let majorVersion = 26
+    static let majorVersion = 45
 
     var observers: [StoreObserver] = []
 
@@ -167,22 +167,25 @@ class Store {
         }
     }
 
-    func removeBlocking(owner: URL, urls: any Collection<URL>) throws {
+    func removeBlocking(identifiers: any Collection<Details.Identifier>) throws {
+        guard identifiers.count > 0 else {
+            return
+        }
         return try runBlocking { [connection] in
             try connection.transaction {
-                var identifiers = [Details.Identifier]()
-                for url in urls {
-                    let count = try connection.run(Schema.files.filter(Schema.owner == owner.path && Schema.path == url.path).delete())
+                var removals = [Details.Identifier]()
+                for identifier in identifiers {
+                    let count = try connection.run(Schema.files.filter(Schema.owner == identifier.ownerURL.path && Schema.path == identifier.url.path).delete())
                     if count > 0 {
-                        identifiers.append(Details.Identifier(ownerURL: owner, url: url))
+                        removals.append(identifier)
                     }
                 }
-                guard identifiers.count > 0 else {
+                guard removals.count > 0 else {
                     return
                 }
                 for observer in self.observers {
                     DispatchQueue.global(qos: .default).async {
-                        observer.store(self, didRemoveFilesWithIdentifiers: identifiers)
+                        observer.store(self, didRemoveFilesWithIdentifiers: removals)
                     }
                 }
             }

@@ -27,10 +27,11 @@ import QuickLookUI
 struct GridView: NSViewRepresentable {
 
     let store: Store
+    let ownerURL: URL
     let directoryURL: URL
 
     func makeNSView(context: Context) -> InnerGridView {
-        return InnerGridView(store: store, directoryURL: directoryURL)
+        return InnerGridView(store: store, ownerURL: ownerURL, directoryURL: directoryURL)
     }
 
     func updateNSView(_ nsView: NSViewType, context: Context) {
@@ -62,8 +63,8 @@ class InnerGridView: NSView {
         }
     }
 
-    init(store: Store, directoryURL: URL) {
-        let filter: Filter = .parent(directoryURL) && (.conforms(to: .pdf) || .conforms(to: .jpeg) || .conforms(to: .gif) || .conforms(to: .png) || .conforms(to: .video) || .conforms(to: .mpeg4Movie) || .conforms(to: .cbz) || .conforms(to: .stl) || .conforms(to: .mp3) || .conforms(to: .tap))
+    init(store: Store, ownerURL: URL, directoryURL: URL) {
+        let filter: Filter = .owner(ownerURL) && .parent(directoryURL) && (.conforms(to: .pdf) || .conforms(to: .jpeg) || .conforms(to: .gif) || .conforms(to: .png) || .conforms(to: .video) || .conforms(to: .mpeg4Movie) || .conforms(to: .cbz) || .conforms(to: .stl) || .conforms(to: .mp3) || .conforms(to: .tap))
         self.storeView = StoreView(store: store, filter: filter, sort: .displayNameDescending)
 
         scrollView = NSScrollView()
