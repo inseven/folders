@@ -40,6 +40,16 @@ struct LibraryView: View {
             if let folderURL = sceneModel.selection {
                 FolderView(url: folderURL)
                     .id(folderURL)
+            } else {
+                ContentUnavailableView {
+                    Label("No Folder Selected", systemImage: "folder")
+                } description: {
+                    Text("Select a folder in the sidebar to view its contents or add a new folder.")
+                } actions: {
+                    Button("Add Folder") {
+                        sceneModel.add()
+                    }
+                }
             }
         }
     }
