@@ -38,7 +38,7 @@ extension FileManager {
                 print("Failed to determine content type for \(fileURL).")
                 continue
             }
-            files.append(Details(owner: directoryURL, url: fileURL, contentType: contentType))
+            files.append(Details(ownerURL: directoryURL, url: fileURL, contentType: contentType))
         }
 
         let duration = date.distance(to: Date())
@@ -61,7 +61,7 @@ extension FileManager {
             throw FoldersError.general("Unable to get content type for file '\(url.path)'.")
         }
 
-        return Details(owner: owner, url: url, contentType: isDirectory ? .directory : contentType)
+        return Details(ownerURL: owner, url: url, contentType: isDirectory ? .directory : contentType)
     }
 
 }

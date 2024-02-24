@@ -28,8 +28,7 @@ import SQLite
 protocol StoreObserver: NSObject {
 
     func store(_ store: Store, didInsert details: Details)
-    // TODO: Add owner!
-    func store(_ store: Store, didRemoveURLs urls: [URL])
+    func store(_ store: Store, didRemoveFilesWithIdentifiers identifiers: [Details.Identifier])
 
 }
 
@@ -171,19 +170,19 @@ class Store {
     func removeBlocking(owner: URL, urls: any Collection<URL>) throws {
         return try runBlocking { [connection] in
             try connection.transaction {
-                var removals = [URL]()
+                var identifiers = [Details.Identifier]()
                 for url in urls {
                     let count = try connection.run(Schema.files.filter(Schema.owner == owner.path && Schema.path == url.path).delete())
                     if count > 0 {
-                        removals.append(url)
+                        identifiers.append(Details.Identifier(ownerURL: owner, url: url))
                     }
                 }
-                guard removals.count > 0 else {
+                guard identifiers.count > 0 else {
                     return
                 }
                 for observer in self.observers {
                     DispatchQueue.global(qos: .default).async {
-                        observer.store(self, didRemoveURLs: removals)
+                        observer.store(self, didRemoveFilesWithIdentifiers: identifiers)
                     }
                 }
             }
@@ -205,9 +204,10 @@ class Store {
             .order(sort.order))
         .map { row in
             let type = UTType(row[Schema.type])!
-            let owner = URL(filePath: row[Schema.owner], directoryHint: .isDirectory)
-            let url = URL(filePath: row[Schema.path], directoryHint: type.conforms(to: .directory) ? .isDirectory : .notDirectory)
-            return Details(owner: owner, url: url, contentType: type)
+            let ownerURL = URL(filePath: row[Schema.owner], directoryHint: .isDirectory)
+            let url = URL(filePath: row[Schema.path],
+                          directoryHint: type.conforms(to: .directory) ? .isDirectory : .notDirectory)
+            return Details(ownerURL: ownerURL, url: url, contentType: type)
         }
     }
 

@@ -28,6 +28,7 @@ import Algorithms
 protocol StoreViewDelegate: NSObject {
 
     func storeViewDidUpdate(_ storeView: StoreView)
+    // TODO: Expose the details directly in the update.
     func storeView(_ storeView: StoreView, didInsertURL url: URL, atIndex: Int)
     func storeView(_ storeView: StoreView, didRemoveURL url: URL, atIndex: Int)
 
@@ -39,14 +40,17 @@ class StoreView: NSObject, StoreObserver {
     let workQueue = DispatchQueue(label: "StoreView.workQueue")
     let filter: Filter
     let sort: Sort
+    let threshold: Int
+
     var files: [Details] = []
 
     weak var delegate: StoreViewDelegate? = nil
 
-    init(store: Store, filter: Filter = TrueFilter(), sort: Sort = .displayNameAscending) {
+    init(store: Store, filter: Filter = TrueFilter(), sort: Sort = .displayNameAscending, threshold: Int = 10) {
         self.store = store
         self.filter = filter
         self.sort = sort
+        self.threshold = threshold
         super.init()
     }
 
@@ -93,21 +97,21 @@ class StoreView: NSObject, StoreObserver {
         }
     }
 
-    func store(_ store: Store, didRemoveURLs urls: [URL]) {
+    func store(_ store: Store, didRemoveFilesWithIdentifiers identifiers: [Details.Identifier]) {
         dispatchPrecondition(condition: .notOnQueue(.main))
         // TODO: Maybe this shouldn't live on main queue
         DispatchQueue.main.async {
-            if urls.count < 10 {
-                for url in urls {
-                    guard let index = self.files.firstIndex(where: { $0.url == url }) else {
+            if identifiers.count < self.threshold {
+                for identifier in identifiers {
+                    guard let index = self.files.firstIndex(where: { $0.identifier == identifier }) else {
                         return
                     }
                     self.files.remove(at: index)
-                    self.delegate?.storeView(self, didRemoveURL: url, atIndex: index)
+                    self.delegate?.storeView(self, didRemoveURL: identifier.url, atIndex: index)
                 }
             } else {
-                for url in urls {
-                    _ = self.files.firstIndex(where: { $0.url == url })
+                for identifier in identifiers {
+                    _ = self.files.firstIndex(where: { $0.identifier == identifier })
                 }
                 self.delegate?.storeViewDidUpdate(self)
             }
