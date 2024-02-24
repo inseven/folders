@@ -234,19 +234,19 @@ extension InnerGridView: InteractiveCollectionViewDelegate {
     }
 
     @objc func preview(sender: NSMenuItem) {
-        guard let urls = sender.representedObject as? [Details.Identifier] else {
+        guard let identifiers = sender.representedObject as? [Details.Identifier] else {
             return
         }
         showPreview()
     }
 
     @objc func moveToTrash(sender: NSMenuItem) {
-        guard let urls = sender.representedObject as? [URL] else {
+        guard let identifiers = sender.representedObject as? [Details.Identifier] else {
             return
         }
-        for url in urls {
+        for identifier in identifiers {
             do {
-                try FileManager.default.trashItem(at: url, resultingItemURL: nil)
+                try FileManager.default.trashItem(at: identifier.url, resultingItemURL: nil)
             } catch {
                 print("Failed to trash item with error \(error).")
             }
