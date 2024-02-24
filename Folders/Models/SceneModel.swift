@@ -31,7 +31,7 @@ class SceneModel: ObservableObject {
 
     init(applicationModel: ApplicationModel) {
         self.applicationModel = applicationModel
-        self.selection = applicationModel.sidebarItems.first?.folderURL
+        self.selection = applicationModel.sidebarItems.first?.url
     }
 
 }

@@ -32,7 +32,7 @@ class ApplicationModel: NSObject, ObservableObject {
     var directoriesView: StoreView
 
     @Published var sidebarItems: [SidebarItem]
-    @Published var lookup: [URL: SidebarItem] = [:]
+    @Published var lookup: [Details.Identifier: SidebarItem] = [:]
     @Published var dynamicSidebarItems: [SidebarItem] = []
 
     var cancellables = Set<AnyCancellable>()
@@ -46,7 +46,7 @@ class ApplicationModel: NSObject, ObservableObject {
 
         // Load the sidebar items.
         sidebarItems = settings.rootURLs.map { folderURL in
-            return SidebarItem(kind: .owner, folderURL: folderURL, children: nil)
+            return SidebarItem(kind: .owner, ownerURL: folderURL, url: folderURL, children: nil)
         }
 
         let applicationSupportURL = FileManager.default.urls(for: .applicationSupportDirectory,
@@ -139,8 +139,8 @@ class ApplicationModel: NSObject, ObservableObject {
             .receive(on: DispatchQueue.main)
             .map { sidebarItems, lookup in
                 return sidebarItems.map { sidebarItem in
-                    let children = lookup[sidebarItem.folderURL]?.children ?? nil
-                    return SidebarItem(kind: sidebarItem.kind, folderURL: sidebarItem.folderURL, children: children)
+                    let children = lookup[sidebarItem.id]?.children ?? nil
+                    return sidebarItem.setting(children: children)
                 }.sorted { lhs, rhs in
                     return lhs.displayName.localizedStandardCompare(rhs.displayName) == .orderedAscending
                 }
@@ -154,7 +154,7 @@ class ApplicationModel: NSObject, ObservableObject {
     func start() {
         dispatchPrecondition(condition: .onQueue(.main))
         $sidebarItems
-            .map { $0.map { $0.folderURL } }
+            .map { $0.map { $0.url } }
             .receive(on: DispatchQueue.main)
             .assign(to: \.rootURLs, on: settings)
             .store(in: &cancellables)
@@ -178,12 +178,12 @@ class ApplicationModel: NSObject, ObservableObject {
         }
 
         // Don't add existing directories.
-        if let sidebarItem = sidebarItems.first(where: { $0.folderURL == url }) {
+        if let sidebarItem = sidebarItems.first(where: { $0.url == url }) {
             return sidebarItem
         }
 
         // Create the new sidebar item.
-        let sidebarItem = SidebarItem(kind: .owner, folderURL: url, children: nil)
+        let sidebarItem = SidebarItem(kind: .owner, ownerURL: url, url: url, children: nil)
         sidebarItems.append(sidebarItem)
 
         // Create a new scanner.
@@ -209,7 +209,7 @@ class ApplicationModel: NSObject, ObservableObject {
             print("Failed to remove files with error \(error).")
         }
 
-        sidebarItems.removeAll { $0.folderURL == url }
+        sidebarItems.removeAll { $0.url == url }
     }
 
 }
@@ -217,16 +217,20 @@ class ApplicationModel: NSObject, ObservableObject {
 extension ApplicationModel: StoreViewDelegate {
 
     // TODO: Static?
-    func sidebarItems(for files: [Details]) -> [URL: SidebarItem] {
+    func sidebarItems(for files: [Details]) -> [Details.Identifier: SidebarItem] {
 
-        var items = [URL: SidebarItem]()
+        // TODO: This should take the identifier!
+        var items = [Details.Identifier: SidebarItem]()
 
         // TODO: This is copying the structure. It would be better not to do that.
         for details in files {
 
+            let identifier = details.identifier
+            let parentIdentiifer = Details.Identifier(ownerURL: details.ownerURL, url: details.parentURL)
+
             // Get or create the current node and parent node.
-            let item = items[details.url] ?? SidebarItem(kind: .folder, folderURL: details.url, children: nil)
-            let parent = items[details.parentURL] ?? SidebarItem(kind: .folder, folderURL: details.parentURL, children: nil)
+            let item = items[identifier] ?? SidebarItem(kind: .folder, ownerURL: details.ownerURL, url: details.url, children: nil)
+            let parent = items[parentIdentiifer] ?? SidebarItem(kind: .folder, ownerURL: details.ownerURL, url: details.parentURL, children: nil)
 
             // Update the parent's children.
             if parent.children != nil {
@@ -236,8 +240,8 @@ extension ApplicationModel: StoreViewDelegate {
             }
 
             // Set the nodes.
-            items[item.folderURL] = item
-            items[parent.folderURL] = parent
+            items[identifier] = item
+            items[parentIdentiifer] = parent
         }
 
         return items
@@ -249,7 +253,7 @@ extension ApplicationModel: StoreViewDelegate {
 
     func debugPrint(sidebarItem: SidebarItem, indent: Int = 0) {
         let padding = String(repeating: " ", count: indent)
-        print("> \(padding)\(sidebarItem.folderURL.absoluteString) (\(sidebarItem.children?.count ?? 0))")
+        print("> \(padding)\(sidebarItem.url.absoluteString) (\(sidebarItem.children?.count ?? 0))")
         for child in sidebarItem.children ?? [] {
             debugPrint(sidebarItem: child, indent: indent + 2)
         }

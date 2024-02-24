@@ -153,7 +153,7 @@ class Store {
 
                 // If it does not, we insert it.
                 try connection.run(Schema.files.insert(or: .fail,
-                                                       Schema.owner <- details.owner.path,
+                                                       Schema.owner <- details.ownerURL.path,
                                                        Schema.path <- details.url.path,
                                                        Schema.name <- details.url.displayName,
                                                        Schema.type <- details.contentType.identifier))

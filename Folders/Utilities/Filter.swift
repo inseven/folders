@@ -150,7 +150,7 @@ struct OwnerFilter: Filter {
     }
 
     func matches(details: Details) -> Bool {
-        return details.owner.path == owner
+        return details.ownerURL.path == owner
     }
 
 }
