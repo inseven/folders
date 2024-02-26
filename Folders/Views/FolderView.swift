@@ -43,15 +43,24 @@ struct FolderView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             GridView(sceneModel: sceneModel, store: applicationModel.store, ownerURL: ownerURL, directoryURL: url)
-            if let url = folderModel.settings?.url {
+            if let links = folderModel.settings?.links {
                 Divider()
                 HStack {
-                    Button {
-                        openURL(url)
-                    } label: {
-                        Text(url.absoluteString)
+                    ForEach(links, id: \.title) { link in
+                        Button {
+                            openURL(link.url)
+                        } label: {
+                            Text(link.title ?? link.url.absoluteString)
+                        }
+                        .buttonStyle(.link)
+                        .onHover { hover in
+                            if hover {
+                                NSCursor.pointingHand.push()
+                            } else {
+                                NSCursor.pop()
+                            }
+                        }
                     }
-                    .buttonStyle(.link)
                 }
                 .padding(8)
                 .background(.thinMaterial)

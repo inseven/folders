@@ -45,8 +45,8 @@ struct FoldersApp: App {
         let subject = "Folders Support (\(Bundle.main.version ?? "Unknown Version"))"
 
         About(repository: "inseven/folders", copyright: "Copyright © 2023-2024 Jason Morley") {
-            Diligence.Action("GitHub", url: URL(string: "https://github.com/inseven/folders")!)
-            Diligence.Action("Support", url: URL(address: "support@jbmorley.co.uk", subject: subject)!)
+            Action("GitHub", url: URL(string: "https://github.com/inseven/folders")!)
+            Action("Support", url: URL(address: "support@jbmorley.co.uk", subject: subject)!)
         } acknowledgements: {
             Acknowledgements("Developers") {
                 Credit("Jason Morley", url: URL(string: "https://jbmorley.co.uk"))
@@ -76,6 +76,9 @@ struct FoldersApp: App {
             License("Swift Numerics",
                     author: "Apple Inc. and the Swift Numerics Project Authors",
                     filename: "swift-numerics-license")
+            License("Yams",
+                    author: "JP Simard",
+                    filename: "yams-license")
         }
 
     }
