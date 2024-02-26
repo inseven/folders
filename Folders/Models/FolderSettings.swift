@@ -22,31 +22,21 @@
 
 import SwiftUI
 
-class FolderModel: ObservableObject {
+import Yams
 
-    let url: URL
+struct FolderSettings: Codable {
 
-    @Published var settings: FolderSettings?
-    @Published var error: Error?
-
-    init(url: URL) {
-        self.url = url
+    struct Link: Codable {
+        let url: URL
+        let title: String?
     }
 
-    func start() {
-        let settingsURL = url.appendingPathComponent("folders-settings.yaml")
-        guard FileManager.default.fileExists(atPath: settingsURL.path) else {
-            return
-        }
-        do {
-            self.settings = try FolderSettings(contentsOf: settingsURL)
-        } catch {
-            self.error = error
-        }
-    }
+    let links: [Link]
 
-    func stop() {
-
+    init(contentsOf url: URL) throws {
+        let data = try Data(contentsOf: url)
+        let decoder = YAMLDecoder()
+        self = try decoder.decode(FolderSettings.self, from: data)
     }
 
 }

@@ -53,6 +53,7 @@
 		D8F349B52B8150690037D66A /* UTType.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F349B42B8150690037D66A /* UTType.swift */; };
 		D8F6A6092B8D3D7E0003B1A6 /* Yams in Frameworks */ = {isa = PBXBuildFile; productRef = D8F6A6082B8D3D7E0003B1A6 /* Yams */; };
 		D8F6A60B2B8D41F90003B1A6 /* yams-license in Resources */ = {isa = PBXBuildFile; fileRef = D8F6A60A2B8D41F90003B1A6 /* yams-license */; };
+		D8F6A60D2B8D46720003B1A6 /* FolderSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F6A60C2B8D46720003B1A6 /* FolderSettings.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -117,6 +118,7 @@
 		D8ED594E2B687FE800010FB3 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		D8F349B42B8150690037D66A /* UTType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UTType.swift; sourceTree = "<group>"; };
 		D8F6A60A2B8D41F90003B1A6 /* yams-license */ = {isa = PBXFileReference; lastKnownFileType = text; path = "yams-license"; sourceTree = "<group>"; };
+		D8F6A60C2B8D46720003B1A6 /* FolderSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolderSettings.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -273,6 +275,7 @@
 				D89622DA2ACD394A006F7D2E /* ApplicationModel.swift */,
 				D83312E82B77132B00B994B3 /* Details.swift */,
 				D870EC9D2B7EC47B00704688 /* FolderModel.swift */,
+				D8F6A60C2B8D46720003B1A6 /* FolderSettings.swift */,
 				D8DDBCC32B2A0F8E003EAF4E /* PreviewItem.swift */,
 				D89622E52ACD42F2006F7D2E /* SceneModel.swift */,
 				D89622DD2ACD3B82006F7D2E /* Settings.swift */,
@@ -452,6 +455,7 @@
 				D89622E22ACD4200006F7D2E /* Sidebar.swift in Sources */,
 				D870EC9E2B7EC47B00704688 /* FolderModel.swift in Sources */,
 				D8472A682B2518320070DB64 /* FixedItemSizeCollectionViewLayout.swift in Sources */,
+				D8F6A60D2B8D46720003B1A6 /* FolderSettings.swift in Sources */,
 				D8472A6E2B2518D00070DB64 /* InteractiveCollectionView.swift in Sources */,
 				D83312E92B77132B00B994B3 /* Details.swift in Sources */,
 				D83312E32B76FE4E00B994B3 /* Filter.swift in Sources */,
