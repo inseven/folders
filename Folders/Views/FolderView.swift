@@ -67,6 +67,7 @@ struct FolderView: View {
             }
         }
         .navigationTitle(url.displayName)
+        .presents($folderModel.error)
         .onAppear {
             folderModel.start()
         }
