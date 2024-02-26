@@ -22,9 +22,16 @@
 
 import SwiftUI
 
+import Yams
+
 struct FolderSettings: Codable {
 
-    let url: URL
+    struct Link: Codable {
+        let url: URL
+        let title: String?
+    }
+
+    let links: [Link]
 
 }
 
@@ -39,13 +46,13 @@ class FolderModel: ObservableObject {
     }
 
     func start() {
-        let settingsURL = url.appendingPathComponent("folders-settings.json")  // TODO: Could I get macOS to hide these for me?
+        let settingsURL = url.appendingPathComponent("folders-settings.yaml")  // TODO: Could I get macOS to hide these for me?
         guard FileManager.default.fileExists(atPath: settingsURL.path) else {
             return
         }
         do {
             let data = try Data(contentsOf: settingsURL)
-            let decoder = JSONDecoder()
+            let decoder = YAMLDecoder()
             let settings = try decoder.decode(FolderSettings.self, from: data)
             self.settings = settings
         } catch {
