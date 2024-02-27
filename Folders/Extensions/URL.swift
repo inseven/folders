@@ -21,6 +21,7 @@
 // SOFTWARE.
 
 import Foundation
+import UniformTypeIdentifiers
 
 extension URL: Identifiable {
 
@@ -31,6 +32,24 @@ extension URL: Identifiable {
     var displayName: String {
         precondition(isFileURL)
         return FileManager.default.displayName(atPath: self.path)
+    }
+
+    var contentModificationDate: Date? {
+        get throws {
+            return try resourceValues(forKeys: [.contentModificationDateKey]).contentModificationDate
+        }
+    }
+
+    var contentType: UTType? {
+        get throws {
+            return try resourceValues(forKeys: [.contentTypeKey]).contentType
+        }
+    }
+
+    var isDirectory: Bool? {
+        get throws {
+            return try resourceValues(forKeys: [.isDirectoryKey]).isDirectory
+        }
     }
 
 }
