@@ -38,7 +38,7 @@ struct LibraryView: View {
             Sidebar(applicationModel: applicationModel, sceneModel: sceneModel)
         } detail: {
             if let selection = sceneModel.selection {
-                FolderView(ownerURL: selection.ownerURL, url: selection.url)
+                FolderView(applicationModel: applicationModel, ownerURL: selection.ownerURL, url: selection.url)
                     .id(selection)
             } else {
                 ContentUnavailableView {
