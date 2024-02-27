@@ -39,15 +39,28 @@ struct Details: Hashable {
     let url: URL
     let contentType: UTType
 
-    init(ownerURL: URL, url: URL, contentType: UTType) {
+    // Even though modern Swift APIs expose the content modification date, round-tripping this into SQLite looses
+    // precision causing us to incorrectly think files have changed. To make it much harder to make this mistake, we
+    // instead store the contentModificationDate as an Int which represents milliseconds since the reference data.
+    let contentModificationDate: Int
+
+    init(ownerURL: URL, url: URL, contentType: UTType, contentModificationDate: Int) {
         self.identifier = Identifier(ownerURL: ownerURL, url: url)
         self.ownerURL = ownerURL
         self.url = url
         self.contentType = contentType
+        self.contentModificationDate = contentModificationDate
     }
 
     var parentURL: URL {
         return url.deletingLastPathComponent()
+    }
+
+    func setting(ownerURL: URL) -> Details {
+        return Details(ownerURL: ownerURL,
+                       url: url,
+                       contentType: contentType,
+                       contentModificationDate: contentModificationDate)
     }
 
 }

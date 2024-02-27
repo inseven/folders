@@ -54,6 +54,7 @@
 		D8F6A6092B8D3D7E0003B1A6 /* Yams in Frameworks */ = {isa = PBXBuildFile; productRef = D8F6A6082B8D3D7E0003B1A6 /* Yams */; };
 		D8F6A60B2B8D41F90003B1A6 /* yams-license in Resources */ = {isa = PBXBuildFile; fileRef = D8F6A60A2B8D41F90003B1A6 /* yams-license */; };
 		D8F6A60D2B8D46720003B1A6 /* FolderSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F6A60C2B8D46720003B1A6 /* FolderSettings.swift */; };
+		D8F6A60F2B8D52200003B1A6 /* Date.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F6A60E2B8D52200003B1A6 /* Date.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -119,6 +120,7 @@
 		D8F349B42B8150690037D66A /* UTType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UTType.swift; sourceTree = "<group>"; };
 		D8F6A60A2B8D41F90003B1A6 /* yams-license */ = {isa = PBXFileReference; lastKnownFileType = text; path = "yams-license"; sourceTree = "<group>"; };
 		D8F6A60C2B8D46720003B1A6 /* FolderSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolderSettings.swift; sourceTree = "<group>"; };
+		D8F6A60E2B8D52200003B1A6 /* Date.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Date.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -246,6 +248,7 @@
 			isa = PBXGroup;
 			children = (
 				D855DE1F2AD31EC0003FE04D /* CGRect.swift */,
+				D8F6A60E2B8D52200003B1A6 /* Date.swift */,
 				D8DDBCC52B2A1317003EAF4E /* FileManager.swift */,
 				D8472A6B2B2518900070DB64 /* NSCollectionViewDiffableDataSource.swift */,
 				D8472A692B2518600070DB64 /* NSWorkspace.swift */,
@@ -444,6 +447,7 @@
 				D89622E42ACD4266006F7D2E /* LibraryView.swift in Sources */,
 				D8DDBCC42B2A0F8E003EAF4E /* PreviewItem.swift in Sources */,
 				D855DE202AD31EC0003FE04D /* CGRect.swift in Sources */,
+				D8F6A60F2B8D52200003B1A6 /* Date.swift in Sources */,
 				D85C07B12B7EBC3A00C8BAA6 /* FolderView.swift in Sources */,
 				D814EA012B7EB620008BF46C /* Sort.swift in Sources */,
 				D8DDBCC82B2A1582003EAF4E /* DirectoryScanner.swift in Sources */,

@@ -27,18 +27,26 @@ extension FileManager {
 
     func files(directoryURL: URL) throws -> [Details]  {
         let date = Date()
-        let resourceKeys = Set<URLResourceKey>([.nameKey, .isDirectoryKey, .contentTypeKey])
+        let resourceKeys = Set<URLResourceKey>([.nameKey,
+                                                .isDirectoryKey,
+                                                .contentTypeKey,
+                                                .contentModificationDateKey])
         let directoryEnumerator = enumerator(at: directoryURL,
                                              includingPropertiesForKeys: Array(resourceKeys),
                                              options: [.skipsHiddenFiles])!
 
         var files: [Details] = []
         for case let fileURL as URL in directoryEnumerator {
-            guard let contentType = try fileURL.resourceValues(forKeys: [.contentTypeKey]).contentType else {
+            guard let contentType = try fileURL.resourceValues(forKeys: [.contentTypeKey]).contentType,
+                  let contentModificationDate = try fileURL.resourceValues(forKeys: [.contentModificationDateKey]).contentModificationDate
+            else {
                 print("Failed to determine content type for \(fileURL).")
                 continue
             }
-            files.append(Details(ownerURL: directoryURL, url: fileURL, contentType: contentType))
+            files.append(Details(ownerURL: directoryURL,
+                                 url: fileURL,
+                                 contentType: contentType,
+                                 contentModificationDate: contentModificationDate.millisecondsSinceReferenceDate))
         }
 
         let duration = date.distance(to: Date())
@@ -61,7 +69,14 @@ extension FileManager {
             throw FoldersError.general("Unable to get content type for file '\(url.path)'.")
         }
 
-        return Details(ownerURL: owner, url: url, contentType: isDirectory ? .directory : contentType)
+        guard let contentModificationDate = try url.resourceValues(forKeys: [.contentModificationDateKey]).contentModificationDate else {
+            throw FoldersError.general("Unable to get content modification date for file '\(url.path)'.")
+        }
+
+        return Details(ownerURL: owner,
+                       url: url,
+                       contentType: isDirectory ? .directory : contentType,
+                       contentModificationDate: contentModificationDate.millisecondsSinceReferenceDate)
     }
 
 }
