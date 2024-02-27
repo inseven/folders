@@ -24,6 +24,7 @@ import SwiftUI
 
 import FSEventsWrapper
 
+// TODO: Start/stop thread-safety
 class DirectoryScanner {
 
     let url: URL
@@ -35,9 +36,9 @@ class DirectoryScanner {
         self.url = url
     }
 
-    func start(callback: @escaping ([Details]) -> Void,
-               onFileCreation: @escaping ([Details]) -> Void,
-               onFileDeletion: @escaping ([Details.Identifier]) -> Void) {
+    func start(load: @escaping () -> Set<Details>,
+               onFileCreation: @escaping (any Collection<Details>) -> Void,
+               onFileDeletion: @escaping (any Collection<Details.Identifier>) -> Void) {
 
         let ownerURL = url
 
@@ -171,8 +172,24 @@ class DirectoryScanner {
 
             // TODO: Handle errors.
             let fileManager = FileManager.default
-            let files = try! fileManager.files(directoryURL: url) + [fileManager.details(for: url, owner: url)]
-            callback(files)
+            let files = Set(try! fileManager.files(directoryURL: url) + [fileManager.details(for: url, owner: url)])
+
+            let currentState = load()
+
+            // Add just the new files.
+            let newFiles = files.subtracting(currentState)
+            if newFiles.count > 0 {
+                print("Inserting \(newFiles.count) new files...")
+                onFileCreation(newFiles)
+            }
+
+            // Remove the remaining files.
+            let deletedIdentifiers = currentState.subtracting(files)
+                .map { $0.identifier }
+            if deletedIdentifiers.count > 0 {
+                print("Removing \(deletedIdentifiers.count) deleted files...")
+                onFileDeletion(deletedIdentifiers)
+            }
 
             self.identifiers = files.map({ $0.identifier }).reduce(into: Set<Details.Identifier>(), { partialResult, identifier in
                 partialResult.insert(identifier)

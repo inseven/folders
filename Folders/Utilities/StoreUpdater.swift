@@ -35,55 +35,24 @@ class StoreUpdater {
     }
 
     func start() {
-        // TODO: Make this a delegate method?
-        scanner.start { [store] details in
-
-            // TODO: Maybe allow this to rethrow and catch it at the top level to make the code cleaner?
-            // TODO: Make this async so we can use async APIs exclusively in the Store.
-
-            do {
-                let insertStart = Date()
-
-                let currentFiles = Set(details)
-
-                // Take an in-memory snapshot of everything within this owner and use it to track deletions.
-                // We can do this safely (and outside of a transaction) as we can guarantee we're the only observer
-                // modifying the files within this owner.
-                let storedFiles = try store.filesBlocking(filter: .owner(self.url), sort: .displayNameAscending)
-                    .reduce(into: Set<Details>()) { partialResult, details in
-                        partialResult.insert(details)
-                    }
-
-                // Add just the new files.
-                let newFiles = currentFiles.subtracting(storedFiles)
-                if newFiles.count > 0 {
-                    print("Inserting \(newFiles.count) new files...")
-                    try store.insertBlocking(files: newFiles)
+        dispatchPrecondition(condition: .onQueue(.main))
+        self.scanner.start {
+            // Take an in-memory snapshot of everything within this owner and use it to track deletions.
+            // We can do this safely (and outside of a transaction) as we can guarantee we're the only observer
+            // modifying the files within this owner.
+            return try! self.store.filesBlocking(filter: .owner(self.url), sort: .displayNameAscending)
+                .reduce(into: Set<Details>()) { partialResult, details in
+                    partialResult.insert(details)
                 }
-
-                // Remove the remaining files.
-                let deletedIdentifiers = storedFiles.subtracting(currentFiles)
-                    .map { $0.identifier }
-                if deletedIdentifiers.count > 0 {
-                    print("Removing \(deletedIdentifiers.count) deleted files...")
-                    try store.removeBlocking(identifiers: deletedIdentifiers)
-                }
-
-                let insertDuration = insertStart.distance(to: Date())
-                print("Update took \(insertDuration.formatted()) seconds.")
-
-            } catch {
-                print("Failed to insert updates with error \(error).")
-            }
-        } onFileCreation: { [store] files in
+        } onFileCreation: { files in
             do {
-                try store.insertBlocking(files: files)
+                try self.store.insertBlocking(files: files)
             } catch {
                 print("Failed to perform creation update with error \(error).")
             }
-        } onFileDeletion: { [store] identifiers in
+        } onFileDeletion: { identifiers in
             do {
-                try store.removeBlocking(identifiers: identifiers)
+                try self.store.removeBlocking(identifiers: identifiers)
             } catch {
                 print("Failed to perform deletion update with error \(error).")
             }
@@ -91,6 +60,7 @@ class StoreUpdater {
     }
 
     func stop() {
+        dispatchPrecondition(condition: .onQueue(.main))
         scanner.stop()
     }
 
