@@ -41,9 +41,10 @@ class Store {
         static let path = Expression<String>("path")
         static let name = Expression<String>("name")
         static let type = Expression<String>("type")
+        static let modificationDate = Expression<Int>("modification_date")
     }
 
-    static let majorVersion = 45
+    static let majorVersion = 47
 
     var observers: [StoreObserver] = []
 
@@ -60,6 +61,7 @@ class Store {
                 t.column(Schema.path)
                 t.column(Schema.name)
                 t.column(Schema.type)
+                t.column(Schema.modificationDate)
             })
             try connection.run(Schema.files.createIndex(Schema.path))
         },
@@ -159,7 +161,8 @@ class Store {
                                                            Schema.owner <- file.ownerURL.path,
                                                            Schema.path <- file.url.path,
                                                            Schema.name <- file.url.displayName,
-                                                           Schema.type <- file.contentType.identifier))
+                                                           Schema.type <- file.contentType.identifier,
+                                                           Schema.modificationDate <- file.contentModificationDate))
 
                     // Track the inserted files to notify our observers.
                     insertions.append(file)
@@ -209,7 +212,7 @@ class Store {
 
     func syncQueue_files(filter: Filter, sort: Sort) throws -> [Details] {
         dispatchPrecondition(condition: .onQueue(syncQueue))
-        return try connection.prepareRowIterator(Schema.files.select(Schema.owner, Schema.path, Schema.type)
+        return try connection.prepareRowIterator(Schema.files.select(Schema.owner, Schema.path, Schema.type, Schema.modificationDate)
             .filter(filter.filter)
             .order(sort.order))
         .map { row in
@@ -217,7 +220,8 @@ class Store {
             let ownerURL = URL(filePath: row[Schema.owner], directoryHint: .isDirectory)
             let url = URL(filePath: row[Schema.path],
                           directoryHint: type.conforms(to: .directory) ? .isDirectory : .notDirectory)
-            return Details(ownerURL: ownerURL, url: url, contentType: type)
+            let modificationDate = row[Schema.modificationDate]
+            return Details(ownerURL: ownerURL, url: url, contentType: type, contentModificationDate: modificationDate)
         }
     }
 

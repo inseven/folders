@@ -70,8 +70,20 @@ class DirectoryScanner {
                 do {
                     let url = URL(filePath: path, directoryHint: itemType == .dir ? .isDirectory : .notDirectory)
                     if fileManager.fileExists(atPath: url.path) {
-                        print("File added by rename '\(url)'")
+
                         let details = try FileManager.default.details(for: url, owner: ownerURL)
+
+                        // If a file exists at the new path and also exists in our runtime cache of files then we infer
+                        // that this rename actuall represents a content modification operation; our file has been
+                        // atomically replaced by a new file containing new content.
+                        if self.identifiers.contains(details.identifier) {
+                            print("File updated by rename '\(url)'")
+                            onFileDeletion([details.identifier])
+                            // TODO: We should ensure we delete all our children if we're a directory.
+                        } else {
+                            print("File added by rename '\(url)'")
+                        }
+
                         onFileCreation([details])
                         self.identifiers.insert(details.identifier)
 
@@ -79,7 +91,7 @@ class DirectoryScanner {
                         if itemType == .dir {
                             let files = try fileManager.files(directoryURL: url)
                                 .map { details in
-                                    return Details(ownerURL: ownerURL, url: details.url, contentType: details.contentType)
+                                    return details.setting(ownerURL: ownerURL)
                                 }
                             onFileCreation(files)
                             self.identifiers.formUnion(files.map({ $0.identifier }))
@@ -110,6 +122,35 @@ class DirectoryScanner {
                 let identifier = Details.Identifier(ownerURL: ownerURL, url: url)
                 onFileDeletion([identifier])
                 self.identifiers.remove(identifier)
+
+            case .itemInodeMetadataModified(path: let path, itemType: let itemType, eventId: _, fromUs: _):
+                /* .itemXattrModified(path: let path, itemType: let itemType, eventId: _, fromUs: _) */
+
+                // TODO: Common error handling for all callbacks.
+
+                do {
+
+                    // TODO: Consider generalising this code.
+                    let url = URL(filePath: path, directoryHint: itemType == .dir ? .isDirectory : .notDirectory)
+                    let identifier = Details.Identifier(ownerURL: ownerURL, url: url)
+
+                    // Remove the file if it exists in our set.
+                    if self.identifiers.contains(identifier) {
+                        onFileDeletion([identifier])
+                    }
+
+                    // Create a new identifier corresponding to the udpated file.
+                    let details = try FileManager.default.details(for: url, owner: ownerURL)  // TODO: details(for identifier: Details.Identifier)?
+                    onFileCreation([details])
+
+                    // Ensure there's an entry for the (potentially) new file.
+                    self.identifiers.insert(identifier)
+
+                    print("Item modified!")
+
+                } catch {
+                    print("Failed to handle file modification with error \(error).")
+                }
 
             default:
                 print("Unhandled file event \(event).")

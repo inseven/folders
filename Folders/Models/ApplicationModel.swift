@@ -107,12 +107,18 @@ class ApplicationModel: NSObject, ObservableObject {
 
                 // Add just the new files.
                 let newFiles = currentFiles.subtracting(storedFiles)
-                try store.insertBlocking(files: newFiles)
+                if newFiles.count > 0 {
+                    print("Inserting \(newFiles.count) new files...")
+                    try store.insertBlocking(files: newFiles)
+                }
 
                 // Remove the remaining files.
                 let deletedIdentifiers = storedFiles.subtracting(currentFiles)
                     .map { $0.identifier }
-                try store.removeBlocking(identifiers: deletedIdentifiers)
+                if deletedIdentifiers.count > 0 {
+                    print("Removing \(deletedIdentifiers.count) deleted files...")
+                    try store.removeBlocking(identifiers: deletedIdentifiers)
+                }
 
                 let insertDuration = insertStart.distance(to: Date())
                 print("Update took \(insertDuration.formatted()) seconds.")
