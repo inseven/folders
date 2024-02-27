@@ -28,7 +28,7 @@ class ApplicationModel: NSObject, ObservableObject {
     private let settings = Settings()
 
     let store: Store
-    var scanners: [DirectoryScanner] = []
+    var updaters: [StoreUpdater] = []
     var directoriesView: StoreView
 
     @Published var sidebarItems: [SidebarItem]
@@ -38,11 +38,6 @@ class ApplicationModel: NSObject, ObservableObject {
     var cancellables = Set<AnyCancellable>()
 
     override init() {
-
-        // Load the scanners.
-        scanners = settings.rootURLs.map { url in
-            DirectoryScanner(url: url)
-        }
 
         // Load the sidebar items.
         sidebarItems = settings
@@ -69,7 +64,13 @@ class ApplicationModel: NSObject, ObservableObject {
         // Open the database, creating a new one if necessary.
         let storeURL = applicationSupportURL.appendingPathComponent("store_\(Store.majorVersion).sqlite")
         print("Opening database at '\(storeURL.path)'...")
-        self.store = try! Store(databaseURL: storeURL)
+        let store = try! Store(databaseURL: storeURL)
+        self.store = store
+
+        // Load the updaters.
+        updaters = settings.rootURLs.map { url in
+            StoreUpdater(store: store, url: url)
+        }
 
         self.directoriesView = StoreView(store: store, filter: .conforms(to: .directory) || .conforms(to: .folder))
 
@@ -77,68 +78,15 @@ class ApplicationModel: NSObject, ObservableObject {
 
         self.directoriesView.delegate = self
 
-        // Start the scanners.
-        for scanner in scanners {
-            start(scanner: scanner)
+        // Start the updaters.
+        for updater in updaters {
+            updater.start()
         }
 
     }
 
-    func start(scanner: DirectoryScanner) {
-
-        // TODO: This should be extracted out from here.
-        scanner.start { [store] details in
-
-            // TODO: Maybe allow this to rethrow and catch it at the top level to make the code cleaner?
-            // TODO: Make this async so we can use async APIs exclusively in the Store.
-
-            do {
-                let insertStart = Date()
-
-                let currentFiles = Set(details)
-
-                // Take an in-memory snapshot of everything within this owner and use it to track deletions.
-                // We can do this safely (and outside of a transaction) as we can guarantee we're the only observer
-                // modifying the files within this owner.
-                let storedFiles = try store.filesBlocking(filter: .owner(scanner.url), sort: .displayNameAscending)
-                    .reduce(into: Set<Details>()) { partialResult, details in
-                        partialResult.insert(details)
-                    }
-
-                // Add just the new files.
-                let newFiles = currentFiles.subtracting(storedFiles)
-                if newFiles.count > 0 {
-                    print("Inserting \(newFiles.count) new files...")
-                    try store.insertBlocking(files: newFiles)
-                }
-
-                // Remove the remaining files.
-                let deletedIdentifiers = storedFiles.subtracting(currentFiles)
-                    .map { $0.identifier }
-                if deletedIdentifiers.count > 0 {
-                    print("Removing \(deletedIdentifiers.count) deleted files...")
-                    try store.removeBlocking(identifiers: deletedIdentifiers)
-                }
-
-                let insertDuration = insertStart.distance(to: Date())
-                print("Update took \(insertDuration.formatted()) seconds.")
-
-            } catch {
-                print("Failed to insert updates with error \(error).")
-            }
-        } onFileCreation: { [store] files in
-            do {
-                try store.insertBlocking(files: files)
-            } catch {
-                print("Failed to perform creation update with error \(error).")
-            }
-        } onFileDeletion: { [store] identifiers in
-            do {
-                try store.removeBlocking(identifiers: identifiers)
-            } catch {
-                print("Failed to perform deletion update with error \(error).")
-            }
-        }
+    func start() {
+        dispatchPrecondition(condition: .onQueue(.main))
 
         $sidebarItems
             .combineLatest($lookup)
@@ -152,10 +100,6 @@ class ApplicationModel: NSObject, ObservableObject {
             .assign(to: \.dynamicSidebarItems, on: self)
             .store(in: &cancellables)
 
-    }
-
-    func start() {
-        dispatchPrecondition(condition: .onQueue(.main))
         $sidebarItems
             .map { $0.map { $0.url } }
             .receive(on: DispatchQueue.main)
@@ -189,19 +133,20 @@ class ApplicationModel: NSObject, ObservableObject {
         let sidebarItem = SidebarItem(kind: .owner, ownerURL: url, url: url, children: nil)
         sidebarItems.append(sidebarItem)
 
-        // Create a new scanner.
-        let scanner = DirectoryScanner(url: url)
-        start(scanner: scanner)
+        // Create a new updater.
+        let updater = StoreUpdater(store: store, url: url)
+        updater.start()
+        updaters.append(updater)
 
         return sidebarItem
     }
 
     func remove(_ url: URL) {
 
-        // Remove and stop the directory scanner.
-        if let scannerIndex = scanners.firstIndex(where: { $0.url == url }) {
-            let scanner = scanners.remove(at: scannerIndex)
-            scanner.stop()
+        // Remove and stop the updater.
+        if let index = updaters.firstIndex(where: { $0.url == url }) {
+            let updater = updaters.remove(at: index)
+            updater.stop()
         }
 
         // Remove the entires from the database.
@@ -232,8 +177,14 @@ extension ApplicationModel: StoreViewDelegate {
             let parentIdentiifer = Details.Identifier(ownerURL: details.ownerURL, url: details.parentURL)
 
             // Get or create the current node and parent node.
-            let item = items[identifier] ?? SidebarItem(kind: .folder, ownerURL: details.ownerURL, url: details.url, children: nil)
-            let parent = items[parentIdentiifer] ?? SidebarItem(kind: .folder, ownerURL: details.ownerURL, url: details.parentURL, children: nil)
+            let item = items[identifier] ?? SidebarItem(kind: .folder,
+                                                        ownerURL: details.ownerURL,
+                                                        url: details.url,
+                                                        children: nil)
+            let parent = items[parentIdentiifer] ?? SidebarItem(kind: .folder,
+                                                                ownerURL: details.ownerURL,
+                                                                url: details.parentURL,
+                                                                children: nil)
 
             // Update the parent's children.
             if parent.children != nil {
@@ -252,14 +203,6 @@ extension ApplicationModel: StoreViewDelegate {
 
     func storeViewDidUpdate(_ storeView: StoreView) {
         self.lookup = sidebarItems(for: storeView.files)
-    }
-
-    func debugPrint(sidebarItem: SidebarItem, indent: Int = 0) {
-        let padding = String(repeating: " ", count: indent)
-        print("> \(padding)\(sidebarItem.url.absoluteString) (\(sidebarItem.children?.count ?? 0))")
-        for child in sidebarItem.children ?? [] {
-            debugPrint(sidebarItem: child, indent: indent + 2)
-        }
     }
 
     func storeView(_ storeView: StoreView, didInsertFile file: Details, atIndex: Int) {

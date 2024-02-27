@@ -22,10 +22,7 @@
 
 import Foundation
 
-extension CGRect {
-
-    var normalized: CGRect {
-        return CGRect(x: minX, y: minY, width: width, height: height)
-    }
-
+enum StoreOperation {
+    case add([Details])
+    case remove([Details.Identifier])
 }

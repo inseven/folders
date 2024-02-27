@@ -37,8 +37,8 @@ extension FileManager {
 
         var files: [Details] = []
         for case let fileURL as URL in directoryEnumerator {
-            guard let contentType = try fileURL.resourceValues(forKeys: [.contentTypeKey]).contentType,
-                  let contentModificationDate = try fileURL.resourceValues(forKeys: [.contentModificationDateKey]).contentModificationDate
+            guard let contentType = try fileURL.contentType,
+                  let contentModificationDate = try fileURL.contentModificationDate
             else {
                 print("Failed to determine content type for \(fileURL).")
                 continue
@@ -61,15 +61,15 @@ extension FileManager {
     }
 
     func details(for url: URL, owner: URL) throws -> Details {
-        guard let isDirectory = try url.resourceValues(forKeys: [.isDirectoryKey]).isDirectory else {
+        guard let isDirectory = try url.isDirectory else {
             throw FoldersError.general("Unable to get directory type for file '\(url.path)'.")
         }
 
-        guard let contentType = try url.resourceValues(forKeys: [.contentTypeKey]).contentType else {
+        guard let contentType = try url.contentType else {
             throw FoldersError.general("Unable to get content type for file '\(url.path)'.")
         }
 
-        guard let contentModificationDate = try url.resourceValues(forKeys: [.contentModificationDateKey]).contentModificationDate else {
+        guard let contentModificationDate = try url.contentModificationDate else {
             throw FoldersError.general("Unable to get content modification date for file '\(url.path)'.")
         }
 

@@ -23,14 +23,11 @@
 import Combine
 import Foundation
 
-enum StoreOperation {
-    case add([Details])
-    case remove([Details.Identifier])
-}
-
 struct StorePublisher: Publisher {
 
-    class Subscription<Target: Subscriber>: NSObject, Combine.Subscription, StoreObserver where Target.Input == StoreOperation {
+    class Subscription<Target: Subscriber>: NSObject,
+                                            Combine.Subscription,
+                                            StoreObserver where Target.Input == StoreOperation {
 
         var id = UUID()
 
