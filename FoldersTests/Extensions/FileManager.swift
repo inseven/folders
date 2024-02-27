@@ -20,49 +20,24 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-import Foundation
-import UniformTypeIdentifiers
+import XCTest
+@testable import Folders
 
-import FSEventsWrapper
+extension FileManager {
 
-extension URL: Identifiable {
-
-    public var id: Self {
-        return self
-    }
-
-    var displayName: String {
-        precondition(isFileURL)
-        return FileManager.default.displayName(atPath: self.path)
-    }
-
-    var contentModificationDate: Date? {
-        get throws {
-            return try resourceValues(forKeys: [.contentModificationDateKey]).contentModificationDate
+    func touch(url: URL, atomically: Bool = false) throws {
+        let currentDateTime = Date()
+        if fileExists(atPath: url.path) {
+            try setAttributes([.modificationDate: currentDateTime], ofItemAtPath: url.path)
+        } else {
+            if atomically {
+                let temporaryURL = temporaryDirectory.appendingPathComponent(UUID().uuidString)
+                createFile(atPath: temporaryURL.path, contents: nil, attributes: [.modificationDate: currentDateTime])
+                try moveItem(at: temporaryURL, to: url)
+            } else {
+                createFile(atPath: url.path, contents: nil, attributes: [.modificationDate: currentDateTime])
+            }
         }
-    }
-
-    var contentType: UTType? {
-        get throws {
-            return try resourceValues(forKeys: [.contentTypeKey]).contentType
-        }
-    }
-
-    var isDirectory: Bool? {
-        get throws {
-            return try resourceValues(forKeys: [.isDirectoryKey]).isDirectory
-        }
-    }
-
-    var pathIncludingTrailingSeparator: String {
-        if self.hasDirectoryPath {
-            return path + "/"
-        }
-        return path
-    }
-
-    init(filePath: String, itemType: FSEvent.ItemType) {
-        self.init(filePath: filePath, directoryHint: itemType == .dir ? .isDirectory : .notDirectory)
     }
 
 }

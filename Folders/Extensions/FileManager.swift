@@ -25,7 +25,10 @@ import UniformTypeIdentifiers
 
 extension FileManager {
 
-    func files(directoryURL: URL) throws -> [Details]  {
+    // Returns all the files contained within directoryURL, including the root.
+    func files(directoryURL: URL, ownerURL: URL? = nil) throws -> [Details]  {
+        precondition(directoryURL.hasDirectoryPath)
+        precondition(ownerURL?.hasDirectoryPath ?? true)
         let date = Date()
         let resourceKeys = Set<URLResourceKey>([.nameKey,
                                                 .isDirectoryKey,
@@ -35,7 +38,7 @@ extension FileManager {
                                              includingPropertiesForKeys: Array(resourceKeys),
                                              options: [.skipsHiddenFiles])!
 
-        var files: [Details] = []
+        var files: [Details] = [try details(for: directoryURL, owner: ownerURL ?? directoryURL)]
         for case let fileURL as URL in directoryEnumerator {
             guard let contentType = try fileURL.contentType,
                   let contentModificationDate = try fileURL.contentModificationDate
@@ -43,7 +46,7 @@ extension FileManager {
                 print("Failed to determine content type for \(fileURL).")
                 continue
             }
-            files.append(Details(ownerURL: directoryURL,
+            files.append(Details(ownerURL: ownerURL ?? directoryURL,
                                  url: fileURL,
                                  contentType: contentType,
                                  contentModificationDate: contentModificationDate.millisecondsSinceReferenceDate))

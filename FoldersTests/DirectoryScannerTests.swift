@@ -20,49 +20,28 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-import Foundation
-import UniformTypeIdentifiers
+import XCTest
+@testable import Folders
 
-import FSEventsWrapper
+final class DirectoryScannerTests: XCTestCase {
 
-extension URL: Identifiable {
-
-    public var id: Self {
-        return self
-    }
-
-    var displayName: String {
-        precondition(isFileURL)
-        return FileManager.default.displayName(atPath: self.path)
-    }
-
-    var contentModificationDate: Date? {
-        get throws {
-            return try resourceValues(forKeys: [.contentModificationDateKey]).contentModificationDate
+    func testCreate() throws {
+        try withTemporaryDirectory { directoryURL in
+            let url = directoryURL.appendingPathComponent("example.txt")
+            let expectation = self.expectation(description: "create file")
+            let scanner = try scan(directoryURL: directoryURL) { files in
+                XCTAssertEqual(files.count, 1)
+                XCTAssertEqual(files.first?.ownerURL, directoryURL)
+                XCTAssertEqual(files.first?.url, url)
+                XCTAssertEqual(files.first?.contentType, .plainText)
+                expectation.fulfill()
+            } onFileDeletion: { identifiers in
+                XCTFail("Unexpected deletion event")
+            }
+            try FileManager.default.touch(url: url, atomically: true)
+            waitForExpectations(timeout: 1.0)
+            scanner.stop()
         }
-    }
-
-    var contentType: UTType? {
-        get throws {
-            return try resourceValues(forKeys: [.contentTypeKey]).contentType
-        }
-    }
-
-    var isDirectory: Bool? {
-        get throws {
-            return try resourceValues(forKeys: [.isDirectoryKey]).isDirectory
-        }
-    }
-
-    var pathIncludingTrailingSeparator: String {
-        if self.hasDirectoryPath {
-            return path + "/"
-        }
-        return path
-    }
-
-    init(filePath: String, itemType: FSEvent.ItemType) {
-        self.init(filePath: filePath, directoryHint: itemType == .dir ? .isDirectory : .notDirectory)
     }
 
 }

@@ -24,13 +24,21 @@ import SwiftUI
 
 import FSEventsWrapper
 
+protocol DirectoryScannerDelegate: NSObject {
+
+    func directoryScannerDidStart(_ directoryScanner: DirectoryScanner)
+
+}
+
 // TODO: Start/stop thread-safety
+// TODO: Perhaps we could require that this is started and stopped on its workQueue? That might make it easiest to manage
 class DirectoryScanner {
 
     let url: URL
     let workQueue = DispatchQueue(label: "workQueue")
     var stream: FSEventStream? = nil
-    var identifiers: Set<Details.Identifier> = []  // Work Queue
+    var identifiers: Set<Details.Identifier> = []  // Synchronized on workQueue
+    weak var delegate: DirectoryScannerDelegate?
 
     init(url: URL) {
         self.url = url
@@ -39,40 +47,49 @@ class DirectoryScanner {
     func start(load: @escaping () -> Set<Details>,
                onFileCreation: @escaping (any Collection<Details>) -> Void,
                onFileDeletion: @escaping (any Collection<Details.Identifier>) -> Void) {
+        // TODO: Allow this to be run with a blocking startup.
+        dispatchPrecondition(condition: .notOnQueue(workQueue))
 
         let ownerURL = url
 
         // TODO: Consider creating this in the constructor.
         stream = FSEventStream(path: url.path,
                                fsEventStreamFlags: FSEventStreamEventFlags(kFSEventStreamCreateFlagFileEvents),
-                               queue: workQueue) { stream, event in
+                               queue: workQueue) { [weak self] stream, event in
+            guard let self else {
+                return
+            }
 
             let fileManager = FileManager.default
 
-            switch event {
-            case .itemClonedAtPath:
-                return
-            case .itemCreated(path: let path, itemType: let itemType, eventId: _, fromUs: _):
+            do {
+                switch event {
+                case .itemClonedAtPath:
+                    return
+                case .itemCreated(path: let path, itemType: let itemType, eventId: _, fromUs: _):
 
-                print("File created at path '\(path)'")
-                do {
-                    let url = URL(filePath: path, directoryHint: itemType == .dir ? .isDirectory : .notDirectory)
-                    let details = try FileManager.default.details(for: url, owner: ownerURL)
+                    let url = URL(filePath: path, itemType: itemType)
+                    let details = try fileManager.details(for: url, owner: ownerURL)
+
+                    // Depending on the system load, it seems like we sometimes receive events for file operations that
+                    // were already captured in our initial snapshot that we want to ignore.
+                    guard !self.identifiers.contains(details.identifier) else {
+                        return
+                    }
+
+                    print("File created at path '\(path)'")
+
                     onFileCreation([details])
                     self.identifiers.insert(details.identifier)
-                } catch {
-                    print("Failed to handle file creation with error \(error).")
-                }
 
-            case .itemRenamed(path: let path, itemType: let itemType, eventId: _, fromUs: _):
+                case .itemRenamed(path: let path, itemType: let itemType, eventId: _, fromUs: _):
 
-                // Helpfully, file renames can be additions or removals, so we check to see if the file exists at the
-                // new location to determine which.
-                do {
-                    let url = URL(filePath: path, directoryHint: itemType == .dir ? .isDirectory : .notDirectory)
+                    // Helpfully, file renames can be additions or removals, so we check to see if the file exists at the
+                    // new location to determine which.
+                    let url = URL(filePath: path, itemType: itemType)
                     if fileManager.fileExists(atPath: url.path) {
 
-                        let details = try FileManager.default.details(for: url, owner: ownerURL)
+                        let details = try fileManager.details(for: url, owner: ownerURL)
 
                         // If a file exists at the new path and also exists in our runtime cache of files then we infer
                         // that this rename actuall represents a content modification operation; our file has been
@@ -85,17 +102,14 @@ class DirectoryScanner {
                             print("File added by rename '\(url)'")
                         }
 
-                        onFileCreation([details])
-                        self.identifiers.insert(details.identifier)
-
                         // We don't get notified about files contained within a directory, so we walk those explicitly.
                         if itemType == .dir {
-                            let files = try fileManager.files(directoryURL: url)
-                                .map { details in
-                                    return details.setting(ownerURL: ownerURL)
-                                }
+                            let files = try fileManager.files(directoryURL: url, ownerURL: ownerURL)
                             onFileCreation(files)
                             self.identifiers.formUnion(files.map({ $0.identifier }))
+                        } else {
+                            onFileCreation([details])
+                            self.identifiers.insert(details.identifier)
                         }
 
                     } else {
@@ -112,28 +126,21 @@ class DirectoryScanner {
                             self.identifiers.remove(identifier)
                         }
                     }
-                } catch {
-                    print("Failed to handle file deletion with error \(error).")
-                }
 
-            case .itemRemoved(path: let path, itemType: let itemType, eventId: _, fromUs: _):
+                case .itemRemoved(path: let path, itemType: let itemType, eventId: _, fromUs: _):
 
-                let url = URL(filePath: path, directoryHint: itemType == .dir ? .isDirectory : .notDirectory)
-                print("File removed '\(url)'")
-                let identifier = Details.Identifier(ownerURL: ownerURL, url: url)
-                onFileDeletion([identifier])
-                self.identifiers.remove(identifier)
+                    let url = URL(filePath: path, itemType: itemType)
+                    print("File removed '\(url)'")
+                    let identifier = Details.Identifier(ownerURL: ownerURL, url: url)
+                    onFileDeletion([identifier])
+                    self.identifiers.remove(identifier)
 
-            case .itemInodeMetadataModified(path: let path, itemType: let itemType, eventId: _, fromUs: _):
-                /* .itemXattrModified(path: let path, itemType: let itemType, eventId: _, fromUs: _) */
+                case .itemInodeMetadataModified(path: let path, itemType: let itemType, eventId: _, fromUs: _):
 
-                // TODO: Common error handling for all callbacks.
-                // TODO: We need to handle directories carefully here.
-
-                do {
+                    // TODO: We need to handle directories carefully here.
 
                     // TODO: Consider generalising this code.
-                    let url = URL(filePath: path, directoryHint: itemType == .dir ? .isDirectory : .notDirectory)
+                    let url = URL(filePath: path, itemType: itemType)
                     let identifier = Details.Identifier(ownerURL: ownerURL, url: url)
 
                     // Remove the file if it exists in our set.
@@ -142,20 +149,18 @@ class DirectoryScanner {
                     }
 
                     // Create a new identifier corresponding to the udpated file.
-                    let details = try FileManager.default.details(for: url, owner: ownerURL)  // TODO: details(for identifier: Details.Identifier)?
+                    let details = try fileManager.details(for: url, owner: ownerURL)  // TODO: details(for identifier: Details.Identifier)?
                     onFileCreation([details])
 
                     // Ensure there's an entry for the (potentially) new file.
                     self.identifiers.insert(identifier)
 
-                    print("Item modified!")
-
-                } catch {
-                    print("Failed to handle file modification with error \(error).")
+                default:
+                    print("Unhandled file event \(event).")
                 }
 
-            default:
-                print("Unhandled file event \(event).")
+            } catch {
+                print("Failed to handle update with error \(error).")
             }
         }
 
@@ -163,7 +168,10 @@ class DirectoryScanner {
             preconditionFailure("Failed to create event stream!")
         }
 
-        workQueue.async { [url] in
+        workQueue.async { [weak self, url] in
+            guard let self else {
+                return
+            }
 
             // Start the event stream watching.
             // We do this from here to ensure we don't miss any events, and that all individual change callbacks are
@@ -172,33 +180,41 @@ class DirectoryScanner {
 
             // TODO: Handle errors.
             let fileManager = FileManager.default
-            let files = Set(try! fileManager.files(directoryURL: url) + [fileManager.details(for: url, owner: url)])
+            let files = Set(try! fileManager.files(directoryURL: url))
 
             let currentState = load()
 
             // Add just the new files.
-            let newFiles = files.subtracting(currentState)
-            if newFiles.count > 0 {
-                print("Inserting \(newFiles.count) new files...")
-                onFileCreation(newFiles)
+            let created = files.subtracting(currentState)
+            if created.count > 0 {
+                print("Inserting \(created.count) new files...")
+                onFileCreation(created)
             }
 
             // Remove the remaining files.
-            let deletedIdentifiers = currentState.subtracting(files)
+            let deleted = currentState.subtracting(files)
                 .map { $0.identifier }
-            if deletedIdentifiers.count > 0 {
-                print("Removing \(deletedIdentifiers.count) deleted files...")
-                onFileDeletion(deletedIdentifiers)
+            if deleted.count > 0 {
+                print("Removing \(deleted.count) deleted files...")
+                onFileDeletion(deleted)
             }
 
-            self.identifiers = files.map({ $0.identifier }).reduce(into: Set<Details.Identifier>(), { partialResult, identifier in
-                partialResult.insert(identifier)
-            })
+            // Cache the initial state.
+            self.identifiers = files
+                .map {
+                    return $0.identifier
+                }
+                .reduce(into: Set<Details.Identifier>()) { partialResult, identifier in
+                    partialResult.insert(identifier)
+                }
+
+            self.delegate?.directoryScannerDidStart(self)
         }
 
     }
 
     func stop() {
+        // TODO: Do this on the workQueue to ensure it's all thread-safe and we guarantee we don't get any more callbacks?
         stream?.stopWatching()
         stream = nil
     }
