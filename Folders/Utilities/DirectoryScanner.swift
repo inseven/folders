@@ -127,6 +127,7 @@ class DirectoryScanner {
                 /* .itemXattrModified(path: let path, itemType: let itemType, eventId: _, fromUs: _) */
 
                 // TODO: Common error handling for all callbacks.
+                // TODO: We need to handle directories carefully here.
 
                 do {
 

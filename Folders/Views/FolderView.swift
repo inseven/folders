@@ -34,10 +34,10 @@ struct FolderView: View {
     let ownerURL: URL
     let url: URL
 
-    init(ownerURL: URL, url: URL) {
+    init(applicationModel: ApplicationModel, ownerURL: URL, url: URL) {
         self.ownerURL = ownerURL
         self.url = url
-        _folderModel = StateObject(wrappedValue: FolderModel(url: url))
+        _folderModel = StateObject(wrappedValue: FolderModel(store: applicationModel.store, url: url))
     }
 
     var body: some View {
