@@ -72,27 +72,15 @@ if [ -f "$ENV_PATH" ] ; then
     source "$ENV_PATH"
 fi
 
-function xcode_project {
-    xcodebuild \
-        -project Folders.xcodeproj "$@"
-}
-
-function build_scheme {
-    # Disable code signing for the build server.
-    xcode_project \
-        -scheme "$1" \
-        CODE_SIGN_IDENTITY="" \
-        CODE_SIGNING_REQUIRED=NO \
-        CODE_SIGNING_ALLOWED=NO "${@:2}"
-}
-
 cd "$ROOT_DIRECTORY"
 
 # Select the correct Xcode.
 sudo xcode-select --switch "$MACOS_XCODE_PATH"
 
 # List the available schemes.
-xcode_project -list
+xcodebuild \
+    -project Folders.xcodeproj \
+    -list
 
 # Clean up the build directory.
 if [ -d "$BUILD_DIRECTORY" ] ; then
@@ -123,15 +111,21 @@ VERSION_NUMBER=`changes version`
 BUILD_NUMBER=`build-number.swift`
 
 # Import the certificates into our dedicated keychain.
+echo "$APPLE_DEVELOPMENT_CERTIFICATE_PASSWORD" | build-tools import-base64-certificate --password "$KEYCHAIN_PATH" "$APPLE_DEVELOPMENT_CERTIFICATE_BASE64"
 echo "$APPLE_DISTRIBUTION_CERTIFICATE_PASSWORD" | build-tools import-base64-certificate --password "$KEYCHAIN_PATH" "$APPLE_DISTRIBUTION_CERTIFICATE_BASE64"
 echo "$MACOS_DEVELOPER_INSTALLER_CERTIFICATE_PASSWORD" | build-tools import-base64-certificate --password "$KEYCHAIN_PATH" "$MACOS_DEVELOPER_INSTALLER_CERTIFICATE_BASE64"
 
 # Install the provisioning profiles.
 build-tools install-provisioning-profile "Folders_Mac_App_Store_Profile.provisionprofile"
 
-# Build and archive the macOS project.
+# Build, test, and archive the macOS project.
 sudo xcode-select --switch "$MACOS_XCODE_PATH"
-xcode_project \
+xcodebuild \
+    -project Folders.xcodeproj \
+    -scheme "Folders" \
+    clean build build-for-testing test
+xcodebuild \
+    -project Folders.xcodeproj \
     -scheme "Folders" \
     -config Release \
     -archivePath "$ARCHIVE_PATH" \
