@@ -45,6 +45,11 @@ jobs:
       run: |
         scripts/build.sh
 
+    - uses: kishikawakatsumi/xcresulttool@v1
+      with:
+        path: build/Results.xcresult
+      if: success() || failure()
+
     - name: Archive the binary
       uses: actions/upload-artifact@v4
       with:
