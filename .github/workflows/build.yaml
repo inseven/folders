@@ -45,15 +45,15 @@ jobs:
       run: |
         scripts/build.sh
 
-    - name: Archive test results
+    - name: Archive binary
       uses: actions/upload-artifact@v4
       with:
-        path: build/Results.xcresult
+        path: build/build-*.zip
+        if-no-files-found: error
 
-    - name: Archive the binary
+    - name: Archive build direcctory
       uses: actions/upload-artifact@v4
       if: always()
       with:
-        name: test-results
-        path: build/build-*.zip
-        if-no-files-found: error
+        name: build-directory
+        path: build
