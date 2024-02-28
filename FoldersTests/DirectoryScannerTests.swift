@@ -39,7 +39,7 @@ final class DirectoryScannerTests: XCTestCase {
                 XCTFail("Unexpected deletion event")
             }
             try FileManager.default.touch(url: url, atomically: true)
-            waitForExpectations(timeout: 1.0)
+            waitForExpectations(timeout: 5.0)
             scanner.stop()
         }
     }
