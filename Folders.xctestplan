@@ -1,0 +1,35 @@
+{
+  "configurations" : [
+    {
+      "id" : "5A047A20-9E99-42F3-93F6-A59D8258F552",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:Folders.xcodeproj",
+      "identifier" : "D87653AF2AC9F01600E8B65D",
+      "name" : "Folders"
+    }
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:Folders.xcodeproj",
+        "identifier" : "D87653C02AC9F01900E8B65D",
+        "name" : "FoldersTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:Folders.xcodeproj",
+        "identifier" : "D87653CA2AC9F01900E8B65D",
+        "name" : "FoldersUITests"
+      }
+    }
+  ],
+  "version" : 1
+}
