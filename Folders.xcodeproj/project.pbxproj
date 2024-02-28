@@ -57,6 +57,9 @@
 		D8F6A6112B8D64BA0003B1A6 /* StorePublisher.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F6A6102B8D64BA0003B1A6 /* StorePublisher.swift */; };
 		D8F6A6132B8D7CC00003B1A6 /* StoreOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F6A6122B8D7CC00003B1A6 /* StoreOperation.swift */; };
 		D8F6A6152B8D84840003B1A6 /* StoreUpdater.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F6A6142B8D84840003B1A6 /* StoreUpdater.swift */; };
+		D8FE1FDE2B8E7D7A006FE439 /* DirectoryScannerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8FE1FDD2B8E7D7A006FE439 /* DirectoryScannerTests.swift */; };
+		D8FE1FE12B8E7D98006FE439 /* XCTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8FE1FE02B8E7D98006FE439 /* XCTestCase.swift */; };
+		D8FE1FE32B8EAE2D006FE439 /* FileManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8FE1FE22B8EAE2D006FE439 /* FileManager.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -89,6 +92,7 @@
 		D8472A6B2B2518900070DB64 /* NSCollectionViewDiffableDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSCollectionViewDiffableDataSource.swift; sourceTree = "<group>"; };
 		D8472A6D2B2518D00070DB64 /* InteractiveCollectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InteractiveCollectionView.swift; sourceTree = "<group>"; };
 		D85C07B02B7EBC3A00C8BAA6 /* FolderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolderView.swift; sourceTree = "<group>"; };
+		D861A32F2B8EC22900A79214 /* Folders.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = Folders.xctestplan; sourceTree = "<group>"; };
 		D870EC9D2B7EC47B00704688 /* FolderModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolderModel.swift; sourceTree = "<group>"; };
 		D870ECA62B7EDDD100704688 /* folders-license */ = {isa = PBXFileReference; lastKnownFileType = text; path = "folders-license"; sourceTree = "<group>"; };
 		D87653B02AC9F01600E8B65D /* Folders.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Folders.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -125,6 +129,9 @@
 		D8F6A6102B8D64BA0003B1A6 /* StorePublisher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorePublisher.swift; sourceTree = "<group>"; };
 		D8F6A6122B8D7CC00003B1A6 /* StoreOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreOperation.swift; sourceTree = "<group>"; };
 		D8F6A6142B8D84840003B1A6 /* StoreUpdater.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreUpdater.swift; sourceTree = "<group>"; };
+		D8FE1FDD2B8E7D7A006FE439 /* DirectoryScannerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DirectoryScannerTests.swift; sourceTree = "<group>"; };
+		D8FE1FE02B8E7D98006FE439 /* XCTestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XCTestCase.swift; sourceTree = "<group>"; };
+		D8FE1FE22B8EAE2D006FE439 /* FileManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -191,6 +198,7 @@
 		D87653A72AC9F01600E8B65D = {
 			isa = PBXGroup;
 			children = (
+				D861A32F2B8EC22900A79214 /* Folders.xctestplan */,
 				D87653B22AC9F01600E8B65D /* Folders */,
 				D87653C42AC9F01900E8B65D /* FoldersTests */,
 				D87653CE2AC9F01900E8B65D /* FoldersUITests */,
@@ -237,7 +245,9 @@
 		D87653C42AC9F01900E8B65D /* FoldersTests */ = {
 			isa = PBXGroup;
 			children = (
+				D8FE1FDF2B8E7D8E006FE439 /* Extensions */,
 				D87653C52AC9F01900E8B65D /* FoldersTests.swift */,
+				D8FE1FDD2B8E7D7A006FE439 /* DirectoryScannerTests.swift */,
 			);
 			path = FoldersTests;
 			sourceTree = "<group>";
@@ -291,6 +301,15 @@
 				D879E3442AD27C7B00A021E0 /* SidebarItem.swift */,
 			);
 			path = Models;
+			sourceTree = "<group>";
+		};
+		D8FE1FDF2B8E7D8E006FE439 /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				D8FE1FE22B8EAE2D006FE439 /* FileManager.swift */,
+				D8FE1FE02B8E7D98006FE439 /* XCTestCase.swift */,
+			);
+			path = Extensions;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -486,7 +505,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D8FE1FDE2B8E7D7A006FE439 /* DirectoryScannerTests.swift in Sources */,
 				D87653C62AC9F01900E8B65D /* FoldersTests.swift in Sources */,
+				D8FE1FE12B8E7D98006FE439 /* XCTestCase.swift in Sources */,
+				D8FE1FE32B8EAE2D006FE439 /* FileManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -709,7 +731,6 @@
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = QS82QFHKWB;
 				GENERATE_INFOPLIST_FILE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = uk.co.jbmorley.folders.apps.appstore.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -729,7 +750,6 @@
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = S4WXAUZQEV;
 				GENERATE_INFOPLIST_FILE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = uk.co.jbmorley.folders.apps.appstore.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
