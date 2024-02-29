@@ -127,6 +127,10 @@ class InnerGridView: NSView {
         fatalError("init(coder:) has not been implemented")
     }
 
+    deinit {
+        storeView.stop()  // TODO: This is currently necessary to ensure the observers are removed.
+    }
+
     override func acceptsPreviewPanelControl(_ panel: QLPreviewPanel!) -> Bool {
         return true
     }

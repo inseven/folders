@@ -53,6 +53,7 @@ class Store {
     let databaseURL: URL
     let syncQueue = DispatchQueue(label: "Store.syncQueue")
     let connection: Connection
+    let observerLock = NSRecursiveLock()
 
     static var migrations: [Int32: (Connection) throws -> Void] = [
         1: { connection in
@@ -81,17 +82,15 @@ class Store {
     }
 
     func add(observer: StoreObserver) {
-        dispatchPrecondition(condition: .notOnQueue(syncQueue))
-        syncQueue.sync {
-            observers.append(observer)
+        observerLock.withLock {
+            self.observers.append(observer)
         }
     }
 
     // TODO: This feels janky. It might be a cleaner API to return an 'observer' instead.
+    // TODO: Check to see if we leak observers??
     func remove(observer: StoreObserver) {
-        dispatchPrecondition(condition: .notOnQueue(syncQueue))
-        syncQueue.sync {
-            // TODO: This might be insufficient unless we use some kind of thread-safe cancel operation.
+        observerLock.withLock {
             observers.removeAll { $0.isEqual(observer) }
         }
     }
@@ -110,10 +109,10 @@ class Store {
 
     // TODO: This can't be cancelled?
     private func runBlocking<T>(perform: @escaping () throws -> T) throws -> T {
+        dispatchPrecondition(condition: .notOnQueue(.main))
         dispatchPrecondition(condition: .notOnQueue(syncQueue))
-        // TODO: IS THIS QUEUE REALLY NEEDED?
         var result: Swift.Result<T, Error>? = nil
-        syncQueue.sync {
+        syncQueue.sync {  // TODO: Is the syncQueue necessary?
             result = Swift.Result<T, Error> {
                 return try perform()
             }
@@ -171,12 +170,13 @@ class Store {
                     // Track the inserted files to notify our observers.
                     insertions.append(file)
                 }
-                for observer in self.observers {
-                    DispatchQueue.global(qos: .default).async {
-                        observer.store(self, didInsertFiles: insertions)
+                self.observerLock.withLock {
+                    for observer in self.observers {
+                        DispatchQueue.global(qos: .default).async {
+                            observer.store(self, didInsertFiles: insertions)
+                        }
                     }
                 }
-
             }
         }
     }
@@ -196,9 +196,11 @@ class Store {
                         updates.append(file)
                     }
                 }
-                for observer in self.observers {
-                    DispatchQueue.global(qos: .default).async {
-                        observer.store(self, didUpdateFiles: updates)
+                self.observerLock.withLock {
+                    for observer in self.observers {
+                        DispatchQueue.global(qos: .default).async {
+                            observer.store(self, didUpdateFiles: updates)
+                        }
                     }
                 }
             }
@@ -221,9 +223,11 @@ class Store {
                 guard removals.count > 0 else {
                     return
                 }
-                for observer in self.observers {
-                    DispatchQueue.global(qos: .default).async {
-                        observer.store(self, didRemoveFilesWithIdentifiers: removals)
+                self.observerLock.withLock {
+                    for observer in self.observers {
+                        DispatchQueue.global(qos: .default).async {
+                            observer.store(self, didRemoveFilesWithIdentifiers: removals)
+                        }
                     }
                 }
             }

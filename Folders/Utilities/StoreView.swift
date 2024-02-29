@@ -42,6 +42,7 @@ class StoreView: NSObject, StoreObserver {
     let filter: Filter
     let sort: Sort
     let threshold: Int
+    var isRunning: Bool = false  // Synchronized on workQueue
 
     var files: [Details] = []
 
@@ -58,6 +59,7 @@ class StoreView: NSObject, StoreObserver {
     func start() {
         workQueue.async {
             do {
+                self.isRunning = true
 
                 // Start observing the database.
                 // TODO: Maybe this takes workQueue?
@@ -81,12 +83,16 @@ class StoreView: NSObject, StoreObserver {
     }
 
     func stop() {
+        // TODO: WOrk queue.
         store.remove(observer: self)
     }
 
     func store(_ store: Store, didInsertFiles files: [Details]) {
         dispatchPrecondition(condition: .notOnQueue(.main))
         workQueue.async {
+            guard self.isRunning else {
+                return
+            }
 
             // Ignore unrelated updates.
             let files = files.filter { self.filter.matches(details: $0) }
@@ -123,6 +129,9 @@ class StoreView: NSObject, StoreObserver {
     func store(_ store: Store, didUpdateFiles files: [Details]) {
         dispatchPrecondition(condition: .notOnQueue(.main))
         workQueue.async {
+            guard self.isRunning else {
+                return
+            }
 
             // Ignore unrelated updates.
             let files = files.filter { self.filter.matches(details: $0) }
@@ -159,6 +168,10 @@ class StoreView: NSObject, StoreObserver {
         // TODO: Maybe this shouldn't live on main queue
         // TODO: Pre-filter the updates.
         workQueue.async {
+            guard self.isRunning else {
+                return
+            }
+
             if identifiers.count < self.threshold {
                 for identifier in identifiers {
                     guard let index = self.files.firstIndex(where: { $0.identifier == identifier }) else {
