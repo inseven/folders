@@ -200,6 +200,18 @@ extension InnerGridView: StoreViewDelegate {
         dataSource.apply(snapshot, animatingDifferences: true)
     }
 
+    func storeView(_ storeView: StoreView, didUpdateFile file: Details, atIndex: Int) {
+        if let indexPath = dataSource.indexPath(for: file.identifier),
+           let cell = collectionView.item(at: indexPath) as? ShortcutItemView {
+            print("CELL!!!!")
+            cell.configure(url: file.url)
+        } else {
+//        var snapshot = dataSource.snapshot()
+//        snapshot.reloadItems([file.identifier])
+//        dataSource.apply(snapshot, animatingDifferences: true)
+        }
+    }
+
     func storeView(_ storeView: StoreView, didRemoveFileWithIdentifier identifier: Details.Identifier, atIndex: Int) {
         var snapshot = dataSource.snapshot()
         snapshot.deleteItems([identifier])

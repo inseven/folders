@@ -28,6 +28,7 @@ import SQLite
 protocol StoreObserver: NSObject {
 
     func store(_ store: Store, didInsertFiles files: [Details])
+    func store(_ store: Store, didUpdateFiles files: [Details])
     func store(_ store: Store, didRemoveFilesWithIdentifiers identifiers: [Details.Identifier])
 
 }
@@ -37,6 +38,7 @@ class Store {
     struct Schema {
         static let files = Table("files")
         static let id = Expression<Int64>("id")
+        static let uuid = Expression<UUID>("uuid")
         static let owner = Expression<String>("owner")
         static let path = Expression<String>("path")
         static let name = Expression<String>("name")
@@ -44,7 +46,7 @@ class Store {
         static let modificationDate = Expression<Int>("modification_date")
     }
 
-    static let majorVersion = 47
+    static let majorVersion = 48
 
     var observers: [StoreObserver] = []
 
@@ -56,7 +58,8 @@ class Store {
         1: { connection in
             print("create the files table...")
             try connection.run(Schema.files.create(ifNotExists: true) { t in
-                t.column(Schema.id, primaryKey: true)
+                t.column(Schema.id, primaryKey: true)  // TODO: I could maybe drop this for the uuid?
+                t.column(Schema.uuid)
                 t.column(Schema.owner)
                 t.column(Schema.path)
                 t.column(Schema.name)
@@ -158,6 +161,7 @@ class Store {
 
                     // If it does not, we insert it.
                     try connection.run(Schema.files.insert(or: .fail,
+                                                           Schema.uuid <- file.uuid,
                                                            Schema.owner <- file.ownerURL.path,
                                                            Schema.path <- file.url.path,
                                                            Schema.name <- file.url.displayName,
@@ -173,6 +177,30 @@ class Store {
                     }
                 }
 
+            }
+        }
+    }
+
+    func updateBlocking(files: any Collection<Details>) throws {
+        return try runBlocking { [connection] in
+            try connection.transaction {
+                var updates = [Details]()
+                for file in files {
+                    let row = Schema.files.filter(Schema.uuid == file.uuid)
+                    let count = try connection.run(row.update(Schema.owner <- file.ownerURL.path,
+                                                              Schema.path <- file.url.path,
+                                                              Schema.name <- file.url.displayName,
+                                                              Schema.type <- file.contentType.identifier,
+                                                              Schema.modificationDate <- file.contentModificationDate))
+                    if count > 0 {
+                        updates.append(file)
+                    }
+                }
+                for observer in self.observers {
+                    DispatchQueue.global(qos: .default).async {
+                        observer.store(self, didUpdateFiles: updates)
+                    }
+                }
             }
         }
     }
@@ -212,7 +240,7 @@ class Store {
 
     func syncQueue_files(filter: Filter, sort: Sort) throws -> [Details] {
         dispatchPrecondition(condition: .onQueue(syncQueue))
-        return try connection.prepareRowIterator(Schema.files.select(Schema.owner, Schema.path, Schema.type, Schema.modificationDate)
+        return try connection.prepareRowIterator(Schema.files.select(Schema.files[*])
             .filter(filter.filter)
             .order(sort.order))
         .map { row in
@@ -221,7 +249,12 @@ class Store {
             let url = URL(filePath: row[Schema.path],
                           directoryHint: type.conforms(to: .directory) ? .isDirectory : .notDirectory)
             let modificationDate = row[Schema.modificationDate]
-            return Details(ownerURL: ownerURL, url: url, contentType: type, contentModificationDate: modificationDate)
+            let uuid = row[Schema.uuid]
+            return Details(uuid: uuid,
+                           ownerURL: ownerURL,
+                           url: url,
+                           contentType: type,
+                           contentModificationDate: modificationDate)
         }
     }
 

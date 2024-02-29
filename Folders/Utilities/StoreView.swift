@@ -30,6 +30,7 @@ protocol StoreViewDelegate: NSObject {
     func storeViewDidUpdate(_ storeView: StoreView)
     // TODO: Expose the details directly in the update.
     func storeView(_ storeView: StoreView, didInsertFile file: Details, atIndex: Int)
+    func storeView(_ storeView: StoreView, didUpdateFile file: Details, atIndex: Int)
     func storeView(_ storeView: StoreView, didRemoveFileWithIdentifier identifier: Details.Identifier, atIndex: Int)
 
 }
@@ -86,11 +87,15 @@ class StoreView: NSObject, StoreObserver {
     func store(_ store: Store, didInsertFiles files: [Details]) {
         dispatchPrecondition(condition: .notOnQueue(.main))
         DispatchQueue.main.async {
+
+            // Ignore unrelated updates.
+            let files = files.filter { self.filter.matches(details: $0) }
+            guard files.count > 0 else {
+                return
+            }
+
             if files.count < self.threshold {
                 for file in files {
-                    guard self.filter.matches(details: file) else {
-                        continue
-                    }
                     let index = self.files.partitioningIndex {
                         return self.sort.compare(file, $0)
                     }
@@ -99,14 +104,41 @@ class StoreView: NSObject, StoreObserver {
                 }
             } else {
                 for file in files {
-                    guard self.filter.matches(details: file) else {
-                        continue
-                    }
                     let index = self.files.partitioningIndex {
                         return self.sort.compare(file, $0)
                     }
                     self.files.insert(file, at: index)
                 }
+                // TODO: We might as well cascade these changes down to the table view to allow it decide on performance
+                //       characteristics.
+                self.delegate?.storeViewDidUpdate(self)
+            }
+        }
+    }
+
+    func store(_ store: Store, didUpdateFiles files: [Details]) {
+        dispatchPrecondition(condition: .notOnQueue(.main))
+        DispatchQueue.main.async {
+
+            // Ignore unrelated updates.
+            let files = files.filter { self.filter.matches(details: $0) }
+            guard files.count > 0 else {
+                return
+            }
+
+            var indexes = [(Details, Int)]()
+            for file in files {
+                let index = self.files.firstIndex { $0.uuid == file.uuid }!
+                self.files[index] = file
+                indexes.append((file, index))
+            }
+            // TODO: Actual update API.
+
+            if indexes.count < self.threshold {
+                for (file, index) in indexes {
+                    self.delegate?.storeView(self, didUpdateFile: file, atIndex: index)
+                }
+            } else {
                 self.delegate?.storeViewDidUpdate(self)
             }
         }
@@ -115,6 +147,7 @@ class StoreView: NSObject, StoreObserver {
     func store(_ store: Store, didRemoveFilesWithIdentifiers identifiers: [Details.Identifier]) {
         dispatchPrecondition(condition: .notOnQueue(.main))
         // TODO: Maybe this shouldn't live on main queue
+        // TODO: Pre-filter the updates.
         DispatchQueue.main.async {
             if identifiers.count < self.threshold {
                 for identifier in identifiers {

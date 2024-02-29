@@ -209,6 +209,10 @@ extension ApplicationModel: StoreViewDelegate {
         self.lookup = sidebarItems(for: storeView.files)
     }
 
+    func storeView(_ storeView: StoreView, didUpdateFile file: Details, atIndex: Int) {
+        self.lookup = sidebarItems(for: storeView.files)
+    }
+
     func storeView(_ storeView: StoreView, didRemoveFileWithIdentifier identifier: Details.Identifier, atIndex: Int) {
         self.lookup = sidebarItems(for: storeView.files)
     }
