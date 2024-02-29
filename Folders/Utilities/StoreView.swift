@@ -44,6 +44,9 @@ class StoreView: NSObject, StoreObserver {
     private var isRunning: Bool = false  // Synchronized on workQueue
     private var files: [Details] = []  // Synchronized on workQueue
 
+    // TODO: We _could_ consider using a thread to guard against mutation to `files` instead of the queue.
+    // TODO: It might be nice to have a targetQueue for the delegate to make the serialisation explicit.
+
     weak var delegate: StoreViewDelegate? = nil
 
     init(store: Store, filter: Filter = TrueFilter(), sort: Sort = .displayNameAscending, threshold: Int = 10) {
