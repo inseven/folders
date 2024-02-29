@@ -25,6 +25,7 @@ import UniformTypeIdentifiers
 
 struct Details: Hashable {
 
+    // TODO: This isn't really an identifier anymore is it.
     struct Identifier: Equatable, Hashable {
         let ownerURL: URL
         let url: URL
@@ -36,6 +37,7 @@ struct Details: Hashable {
 
     let identifier: Identifier
     let ownerURL: URL
+    let uuid: UUID
     let url: URL
     let contentType: UTType
 
@@ -44,7 +46,8 @@ struct Details: Hashable {
     // instead store the contentModificationDate as an Int which represents milliseconds since the reference data.
     let contentModificationDate: Int
 
-    init(ownerURL: URL, url: URL, contentType: UTType, contentModificationDate: Int) {
+    init(uuid: UUID, ownerURL: URL, url: URL, contentType: UTType, contentModificationDate: Int) {
+        self.uuid = uuid
         self.identifier = Identifier(ownerURL: ownerURL, url: url)
         self.ownerURL = ownerURL
         self.url = url
@@ -57,10 +60,28 @@ struct Details: Hashable {
     }
 
     func setting(ownerURL: URL) -> Details {
-        return Details(ownerURL: ownerURL,
+        return Details(uuid: uuid,
+                       ownerURL: ownerURL,
                        url: url,
                        contentType: contentType,
                        contentModificationDate: contentModificationDate)
+    }
+
+    func equivalent(to details: Details) -> Bool {
+        // TODO: Does the content type ever change?
+        // TODO: Function overload?
+        return (ownerURL == details.ownerURL &&
+                url == details.url &&
+                contentType == details.contentType &&
+                contentModificationDate == details.contentModificationDate)
+    }
+
+    func applying(details: Details) -> Details {
+        return Details(uuid: uuid,
+                       ownerURL: ownerURL,
+                       url: url,
+                       contentType: contentType,
+                       contentModificationDate: details.contentModificationDate)
     }
 
 }

@@ -28,15 +28,19 @@ import SQLite
 protocol StoreObserver: NSObject {
 
     func store(_ store: Store, didInsertFiles files: [Details])
+    func store(_ store: Store, didUpdateFiles files: [Details])
     func store(_ store: Store, didRemoveFilesWithIdentifiers identifiers: [Details.Identifier])
 
 }
+
+// TODO: Notifying observers in a transaction seems incredibly inefficient.
 
 class Store {
 
     struct Schema {
         static let files = Table("files")
         static let id = Expression<Int64>("id")
+        static let uuid = Expression<UUID>("uuid")
         static let owner = Expression<String>("owner")
         static let path = Expression<String>("path")
         static let name = Expression<String>("name")
@@ -44,19 +48,21 @@ class Store {
         static let modificationDate = Expression<Int>("modification_date")
     }
 
-    static let majorVersion = 47
+    static let majorVersion = 49
 
     var observers: [StoreObserver] = []
 
     let databaseURL: URL
     let syncQueue = DispatchQueue(label: "Store.syncQueue")
     let connection: Connection
+    let observerLock = NSRecursiveLock()
 
     static var migrations: [Int32: (Connection) throws -> Void] = [
         1: { connection in
             print("create the files table...")
             try connection.run(Schema.files.create(ifNotExists: true) { t in
-                t.column(Schema.id, primaryKey: true)
+                t.column(Schema.id, primaryKey: true)  // TODO: I could maybe drop this for the uuid?
+                t.column(Schema.uuid)
                 t.column(Schema.owner)
                 t.column(Schema.path)
                 t.column(Schema.name)
@@ -78,39 +84,24 @@ class Store {
     }
 
     func add(observer: StoreObserver) {
-        dispatchPrecondition(condition: .notOnQueue(syncQueue))
-        syncQueue.sync {
-            observers.append(observer)
+        observerLock.withLock {
+            self.observers.append(observer)
         }
     }
 
-    // TODO: This feels janky. It might be a cleaner API to return an 'observer' instead.
     func remove(observer: StoreObserver) {
-        dispatchPrecondition(condition: .notOnQueue(syncQueue))
-        syncQueue.sync {
-            // TODO: This might be insufficient unless we use some kind of thread-safe cancel operation.
+        // Since we guarantee that we only ever notify our delegates while holding the observer lock, we can guarantee
+        // that when we exit from this function, `observer` will never receive another callback.
+        observerLock.withLock {
             observers.removeAll { $0.isEqual(observer) }
         }
     }
 
-    private func run<T>(perform: @escaping () throws -> T) async throws -> T {
-        return try await withCheckedThrowingContinuation { continuation in
-            syncQueue.async {
-                let result = Swift.Result<T, Error> {
-                    try Task.checkCancellation()
-                    return try perform()
-                }
-                continuation.resume(with: result)
-            }
-        }
-    }
-
-    // TODO: This can't be cancelled?
     private func runBlocking<T>(perform: @escaping () throws -> T) throws -> T {
+        dispatchPrecondition(condition: .notOnQueue(.main))
         dispatchPrecondition(condition: .notOnQueue(syncQueue))
-        // TODO: IS THIS QUEUE REALLY NEEDED?
         var result: Swift.Result<T, Error>? = nil
-        syncQueue.sync {
+        syncQueue.sync {  // TODO: Is the syncQueue necessary?
             result = Swift.Result<T, Error> {
                 return try perform()
             }
@@ -158,6 +149,7 @@ class Store {
 
                     // If it does not, we insert it.
                     try connection.run(Schema.files.insert(or: .fail,
+                                                           Schema.uuid <- file.uuid,
                                                            Schema.owner <- file.ownerURL.path,
                                                            Schema.path <- file.url.path,
                                                            Schema.name <- file.url.displayName,
@@ -167,12 +159,39 @@ class Store {
                     // Track the inserted files to notify our observers.
                     insertions.append(file)
                 }
-                for observer in self.observers {
-                    DispatchQueue.global(qos: .default).async {
-                        observer.store(self, didInsertFiles: insertions)
+                self.observerLock.withLock {
+                    for observer in self.observers {
+                        DispatchQueue.global(qos: .default).async {
+                            observer.store(self, didInsertFiles: insertions)
+                        }
                     }
                 }
+            }
+        }
+    }
 
+    func updateBlocking(files: any Collection<Details>) throws {
+        return try runBlocking { [connection] in
+            try connection.transaction {
+                var updates = [Details]()
+                for file in files {
+                    let row = Schema.files.filter(Schema.uuid == file.uuid)
+                    let count = try connection.run(row.update(Schema.owner <- file.ownerURL.path,
+                                                              Schema.path <- file.url.path,
+                                                              Schema.name <- file.url.displayName,
+                                                              Schema.type <- file.contentType.identifier,
+                                                              Schema.modificationDate <- file.contentModificationDate))
+                    if count > 0 {
+                        updates.append(file)
+                    }
+                }
+                self.observerLock.withLock {
+                    for observer in self.observers {
+                        DispatchQueue.global(qos: .default).async {
+                            observer.store(self, didUpdateFiles: updates)
+                        }
+                    }
+                }
             }
         }
     }
@@ -193,9 +212,11 @@ class Store {
                 guard removals.count > 0 else {
                     return
                 }
-                for observer in self.observers {
-                    DispatchQueue.global(qos: .default).async {
-                        observer.store(self, didRemoveFilesWithIdentifiers: removals)
+                self.observerLock.withLock {
+                    for observer in self.observers {
+                        DispatchQueue.global(qos: .default).async {
+                            observer.store(self, didRemoveFilesWithIdentifiers: removals)
+                        }
                     }
                 }
             }
@@ -204,15 +225,23 @@ class Store {
 
     func removeBlocking(owner: URL) throws {
         return try runBlocking { [connection] in
-            let count = try connection.run(Schema.files.filter(Schema.owner == owner.path).delete())
-            print("Deleted \(count) rows.")
-            // TODO: Consider notifying our clients (though this is probably unnecessary and noisy).
+            try connection.transaction {
+                let files = try self.syncQueue_files(filter: .owner(owner), sort: .displayNameAscending)
+                try connection.run(Schema.files.filter(Schema.owner == owner.path).delete())
+                self.observerLock.withLock {
+                    for observer in self.observers {
+                        DispatchQueue.global(qos: .default).async {
+                            observer.store(self, didRemoveFilesWithIdentifiers: files.map({ $0.identifier }))
+                        }
+                    }
+                }
+            }
         }
     }
 
     func syncQueue_files(filter: Filter, sort: Sort) throws -> [Details] {
         dispatchPrecondition(condition: .onQueue(syncQueue))
-        return try connection.prepareRowIterator(Schema.files.select(Schema.owner, Schema.path, Schema.type, Schema.modificationDate)
+        return try connection.prepareRowIterator(Schema.files.select(Schema.files[*])
             .filter(filter.filter)
             .order(sort.order))
         .map { row in
@@ -221,18 +250,17 @@ class Store {
             let url = URL(filePath: row[Schema.path],
                           directoryHint: type.conforms(to: .directory) ? .isDirectory : .notDirectory)
             let modificationDate = row[Schema.modificationDate]
-            return Details(ownerURL: ownerURL, url: url, contentType: type, contentModificationDate: modificationDate)
+            let uuid = row[Schema.uuid]
+            return Details(uuid: uuid,
+                           ownerURL: ownerURL,
+                           url: url,
+                           contentType: type,
+                           contentModificationDate: modificationDate)
         }
     }
 
     func filesBlocking(filter: Filter, sort: Sort) throws -> [Details] {
         return try runBlocking {
-            return try self.syncQueue_files(filter: filter, sort: sort)
-        }
-    }
-
-    func files(filter: Filter, sort: Sort) async throws -> [Details] {
-        return try await run {
             return try self.syncQueue_files(filter: filter, sort: sort)
         }
     }

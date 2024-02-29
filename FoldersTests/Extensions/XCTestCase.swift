@@ -63,6 +63,7 @@ extension XCTestCase {
 
     func scan(directoryURL: URL,
               onFileCreation: @escaping (any Collection<Details>) -> Void,
+              onFileUpdate: @escaping (any Collection<Details>) -> Void,
               onFileDeletion: @escaping (any Collection<Details.Identifier>) -> Void) throws -> DirectoryScanner {
         let scanner = DirectoryScanner(url: directoryURL)
         let delegate = DirectoryScannerTestDelegate()
@@ -75,6 +76,9 @@ extension XCTestCase {
         } onFileCreation: { files in
             print("DirectoryScanner onFileCreation:\n\(files.map({ "  \($0.url.debugRepresentation)" }).joined(separator: "\n"))")
             onFileCreation(files)
+        } onFileUpdate: { files in
+            print("DirectoryScanner onFileUpdate:\n\(files.map({ "  \($0.url.debugRepresentation)" }).joined(separator: "\n"))")
+            onFileUpdate(files)
         } onFileDeletion: { identifiers in
             print("DirectoryScanner onFileDeletion:\n\(identifiers.map({ "  \($0.url.debugRepresentation)" }).joined(separator: "\n"))")
             onFileDeletion(identifiers)

@@ -46,7 +46,8 @@ extension FileManager {
                 print("Failed to determine content type for \(fileURL).")
                 continue
             }
-            files.append(Details(ownerURL: ownerURL ?? directoryURL,
+            files.append(Details(uuid: UUID(),
+                                 ownerURL: ownerURL ?? directoryURL,
                                  url: fileURL,
                                  contentType: contentType,
                                  contentModificationDate: contentModificationDate.millisecondsSinceReferenceDate))
@@ -76,7 +77,8 @@ extension FileManager {
             throw FoldersError.general("Unable to get content modification date for file '\(url.path)'.")
         }
 
-        return Details(ownerURL: owner,
+        return Details(uuid: UUID(),
+                       ownerURL: owner,
                        url: url,
                        contentType: isDirectory ? .directory : contentType,
                        contentModificationDate: contentModificationDate.millisecondsSinceReferenceDate)

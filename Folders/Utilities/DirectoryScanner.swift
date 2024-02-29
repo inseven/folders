@@ -37,7 +37,7 @@ class DirectoryScanner {
     let url: URL
     let workQueue = DispatchQueue(label: "workQueue")
     var stream: FSEventStream? = nil
-    var identifiers: Set<Details.Identifier> = []  // Synchronized on workQueue
+    var identifiers = [Details.Identifier: Details]()  // Synchronized on workQueue
     weak var delegate: DirectoryScannerDelegate?
 
     init(url: URL) {
@@ -46,6 +46,7 @@ class DirectoryScanner {
 
     func start(load: @escaping () -> Set<Details>,
                onFileCreation: @escaping (any Collection<Details>) -> Void,
+               onFileUpdate: @escaping (any Collection<Details>) -> Void,
                onFileDeletion: @escaping (any Collection<Details.Identifier>) -> Void) {
         // TODO: Allow this to be run with a blocking startup.
         dispatchPrecondition(condition: .notOnQueue(workQueue))
@@ -73,14 +74,14 @@ class DirectoryScanner {
 
                     // Depending on the system load, it seems like we sometimes receive events for file operations that
                     // were already captured in our initial snapshot that we want to ignore.
-                    guard !self.identifiers.contains(details.identifier) else {
+                    guard self.identifiers[details.identifier] == nil else {
                         return
                     }
 
                     print("File created at path '\(path)'")
 
                     onFileCreation([details])
-                    self.identifiers.insert(details.identifier)
+                    self.identifiers[details.identifier] = details
 
                 case .itemRenamed(path: let path, itemType: let itemType, eventId: _, fromUs: _):
 
@@ -94,9 +95,13 @@ class DirectoryScanner {
                         // If a file exists at the new path and also exists in our runtime cache of files then we infer
                         // that this rename actuall represents a content modification operation; our file has been
                         // atomically replaced by a new file containing new content.
-                        if self.identifiers.contains(details.identifier) {
+                        if let old = self.identifiers[details.identifier] {
                             print("File updated by rename '\(url)'")
-                            onFileDeletion([details.identifier])
+//                            onFileDeletion([details.identifier])
+                            let update = old.applying(details: details)
+                            self.identifiers[details.identifier] = update
+                            onFileUpdate([update])
+                            return
                             // TODO: We should ensure we delete all our children if we're a directory.
                         } else {
                             print("File added by rename '\(url)'")
@@ -106,10 +111,12 @@ class DirectoryScanner {
                         if itemType == .dir {
                             let files = try fileManager.files(directoryURL: url, ownerURL: ownerURL)
                             onFileCreation(files)
-                            self.identifiers.formUnion(files.map({ $0.identifier }))
+                            for file in files {
+                                self.identifiers[file.identifier] = file
+                            }
                         } else {
                             onFileCreation([details])
-                            self.identifiers.insert(details.identifier)
+                            self.identifiers[details.identifier] = details
                         }
 
                     } else {
@@ -118,12 +125,14 @@ class DirectoryScanner {
                         // If it's a directory, then we need to work out what files are being removed.
                         let identifier = Details.Identifier(ownerURL: ownerURL, url: url)
                         if itemType == .dir {
-                            let identifiers = self.identifiers.filter { $0.url.path.hasPrefix(url.path + "/") } + [identifier]
+                            let identifiers = self.identifiers.keys.filter { $0.url.path.hasPrefix(url.path + "/") } + [identifier]
                             onFileDeletion(Array(identifiers))
-                            self.identifiers.subtract(identifiers)
+                            for identifier in identifiers {
+                                self.identifiers.removeValue(forKey: identifier)
+                            }
                         } else {
                             onFileDeletion([identifier])
-                            self.identifiers.remove(identifier)
+                            self.identifiers.removeValue(forKey: identifier)
                         }
                     }
 
@@ -133,7 +142,7 @@ class DirectoryScanner {
                     print("File removed '\(url)'")
                     let identifier = Details.Identifier(ownerURL: ownerURL, url: url)
                     onFileDeletion([identifier])
-                    self.identifiers.remove(identifier)
+                    self.identifiers.removeValue(forKey: identifier)
 
                 case .itemInodeMetadataModified(path: let path, itemType: let itemType, eventId: _, fromUs: _):
 
@@ -142,18 +151,19 @@ class DirectoryScanner {
                     // TODO: Consider generalising this code.
                     let url = URL(filePath: path, itemType: itemType)
                     let identifier = Details.Identifier(ownerURL: ownerURL, url: url)
+                    let details = try fileManager.details(for: url, owner: ownerURL)
 
                     // Remove the file if it exists in our set.
-                    if self.identifiers.contains(identifier) {
-                        onFileDeletion([identifier])
+                    if let old = self.identifiers[identifier] {
+                        let new = old.applying(details: details)
+                        onFileUpdate([new])
+                        self.identifiers[identifier] = new
+                        return
                     }
 
                     // Create a new identifier corresponding to the udpated file.
-                    let details = try fileManager.details(for: url, owner: ownerURL)  // TODO: details(for identifier: Details.Identifier)?
                     onFileCreation([details])
-
-                    // Ensure there's an entry for the (potentially) new file.
-                    self.identifiers.insert(identifier)
+                    self.identifiers[identifier] = details
 
                 default:
                     print("Unhandled file event \(event).")
@@ -180,34 +190,65 @@ class DirectoryScanner {
 
             // TODO: Handle errors.
             let fileManager = FileManager.default
-            let files = Set(try! fileManager.files(directoryURL: url))
 
-            let currentState = load()
+            // TODO: Index by URL not Identifier
 
-            // Add just the new files.
-            let created = files.subtracting(currentState)
-            if created.count > 0 {
-                print("Inserting \(created.count) new files...")
-                onFileCreation(created)
+            // Load the snapshot.
+            let snapshot = load()
+            // TODO: Rename
+            let snapshotIdentifiers = snapshot.reduce(into: [Details.Identifier: Details]()) { partialResult, details in
+                partialResult[details.identifier] = details
             }
 
-            // Remove the remaining files.
-            let deleted = currentState.subtracting(files)
-                .map { $0.identifier }
-            if deleted.count > 0 {
-                print("Removing \(deleted.count) deleted files...")
-                onFileDeletion(deleted)
+            // Load the current state from the file system.
+            let current = Set(try! fileManager.files(directoryURL: url))
+            let currentIdentifiers = current.reduce(into: [Details.Identifier: Details]()) { partialResult, details in
+                partialResult[details.identifier] = details
+            }
+
+            // Determine the deleted files and apply the changes.
+            let deletedIdentifiers = Set(snapshotIdentifiers.keys).subtracting(currentIdentifiers.keys)
+            if deletedIdentifiers.count > 0 {
+                print("Removing \(deletedIdentifiers.count) deleted files...")
+                onFileDeletion(deletedIdentifiers)
+            }
+
+            // Walk the current files, determine the operation required to update the snapshot, and assemble the
+            // in-memory state.
+            var additions = [Details]()
+            var updates = [Details]()
+            var state = [Details.Identifier: Details]()
+
+            // TODO: Can and should we track deletions here too?
+            for file in current {
+                if let snapshot = snapshotIdentifiers[file.identifier] {
+                    if !snapshot.equivalent(to: file) {  // Modified.
+                        let update = snapshot.applying(details: file)
+                        updates.append(update)
+                        state[file.identifier] = update
+                    } else {  // Unchanged.
+                        state[file.identifier] = snapshot
+                    }
+                } else {  // Created.
+                    additions.append(file)
+                    state[file.identifier] = file
+                }
+            }
+
+            // Add the new files.
+            if additions.count > 0 {
+                print("Inserting \(additions.count) new files...")
+                onFileCreation(additions)
+            }
+
+            // Apply the updates.
+            if updates.count > 0 {
+                print("Updating \(updates.count) modified files...")
+                onFileUpdate(updates)
             }
 
             // Cache the initial state.
-            self.identifiers = files
-                .map {
-                    return $0.identifier
-                }
-                .reduce(into: Set<Details.Identifier>()) { partialResult, identifier in
-                    partialResult.insert(identifier)
-                }
-
+            self.identifiers = state
             self.delegate?.directoryScannerDidStart(self)
         }
 

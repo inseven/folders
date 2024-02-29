@@ -50,6 +50,12 @@ class StoreUpdater {
             } catch {
                 print("Failed to perform creation update with error \(error).")
             }
+        } onFileUpdate: { files in
+            do {
+                try self.store.updateBlocking(files: files)
+            } catch {
+                print("Failed to perform update update with error \(error).")
+            }
         } onFileDeletion: { identifiers in
             do {
                 try self.store.removeBlocking(identifiers: identifiers)

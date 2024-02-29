@@ -51,6 +51,10 @@ struct StorePublisher: Publisher {
             _ = target?.receive(.add(files))
         }
 
+        func store(_ store: Store, didUpdateFiles files: [Details]) {
+            _ = target?.receive(.add(files))
+        }
+
         func store(_ store: Store, didRemoveFilesWithIdentifiers identifiers: [Details.Identifier]) {
             _ = target?.receive(.remove(identifiers))
         }

@@ -149,15 +149,18 @@ class ApplicationModel: NSObject, ObservableObject {
             updater.stop()
         }
 
-        // Remove the entires from the database.
-        do {
-            try store.removeBlocking(owner: url)
-        } catch {
-            // TODO: Better error handling.
-            print("Failed to remove files with error \(error).")
-        }
-
+        // Remove the sidebar entry.
         sidebarItems.removeAll { $0.url == url }
+
+        // Remove the entires from the database.
+        DispatchQueue.global(qos: .background).async {
+            do {
+                try self.store.removeBlocking(owner: url)
+            } catch {
+                // TODO: Better error handling.
+                print("Failed to remove files with error \(error).")
+            }
+        }
     }
 
 }
@@ -201,16 +204,24 @@ extension ApplicationModel: StoreViewDelegate {
         return items
     }
 
-    func storeViewDidUpdate(_ storeView: StoreView) {
-        self.lookup = sidebarItems(for: storeView.files)
+    func storeView(_ storeView: StoreView, didUpdateFiles files: [Details]) {
+        assert(Set(files.map({ $0.url })).count == files.count)
+        self.lookup = sidebarItems(for: files)
     }
 
-    func storeView(_ storeView: StoreView, didInsertFile file: Details, atIndex: Int) {
-        self.lookup = sidebarItems(for: storeView.files)
+    func storeView(_ storeView: StoreView, didInsertFile file: Details, atIndex: Int, files: [Details]) {
+        assert(Set(files.map({ $0.url })).count == files.count)
+        self.lookup = sidebarItems(for: files)
     }
 
-    func storeView(_ storeView: StoreView, didRemoveFileWithIdentifier identifier: Details.Identifier, atIndex: Int) {
-        self.lookup = sidebarItems(for: storeView.files)
+    func storeView(_ storeView: StoreView, didUpdateFile file: Details, atIndex: Int, files: [Details]) {
+        assert(Set(files.map({ $0.url })).count == files.count)
+        self.lookup = sidebarItems(for: files)
+    }
+
+    func storeView(_ storeView: StoreView, didRemoveFileWithIdentifier identifier: Details.Identifier, atIndex: Int, files: [Details]) {
+        assert(Set(files.map({ $0.url })).count == files.count)
+        self.lookup = sidebarItems(for: files)
     }
 
 }
