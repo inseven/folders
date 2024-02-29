@@ -27,11 +27,10 @@ import Algorithms
 
 protocol StoreViewDelegate: NSObject {
 
-    func storeViewDidUpdate(_ storeView: StoreView)
-    // TODO: Expose the details directly in the update.
-    func storeView(_ storeView: StoreView, didInsertFile file: Details, atIndex: Int)
-    func storeView(_ storeView: StoreView, didUpdateFile file: Details, atIndex: Int)
-    func storeView(_ storeView: StoreView, didRemoveFileWithIdentifier identifier: Details.Identifier, atIndex: Int)
+    func storeView(_ storeView: StoreView, didUpdateFiles files: [Details])
+    func storeView(_ storeView: StoreView, didInsertFile file: Details, atIndex: Int, files: [Details]) // TODO: atIndex index
+    func storeView(_ storeView: StoreView, didUpdateFile file: Details, atIndex: Int, files: [Details])
+    func storeView(_ storeView: StoreView, didRemoveFileWithIdentifier identifier: Details.Identifier, atIndex: Int, files: [Details])
 
 }
 
@@ -42,9 +41,8 @@ class StoreView: NSObject, StoreObserver {
     let filter: Filter
     let sort: Sort
     let threshold: Int
-    var isRunning: Bool = false  // Synchronized on workQueue
-
-    var files: [Details] = []
+    private var isRunning: Bool = false  // Synchronized on workQueue
+    private var files: [Details] = []  // Synchronized on workQueue
 
     weak var delegate: StoreViewDelegate? = nil
 
@@ -69,12 +67,12 @@ class StoreView: NSObject, StoreObserver {
                 // Get them out sorted.
                 let queryStart = Date()
                 let queryDuration = queryStart.distance(to: Date())
-                let sortedFiles = try self.store.filesBlocking(filter: self.filter, sort: self.sort)
-                print("Query took \(queryDuration.formatted()) seconds and returned \(sortedFiles.count) files.")
+                self.files = try self.store.filesBlocking(filter: self.filter, sort: self.sort)
+                print("Query took \(queryDuration.formatted()) seconds and returned \(self.files.count) files.")
 
+                let snapshot = self.files
                 DispatchQueue.main.async { [self] in
-                    self.files = sortedFiles
-                    self.delegate?.storeViewDidUpdate(self)
+                    self.delegate?.storeView(self, didUpdateFiles: snapshot)
                 }
             } catch {
                 // TODO: Provide a delegate model that actually returns errors.
@@ -100,10 +98,14 @@ class StoreView: NSObject, StoreObserver {
             // the data in the database. In this scenario it's possible to receive additions that we then get back in
             // our database query.
             // TODO: Using a flat array to store our files isn't very efficient for this kind of lookup.
+            // TODO: It's very slightly possible this could be an update?
             let files = files.filter { self.filter.matches(details: $0) && !self.files.contains($0) }
             guard files.count > 0 else {
                 return
             }
+
+            // These sets should never intersect.
+            assert(Set(self.files.map { $0.url }).intersection(files.map { $0.url }).count == 0)
 
             if files.count < self.threshold {
                 for file in files {
@@ -111,8 +113,9 @@ class StoreView: NSObject, StoreObserver {
                         return self.sort.compare(file, $0)
                     }
                     self.files.insert(file, at: index)
+                    let snapshot = self.files
                     DispatchQueue.main.async {
-                        self.delegate?.storeView(self, didInsertFile: file, atIndex: index)
+                        self.delegate?.storeView(self, didInsertFile: file, atIndex: index, files: snapshot)
                     }
                 }
             } else {
@@ -125,8 +128,9 @@ class StoreView: NSObject, StoreObserver {
                 }
                 // TODO: We might as well cascade these changes down to the table view to allow it decide on performance
                 //       characteristics.
+                let snapshot = self.files
                 DispatchQueue.main.async {
-                    self.delegate?.storeViewDidUpdate(self)
+                    self.delegate?.storeView(self, didUpdateFiles: snapshot)
                 }
             }
         }
@@ -156,14 +160,16 @@ class StoreView: NSObject, StoreObserver {
             // TODO: Actual update API.
 
             if indexes.count < self.threshold {
+                let snapshot = self.files
                 for (file, index) in indexes {
                     DispatchQueue.main.async {
-                        self.delegate?.storeView(self, didUpdateFile: file, atIndex: index)
+                        self.delegate?.storeView(self, didUpdateFile: file, atIndex: index, files: snapshot)
                     }
                 }
             } else {
+                let snapshot = self.files
                 DispatchQueue.main.async {
-                    self.delegate?.storeViewDidUpdate(self)
+                    self.delegate?.storeView(self, didUpdateFiles: snapshot)
                 }
             }
         }
@@ -187,8 +193,9 @@ class StoreView: NSObject, StoreObserver {
                         continue
                     }
                     self.files.remove(at: index)
+                    let snapshot = self.files
                     DispatchQueue.main.async {
-                        self.delegate?.storeView(self, didRemoveFileWithIdentifier: identifier, atIndex: index)
+                        self.delegate?.storeView(self, didRemoveFileWithIdentifier: identifier, atIndex: index, files: snapshot)
                     }
                 }
             } else {
@@ -198,8 +205,9 @@ class StoreView: NSObject, StoreObserver {
                     }
                     self.files.remove(at: index)
                 }
+                let snapshot = self.files
                 DispatchQueue.main.async {
-                    self.delegate?.storeViewDidUpdate(self)
+                    self.delegate?.storeView(self, didUpdateFiles: snapshot)
                 }
             }
         }

@@ -177,15 +177,15 @@ extension InnerGridView: QLPreviewPanelDataSource, QLPreviewPanelDelegate {
 
 extension InnerGridView: StoreViewDelegate {
 
-    func storeViewDidUpdate(_ storeView: StoreView) {
+    func storeView(_ storeView: StoreView, didUpdateFiles files: [Details]) {
         var snapshot = Snapshot()
         snapshot.appendSections([.none])
-        snapshot.appendItems(storeView.files.map({ $0.identifier }), toSection: Section.none)
+        snapshot.appendItems(files.map({ $0.identifier }), toSection: Section.none)
         dataSource.apply(snapshot, animatingDifferences: false)
     }
 
     // TODO: Insert details.
-    func storeView(_ storeView: StoreView, didInsertFile file: Details, atIndex index: Int) {
+    func storeView(_ storeView: StoreView, didInsertFile file: Details, atIndex index: Int, files: [Details]) {
         // TODO: Insert in the correct place.
         // TODO: We may need to rate-limit these updates.
         var snapshot = dataSource.snapshot()
@@ -194,17 +194,20 @@ extension InnerGridView: StoreViewDelegate {
             snapshot.appendSections([.none])
         }
 
-        if index >= snapshot.itemIdentifiers.count {
-            snapshot.appendItems([file.identifier])
-        } else {
+        if index < snapshot.itemIdentifiers.count {
             let beforeItem = snapshot.itemIdentifiers[index]
             snapshot.insertItems([file.identifier], beforeItem: beforeItem)
+        } else if index == snapshot.itemIdentifiers.count {
+            snapshot.appendItems([file.identifier])
+        } else {
+            fatalError("Attempting to insert an item beyond the end of the list.")
+            
         }
 
         dataSource.apply(snapshot, animatingDifferences: true)
     }
 
-    func storeView(_ storeView: StoreView, didUpdateFile file: Details, atIndex: Int) {
+    func storeView(_ storeView: StoreView, didUpdateFile file: Details, atIndex: Int, files: [Details]) {
         guard let indexPath = dataSource.indexPath(for: file.identifier),
               let cell = collectionView.item(at: indexPath) as? ShortcutItemView else {
             return
@@ -212,7 +215,7 @@ extension InnerGridView: StoreViewDelegate {
         cell.configure(url: file.url)
     }
 
-    func storeView(_ storeView: StoreView, didRemoveFileWithIdentifier identifier: Details.Identifier, atIndex: Int) {
+    func storeView(_ storeView: StoreView, didRemoveFileWithIdentifier identifier: Details.Identifier, atIndex: Int, files: [Details]) {
         var snapshot = dataSource.snapshot()
         snapshot.deleteItems([identifier])
         dataSource.apply(snapshot, animatingDifferences: true)
