@@ -59,6 +59,7 @@ class StoreView: NSObject, StoreObserver {
     func start() {
         workQueue.async {
             do {
+                precondition(self.isRunning == false)
                 self.isRunning = true
 
                 // Start observing the database.
@@ -94,8 +95,12 @@ class StoreView: NSObject, StoreObserver {
                 return
             }
 
-            // Ignore unrelated updates.
-            let files = files.filter { self.filter.matches(details: $0) }
+            // Ignore unrelated updates and updates that are already in our view.
+            // This can occur because there's a period of time during which we are subscribed but have yet to fetch
+            // the data in the database. In this scenario it's possible to receive additions that we then get back in
+            // our database query.
+            // TODO: Using a flat array to store our files isn't very efficient for this kind of lookup.
+            let files = files.filter { self.filter.matches(details: $0) && !self.files.contains($0) }
             guard files.count > 0 else {
                 return
             }
@@ -111,6 +116,7 @@ class StoreView: NSObject, StoreObserver {
                     }
                 }
             } else {
+                // TODO: There's an optimisation here if the list is empty.
                 for file in files {
                     let index = self.files.partitioningIndex {
                         return self.sort.compare(file, $0)
