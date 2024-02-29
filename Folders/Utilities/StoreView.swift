@@ -63,7 +63,7 @@ class StoreView: NSObject, StoreObserver {
 
                 // Start observing the database.
                 // TODO: Maybe this takes workQueue?
-                self.store.add(observer: self)  // TODO: Is this thread safe??
+                self.store.add(observer: self)
 
                 // Get them out sorted.
                 let queryStart = Date()
@@ -83,8 +83,8 @@ class StoreView: NSObject, StoreObserver {
     }
 
     func stop() {
-        // TODO: WOrk queue.
         store.remove(observer: self)
+        // TODO: Clean up?
     }
 
     func store(_ store: Store, didInsertFiles files: [Details]) {
@@ -172,6 +172,9 @@ class StoreView: NSObject, StoreObserver {
                 return
             }
 
+            // TODO: Pre-filter the identifiers here if we can? Or somehow work out which intersect before deciding
+            // how to notify our delegate.
+
             if identifiers.count < self.threshold {
                 for identifier in identifiers {
                     guard let index = self.files.firstIndex(where: { $0.identifier == identifier }) else {
@@ -184,7 +187,10 @@ class StoreView: NSObject, StoreObserver {
                 }
             } else {
                 for identifier in identifiers {
-                    _ = self.files.firstIndex(where: { $0.identifier == identifier })
+                    guard let index = self.files.firstIndex(where: { $0.identifier == identifier }) else {
+                        continue
+                    }
+                    self.files.remove(at: index)
                 }
                 DispatchQueue.main.async {
                     self.delegate?.storeViewDidUpdate(self)

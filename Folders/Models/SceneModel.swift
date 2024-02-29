@@ -41,4 +41,9 @@ class SceneModel: ObservableObject {
         selection = sidebarItem.id
     }
 
+    func remove(_ url: URL) {
+        selection = nil
+        applicationModel.remove(url)
+    }
+
 }

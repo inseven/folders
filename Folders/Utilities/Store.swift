@@ -33,6 +33,8 @@ protocol StoreObserver: NSObject {
 
 }
 
+// TODO: Notifying observers in a transaction seems incredibly inefficient.
+
 class Store {
 
     struct Schema {
@@ -46,7 +48,7 @@ class Store {
         static let modificationDate = Expression<Int>("modification_date")
     }
 
-    static let majorVersion = 48
+    static let majorVersion = 49
 
     var observers: [StoreObserver] = []
 
@@ -87,27 +89,14 @@ class Store {
         }
     }
 
-    // TODO: This feels janky. It might be a cleaner API to return an 'observer' instead.
-    // TODO: Check to see if we leak observers??
     func remove(observer: StoreObserver) {
+        // Since we guarantee that we only ever notify our delegates while holding the observer lock, we can guarantee
+        // that when we exit from this function, `observer` will never receive another callback.
         observerLock.withLock {
             observers.removeAll { $0.isEqual(observer) }
         }
     }
 
-    private func run<T>(perform: @escaping () throws -> T) async throws -> T {
-        return try await withCheckedThrowingContinuation { continuation in
-            syncQueue.async {
-                let result = Swift.Result<T, Error> {
-                    try Task.checkCancellation()
-                    return try perform()
-                }
-                continuation.resume(with: result)
-            }
-        }
-    }
-
-    // TODO: This can't be cancelled?
     private func runBlocking<T>(perform: @escaping () throws -> T) throws -> T {
         dispatchPrecondition(condition: .notOnQueue(.main))
         dispatchPrecondition(condition: .notOnQueue(syncQueue))
@@ -236,9 +225,17 @@ class Store {
 
     func removeBlocking(owner: URL) throws {
         return try runBlocking { [connection] in
-            let count = try connection.run(Schema.files.filter(Schema.owner == owner.path).delete())
-            print("Deleted \(count) rows.")
-            // TODO: Consider notifying our clients (though this is probably unnecessary and noisy).
+            try connection.transaction {
+                let files = try self.syncQueue_files(filter: .owner(owner), sort: .displayNameAscending)
+                try connection.run(Schema.files.filter(Schema.owner == owner.path).delete())
+                self.observerLock.withLock {
+                    for observer in self.observers {
+                        DispatchQueue.global(qos: .default).async {
+                            observer.store(self, didRemoveFilesWithIdentifiers: files.map({ $0.identifier }))
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -264,12 +261,6 @@ class Store {
 
     func filesBlocking(filter: Filter, sort: Sort) throws -> [Details] {
         return try runBlocking {
-            return try self.syncQueue_files(filter: filter, sort: sort)
-        }
-    }
-
-    func files(filter: Filter, sort: Sort) async throws -> [Details] {
-        return try await run {
             return try self.syncQueue_files(filter: filter, sort: sort)
         }
     }

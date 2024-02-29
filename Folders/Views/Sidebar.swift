@@ -39,7 +39,7 @@ struct Sidebar: View {
                     if item.kind == .owner {
                         Divider()
                         Button(role: .destructive) {
-                            applicationModel.remove(item.url)
+                            sceneModel.remove(item.url)
                         } label: {
                             Label("Remove", systemImage: "trash")
                         }
