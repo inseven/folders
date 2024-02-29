@@ -149,15 +149,18 @@ class ApplicationModel: NSObject, ObservableObject {
             updater.stop()
         }
 
-        // Remove the entires from the database.
-        do {
-            try store.removeBlocking(owner: url)
-        } catch {
-            // TODO: Better error handling.
-            print("Failed to remove files with error \(error).")
-        }
-
+        // Remove the sidebar entry.
         sidebarItems.removeAll { $0.url == url }
+
+        // Remove the entires from the database.
+        DispatchQueue.global(qos: .background).async {
+            do {
+                try self.store.removeBlocking(owner: url)
+            } catch {
+                // TODO: Better error handling.
+                print("Failed to remove files with error \(error).")
+            }
+        }
     }
 
 }
