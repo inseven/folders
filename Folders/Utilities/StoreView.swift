@@ -38,7 +38,7 @@ protocol StoreViewDelegate: NSObject {
 class StoreView: NSObject, StoreObserver {
 
     let store: Store
-    let workQueue = DispatchQueue(label: "StoreView.workQueue")
+    let workQueue = DispatchQueue(label: "StoreView.workQueue", qos: .userInteractive)
     let filter: Filter
     let sort: Sort
     let threshold: Int
@@ -56,23 +56,23 @@ class StoreView: NSObject, StoreObserver {
     }
 
     func start() {
-        Task {
+        workQueue.async {
             do {
 
                 // Start observing the database.
-                store.add(observer: self)
+                // TODO: Maybe this takes workQueue?
+                self.store.add(observer: self)  // TODO: Is this thread safe??
 
                 // Get them out sorted.
                 let queryStart = Date()
                 let queryDuration = queryStart.distance(to: Date())
-                let sortedFiles = try await store.files(filter: filter, sort: sort)
+                let sortedFiles = try self.store.filesBlocking(filter: self.filter, sort: self.sort)
                 print("Query took \(queryDuration.formatted()) seconds and returned \(sortedFiles.count) files.")
 
                 DispatchQueue.main.async { [self] in
                     self.files = sortedFiles
                     self.delegate?.storeViewDidUpdate(self)
                 }
-
             } catch {
                 // TODO: Provide a delegate model that actually returns errors.
                 print("Failed to scan for files with error \(error).")
@@ -86,7 +86,7 @@ class StoreView: NSObject, StoreObserver {
 
     func store(_ store: Store, didInsertFiles files: [Details]) {
         dispatchPrecondition(condition: .notOnQueue(.main))
-        DispatchQueue.main.async {
+        workQueue.async {
 
             // Ignore unrelated updates.
             let files = files.filter { self.filter.matches(details: $0) }
@@ -100,7 +100,9 @@ class StoreView: NSObject, StoreObserver {
                         return self.sort.compare(file, $0)
                     }
                     self.files.insert(file, at: index)
-                    self.delegate?.storeView(self, didInsertFile: file, atIndex: index)
+                    DispatchQueue.main.async {
+                        self.delegate?.storeView(self, didInsertFile: file, atIndex: index)
+                    }
                 }
             } else {
                 for file in files {
@@ -111,14 +113,16 @@ class StoreView: NSObject, StoreObserver {
                 }
                 // TODO: We might as well cascade these changes down to the table view to allow it decide on performance
                 //       characteristics.
-                self.delegate?.storeViewDidUpdate(self)
+                DispatchQueue.main.async {
+                    self.delegate?.storeViewDidUpdate(self)
+                }
             }
         }
     }
 
     func store(_ store: Store, didUpdateFiles files: [Details]) {
         dispatchPrecondition(condition: .notOnQueue(.main))
-        DispatchQueue.main.async {
+        workQueue.async {
 
             // Ignore unrelated updates.
             let files = files.filter { self.filter.matches(details: $0) }
@@ -126,6 +130,8 @@ class StoreView: NSObject, StoreObserver {
                 return
             }
 
+            // TODO: We have a race condition during startup whereby we can sometimes receive updates as we're querying
+            //       and before we've received the full dataset.
             var indexes = [(Details, Int)]()
             for file in files {
                 let index = self.files.firstIndex { $0.uuid == file.uuid }!
@@ -136,10 +142,14 @@ class StoreView: NSObject, StoreObserver {
 
             if indexes.count < self.threshold {
                 for (file, index) in indexes {
-                    self.delegate?.storeView(self, didUpdateFile: file, atIndex: index)
+                    DispatchQueue.main.async {
+                        self.delegate?.storeView(self, didUpdateFile: file, atIndex: index)
+                    }
                 }
             } else {
-                self.delegate?.storeViewDidUpdate(self)
+                DispatchQueue.main.async {
+                    self.delegate?.storeViewDidUpdate(self)
+                }
             }
         }
     }
@@ -148,20 +158,24 @@ class StoreView: NSObject, StoreObserver {
         dispatchPrecondition(condition: .notOnQueue(.main))
         // TODO: Maybe this shouldn't live on main queue
         // TODO: Pre-filter the updates.
-        DispatchQueue.main.async {
+        workQueue.async {
             if identifiers.count < self.threshold {
                 for identifier in identifiers {
                     guard let index = self.files.firstIndex(where: { $0.identifier == identifier }) else {
                         continue
                     }
                     self.files.remove(at: index)
-                    self.delegate?.storeView(self, didRemoveFileWithIdentifier: identifier, atIndex: index)
+                    DispatchQueue.main.async {
+                        self.delegate?.storeView(self, didRemoveFileWithIdentifier: identifier, atIndex: index)
+                    }
                 }
             } else {
                 for identifier in identifiers {
                     _ = self.files.firstIndex(where: { $0.identifier == identifier })
                 }
-                self.delegate?.storeViewDidUpdate(self)
+                DispatchQueue.main.async {
+                    self.delegate?.storeViewDidUpdate(self)
+                }
             }
         }
     }
