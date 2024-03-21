@@ -38,20 +38,13 @@ class ShortcutItemView: NSCollectionViewItem {
         }
     }
 
+    override func viewDidLoad() {
+        view.wantsLayer = true
+    }
+
     func updateState() {
         view.layer?.backgroundColor = isSelected || highlightState == .forSelection ? NSColor.controlAccentColor.cgColor : nil
     }
-
-//    func updateSelectionState() {
-//        if isSelected {
-//            // Apply selected appearance
-//            view.layer?.borderWidth = 2.0
-//            view.layer?.borderColor = NSColor.blue.cgColor
-//        } else {
-//            // Apply non-selected appearance
-//            view.layer?.borderWidth = 0.0
-//        }
-//    }
 
     override var highlightState: NSCollectionViewItem.HighlightState {
         didSet {
@@ -67,15 +60,6 @@ class ShortcutItemView: NSCollectionViewItem {
             label.isSelectable = false
             label.isEditable = false
             label.drawsBackground = false
-
-//            view.addSubview(label)
-//            NSLayoutConstraint.activate([
-//                label.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-//                label.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-//                label.topAnchor.constraint(equalTo: view.topAnchor),
-//                label.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-//            ])
-
             self.label = label
         }
 
@@ -94,8 +78,7 @@ class ShortcutItemView: NSCollectionViewItem {
 
         cancel()
 
-        let size = CGSize(width: 300, height: 300)
-        // TODO: Detect the scale?
+        let size = CGSize(width: 300, height: 300)  // TODO: Detect view dimensions and scale.
 
         // Load the image.
         let request = QLThumbnailGenerator.Request(fileAt: url,
