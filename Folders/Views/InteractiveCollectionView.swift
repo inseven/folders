@@ -95,18 +95,18 @@ class InteractiveCollectionView: NSCollectionView {
 
         window?.makeFirstResponder(self)
 
-        // Looking at the implementation of Photos (which we're trying to match), shift click always expands the
-        // selection and resets the cursor to the new position if the new position represents a modification.
         let position = self.convert(event.locationInWindow, from: nil)
         if let indexPath = self.indexPathForItem(at: position) {
 
             if event.modifierFlags.contains(.shift) {
 
+                // Looking at the implementation of Photos (which we're trying to match), shift click always expands the
+                // selection and resets the cursor to the new position if the new position represents a modification.
+
                 if let cursor {
 
                     // Shift clicking on a currently selected item does nothing.
                     guard !selectionIndexPaths.contains(indexPath) else {
-                        print("Ignoring no-op...")
                         return
                     }
 
@@ -118,9 +118,7 @@ class InteractiveCollectionView: NSCollectionView {
                             }
                             indexPaths.insert(i)
                         }
-                        print("Expanding above...")
-                        print(indexPaths)
-                        selectItems(at: indexPaths, scrollPosition: .nearestHorizontalEdge)  // TODO: Is it enough to just update the selected items?
+                        selectItems(at: indexPaths, scrollPosition: [])
                         delegate?.collectionView?(self, didSelectItemsAt: indexPaths)
 
                         // Reset the selection bounds, placing the cursor at the new highlight.
@@ -134,9 +132,7 @@ class InteractiveCollectionView: NSCollectionView {
                             }
                             indexPaths.insert(i)
                         }
-                        print("Expanding below...")
-                        print(indexPaths)
-                        selectItems(at: indexPaths, scrollPosition: .nearestHorizontalEdge)  // TODO: Is it enough to just update the selected items?
+                        selectItems(at: indexPaths, scrollPosition: [])
                         delegate?.collectionView?(self, didSelectItemsAt: indexPaths)
 
                         // Reset the selection bounds, placing the cursor at the new highlight.
@@ -162,19 +158,17 @@ class InteractiveCollectionView: NSCollectionView {
                     }
 
                 } else {
-                    selectItems(at: [indexPath], scrollPosition: .nearestHorizontalEdge)
+                    selectItems(at: [indexPath], scrollPosition: [])
                     delegate?.collectionView?(self, didSelectItemsAt: [indexPath])
                     cursor = indexPath
                 }
 
             } else {
 
-                print("indexPath = \(indexPath)")
-
                 let selectionIndexPaths = selectionIndexPaths
                 deselectItems(at: selectionIndexPaths)
                 delegate?.collectionView?(self, didDeselectItemsAt: selectionIndexPaths)
-                selectItems(at: [indexPath], scrollPosition: .centeredHorizontally)  // TODO: Change selection?
+                selectItems(at: [indexPath], scrollPosition: [])
                 delegate?.collectionView?(self, didSelectItemsAt: [indexPath])
                 cursor = indexPath
 
@@ -362,10 +356,9 @@ class InteractiveCollectionView: NSCollectionView {
             guard !selectionIndexPaths.isEmpty else {
                 return
             }
-            // TODO: Consider fixing up the selection here too.
-            // TODO: Finder does a cunning thing where if you have a selection of size greater than one, the preview
-            // cycles the items in the selection, but if there's only one item, the arrow keys directly manipulate the
-            // items in the grid.
+            // TODO: Consider fixing up the selection here too. (Finder does a cunning thing where if you have a
+            //       selection of size greater than one, the preview cycles the items in the selection, but if there's
+            //       only one item, the arrow keys directly manipulate the items in the grid.)
             interactionDelegate?.customCollectionViewShowPreview(self)
             return
         }
