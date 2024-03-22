@@ -41,6 +41,8 @@
 		D89622E22ACD4200006F7D2E /* Sidebar.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89622E12ACD4200006F7D2E /* Sidebar.swift */; };
 		D89622E42ACD4266006F7D2E /* LibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89622E32ACD4266006F7D2E /* LibraryView.swift */; };
 		D89622E62ACD42F2006F7D2E /* SceneModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D89622E52ACD42F2006F7D2E /* SceneModel.swift */; };
+		D8A82E3B2BADF35400DD32DA /* SequenceDirection.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8A82E3A2BADF35400DD32DA /* SequenceDirection.swift */; };
+		D8A82E3D2BADF38000DD32DA /* IndexPathSequence.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8A82E3C2BADF38000DD32DA /* IndexPathSequence.swift */; };
 		D8D499C32B897B8E00946CE9 /* swift-numerics-license in Resources */ = {isa = PBXBuildFile; fileRef = D8D499C22B897B8E00946CE9 /* swift-numerics-license */; };
 		D8D499C52B897C9200946CE9 /* swift-collections-license in Resources */ = {isa = PBXBuildFile; fileRef = D8D499C42B897C9200946CE9 /* swift-collections-license */; };
 		D8D499C72B897D7E00946CE9 /* swift-algorithms-license in Resources */ = {isa = PBXBuildFile; fileRef = D8D499C62B897D7E00946CE9 /* swift-algorithms-license */; };
@@ -113,6 +115,8 @@
 		D89622E12ACD4200006F7D2E /* Sidebar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sidebar.swift; sourceTree = "<group>"; };
 		D89622E32ACD4266006F7D2E /* LibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryView.swift; sourceTree = "<group>"; };
 		D89622E52ACD42F2006F7D2E /* SceneModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneModel.swift; sourceTree = "<group>"; };
+		D8A82E3A2BADF35400DD32DA /* SequenceDirection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SequenceDirection.swift; sourceTree = "<group>"; };
+		D8A82E3C2BADF38000DD32DA /* IndexPathSequence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IndexPathSequence.swift; sourceTree = "<group>"; };
 		D8D499C22B897B8E00946CE9 /* swift-numerics-license */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "swift-numerics-license"; sourceTree = "<group>"; };
 		D8D499C42B897C9200946CE9 /* swift-collections-license */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "swift-collections-license"; sourceTree = "<group>"; };
 		D8D499C62B897D7E00946CE9 /* swift-algorithms-license */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "swift-algorithms-license"; sourceTree = "<group>"; };
@@ -171,12 +175,14 @@
 			children = (
 				D8DDBCC72B2A1582003EAF4E /* DirectoryScanner.swift */,
 				D83312E22B76FE4E00B994B3 /* Filter.swift */,
+				D8A82E3C2BADF38000DD32DA /* IndexPathSequence.swift */,
+				D8A82E3A2BADF35400DD32DA /* SequenceDirection.swift */,
 				D814EA002B7EB620008BF46C /* Sort.swift */,
 				D82B95802B231AD000C8B6FB /* Store.swift */,
 				D8F6A6122B8D7CC00003B1A6 /* StoreOperation.swift */,
 				D8F6A6102B8D64BA0003B1A6 /* StorePublisher.swift */,
-				D8472A652B2517DE0070DB64 /* StoreView.swift */,
 				D8F6A6142B8D84840003B1A6 /* StoreUpdater.swift */,
+				D8472A652B2517DE0070DB64 /* StoreView.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -479,6 +485,7 @@
 				D8DDBCC82B2A1582003EAF4E /* DirectoryScanner.swift in Sources */,
 				D87653B42AC9F01600E8B65D /* FoldersApp.swift in Sources */,
 				D8F349B52B8150690037D66A /* UTType.swift in Sources */,
+				D8A82E3B2BADF35400DD32DA /* SequenceDirection.swift in Sources */,
 				D89622DE2ACD3B82006F7D2E /* Settings.swift in Sources */,
 				D8DDBCC62B2A1317003EAF4E /* FileManager.swift in Sources */,
 				D89622DB2ACD394A006F7D2E /* ApplicationModel.swift in Sources */,
@@ -487,6 +494,7 @@
 				D8472A682B2518320070DB64 /* FixedItemSizeCollectionViewLayout.swift in Sources */,
 				D8F6A6112B8D64BA0003B1A6 /* StorePublisher.swift in Sources */,
 				D8F6A60D2B8D46720003B1A6 /* FolderSettings.swift in Sources */,
+				D8A82E3D2BADF38000DD32DA /* IndexPathSequence.swift in Sources */,
 				D8472A6E2B2518D00070DB64 /* InteractiveCollectionView.swift in Sources */,
 				D83312E92B77132B00B994B3 /* Details.swift in Sources */,
 				D83312E32B76FE4E00B994B3 /* Filter.swift in Sources */,
