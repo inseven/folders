@@ -97,6 +97,16 @@ class InteractiveCollectionView: NSCollectionView {
         enum Direction {
             case forwards
             case backwards
+
+            static prefix func !(direction: Direction) -> Direction {
+                switch direction {
+                case .forwards:
+                    return .backwards
+                case .backwards:
+                    return .forwards
+                }
+
+            }
         }
 
         let collectionView: InteractiveCollectionView
@@ -148,11 +158,11 @@ class InteractiveCollectionView: NSCollectionView {
 
     weak var interactionDelegate: InteractiveCollectionViewDelegate?
 
-    var anchor: IndexPath? {
-        didSet {
-            print("anchor = \(String(describing: anchor))")
-        }
-    }
+//    var anchor: IndexPath? {
+//        didSet {
+//            print("anchor = \(String(describing: anchor))")
+//        }
+//    }
 
     var cursor: IndexPath? {
         didSet {
@@ -235,12 +245,12 @@ class InteractiveCollectionView: NSCollectionView {
         // Check to see if the selection range is currently valid; if it is, we've nothing to do.
 
         // If the current selection is nil, then we double-check to see if we can find an existing selection.
-        if anchor == nil, cursor == nil {
+        if cursor == nil {
             guard let selection = findContiguousSelection(direction: direction) else {
                 return
             }
             print(selection)
-            self.anchor = selection.anchor
+//            self.anchor = selection.anchor
             self.cursor = selection.cursor
         }
     }
@@ -255,21 +265,19 @@ class InteractiveCollectionView: NSCollectionView {
 
             if event.modifierFlags.contains(.shift) {
 
-                if let anchor, let cursor {
+                if let cursor {
 
-                    let selection = Selection(anchor: anchor, cursor: cursor)
+//                    let selection = Selection(anchor: anchor, cursor: cursor)
 
                     // Shift clicking on a currently selected item does nothing.
-                    guard !selection.contains(indexPath) else {
+                    guard !selectionIndexPaths.contains(indexPath) else {
                         print("Ignoring no-op...")
                         return
                     }
 
-                    print("EXPANDING SELECTION TO \(indexPath)")
-
-                    if indexPath > selection.max {
+                    if indexPath > cursor {
                         var indexPaths = Set<IndexPath>()
-                        for i in self.indexPaths(following: selection.max, direction: .forwards) {
+                        for i in self.indexPaths(following: cursor, direction: .forwards) {
                             guard i <= indexPath else {
                                 break
                             }
@@ -282,11 +290,11 @@ class InteractiveCollectionView: NSCollectionView {
 
                         // Reset the selection bounds, placing the cursor at the new highlight.
                         self.cursor = indexPath
-                        self.anchor = selection.min
+//                        self.anchor = selection.min
 
                     } else {
                         var indexPaths = Set<IndexPath>()
-                        for i in self.indexPaths(following: selection.min, direction: .backwards) {
+                        for i in self.indexPaths(following: cursor, direction: .backwards) {
                             guard i >= indexPath else {
                                 break
                             }
@@ -299,7 +307,7 @@ class InteractiveCollectionView: NSCollectionView {
 
                         // Reset the selection bounds, placing the cursor at the new highlight.
                         self.cursor = indexPath
-                        self.anchor = selection.max
+//                        self.anchor = selection.max
                     }
 
                 }
@@ -329,23 +337,8 @@ class InteractiveCollectionView: NSCollectionView {
                     // TODO: We should guard against this scenario in the fixup.
                     if cursor == indexPath {
                         cursor = nil
-                        anchor = nil
+//                        anchor = nil
                         return
-                    }
-
-                    // Otherwise, we try to fix up the selection.
-                    // TODO: We should also do this in fixup.
-                    if let anchor, let cursor {
-                        let selection = Selection(anchor: anchor, cursor: cursor)
-                        if selection.contains(indexPath) {
-                            if anchor < cursor {
-                                let newSelection = contiguousSelection(cursor: cursor, direction: .backwards)
-                                self.anchor = newSelection.anchor
-                            } else {
-                                let newSelection = contiguousSelection(cursor: cursor, direction: .forwards)
-                                self.anchor = newSelection.anchor
-                            }
-                        }
                     }
 
                 } else {
@@ -353,7 +346,6 @@ class InteractiveCollectionView: NSCollectionView {
                     delegate?.collectionView?(self, didSelectItemsAt: [indexPath])
                     // Reset the selection cursor and anchor to the last selection.
                     cursor = indexPath
-                    anchor = indexPath
                 }
 
 
@@ -374,7 +366,6 @@ class InteractiveCollectionView: NSCollectionView {
                 delegate?.collectionView?(self, didDeselectItemsAt: selectionIndexPaths)
                 selectItems(at: [indexPath], scrollPosition: .centeredHorizontally)  // TODO: Change selection?
                 delegate?.collectionView?(self, didSelectItemsAt: [indexPath])
-                anchor = indexPath
                 cursor = indexPath
 
             }
@@ -385,7 +376,6 @@ class InteractiveCollectionView: NSCollectionView {
         // The user is beginning a mouse-driven selection so we clear the current tracked selection; it will get fixed
         // up on subsequent keyboard events.
         self.cursor = nil
-        self.anchor = nil
 
         super.mouseDown(with: event)
     }
@@ -425,6 +415,15 @@ class InteractiveCollectionView: NSCollectionView {
                 self = .down
             default:
                 return nil
+            }
+        }
+
+        var sequenceDirection: IndexPathSequence.Direction {
+            switch self {
+            case .up, .left:
+                return .backwards
+            case .down, .right:
+                return .forwards
             }
         }
 
@@ -491,6 +490,22 @@ class InteractiveCollectionView: NSCollectionView {
             }
         }
 
+    }
+
+    func indexPath(following indexPath: IndexPath, direction: IndexPathSequence.Direction, distance: Int = 1) -> IndexPath? {
+        var indexPath: IndexPath? = indexPath
+        for _ in 0..<distance {
+            guard let testIndexPath = indexPath else {
+                return nil
+            }
+            switch direction {
+            case .forwards:
+                indexPath = self.indexPath(after: testIndexPath)
+            case .backwards:
+                indexPath = self.indexPath(before: testIndexPath)
+            }
+        }
+        return indexPath
     }
 
     func closestIndexPath(toIndexPath indexPath: IndexPath, direction: Direction) -> NavigationResult? {
@@ -570,6 +585,13 @@ class InteractiveCollectionView: NSCollectionView {
         }
     }
 
+    func isSelected(_ indexPath: IndexPath?) -> Bool {
+        guard let indexPath else {
+            return false
+        }
+        return selectionIndexPaths.contains(indexPath)
+    }
+
     // TODO: Views don't end up selected on creation?
 
     override func keyDown(with event: NSEvent) {
@@ -606,16 +628,33 @@ class InteractiveCollectionView: NSCollectionView {
 
             let modifierFlags = event.modifierFlags.intersection([.command, .shift])
 
+            // TODO: NavigationResult isn't much use.
             if let navigationResult = nextIndex(direction, indexPath: cursor) {
-                if let cursor, let anchor, modifierFlags == .shift {
+                if modifierFlags == .shift {
 
-                    // Calculate the changes required to transition from the current selection to the new selection.
-                    let newSelection = Selection(anchor: anchor, cursor: navigationResult.nextIndexPath)
-                    let indexPaths = Set([cursor] + navigationResult.intermediateIndexPaths + [navigationResult.nextIndexPath])
-                    let selections = indexPaths.filter { newSelection.contains($0) }
-                    let deselections = indexPaths.subtracting(selections)
+                    var selections: Set<IndexPath> = []
+                    var deselections: Set<IndexPath> = []
 
-                    // Update the selection state and our delegate.
+                    // Walk towards the next item.
+                    for indexPath in navigationResult.intermediateIndexPaths + [navigationResult.nextIndexPath] {
+                        let previousIndexPath = self.indexPath(following: indexPath,
+                                                               direction: !direction.sequenceDirection,
+                                                               distance: 2)
+                        if !isSelected(previousIndexPath) && isSelected(indexPath) {
+                            // Contraction.
+                            if let operationIndex = self.indexPath(following: indexPath,
+                                                                   direction: !direction.sequenceDirection,
+                                                                   distance: 1) {
+                                deselections.insert(operationIndex)
+                                selectionIndexPaths.remove(operationIndex)
+                            }
+                        } else {
+                            // Expansion.
+                            selections.insert(indexPath)
+                            selectionIndexPaths.insert(indexPath)
+                        }
+                    }
+
                     deselectItems(at: deselections)
                     delegate?.collectionView?(self, didDeselectItemsAt: deselections)
                     selectItems(at: selections, scrollPosition: .nearestHorizontalEdge)
@@ -626,15 +665,11 @@ class InteractiveCollectionView: NSCollectionView {
                 } else if modifierFlags.isEmpty {
 
                     // Without shift held down the selection is always reset.
-                    // TODO: Photos and Finder seem to use the edges of the selection to determine where the cursor
-                    // move operation is starting; this ensures thst the arrow keys always move the cursor outside the
-                    // current selection. I don't think this is _necessary_, but it would be good to match the platform.
                     deselectItems(at: selectionIndexPaths)
                     delegate?.collectionView?(self, didDeselectItemsAt: selectionIndexPaths)
                     selectItems(at: [navigationResult.nextIndexPath], scrollPosition: .nearestHorizontalEdge)
                     delegate?.collectionView?(self, didSelectItemsAt: [navigationResult.nextIndexPath])
                     scrollToItems(at: [navigationResult.nextIndexPath], scrollPosition: .nearestHorizontalEdge)
-                    anchor = navigationResult.nextIndexPath
                     cursor = navigationResult.nextIndexPath
 
                 }
