@@ -114,11 +114,7 @@ class InteractiveCollectionView: NSCollectionView {
 
     weak var interactionDelegate: InteractiveCollectionViewDelegate?
 
-    var cursor: IndexPath? {
-        didSet {
-            print("cursor = \(String(describing: cursor))")
-        }
-    }
+    var cursor: IndexPath?
 
     override func menu(for event: NSEvent) -> NSMenu? {
 
