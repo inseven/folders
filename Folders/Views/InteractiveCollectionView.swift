@@ -167,7 +167,7 @@ class InteractiveCollectionView: NSCollectionView {
 
         // Looking at the implementation of Photos (which we're trying to match), shift click always expands the
         // selection and resets the cursor to the new position if the new position represents a modification.
-        let position = self.convert(event.locationInWindow, to: nil)
+        let position = self.convert(event.locationInWindow, from: nil)
         if let indexPath = self.indexPathForItem(at: position) {
 
             if event.modifierFlags.contains(.shift) {
