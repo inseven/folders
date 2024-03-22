@@ -165,6 +165,8 @@ class InteractiveCollectionView: NSCollectionView {
 
     override func mouseDown(with event: NSEvent) {
 
+        window?.makeFirstResponder(self)
+
         // Looking at the implementation of Photos (which we're trying to match), shift click always expands the
         // selection and resets the cursor to the new position if the new position represents a modification.
         let position = self.convert(event.locationInWindow, from: nil)
