@@ -462,8 +462,6 @@ class InteractiveCollectionView: NSCollectionView {
         return selectionIndexPaths.contains(indexPath)
     }
 
-    // TODO: Views don't end up selected on creation?
-
     override func keyDown(with event: NSEvent) {
 
         // Show preview.
