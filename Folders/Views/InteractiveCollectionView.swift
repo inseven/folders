@@ -48,77 +48,11 @@ class InteractiveCollectionView: NSCollectionView {
         }
     }
 
-    enum SequenceDirection {
-        case forwards
-        case backwards
-
-        static prefix func !(direction: SequenceDirection) -> SequenceDirection {
-            switch direction {
-            case .forwards:
-                return .backwards
-            case .backwards:
-                return .forwards
-            }
-
-        }
-    }
-
-    struct IndexPathSequence: Sequence {
-
-        let collectionView: InteractiveCollectionView
-        let indexPath: IndexPath
-        let direction: SequenceDirection
-
-        init(collectionView: InteractiveCollectionView, indexPath: IndexPath, direction: SequenceDirection = .forwards) {
-            self.collectionView = collectionView
-            self.indexPath = indexPath
-            self.direction = direction
-        }
-
-        func makeIterator() -> IndexPathIterator {
-            return IndexPathIterator(collectionView: collectionView, indexPath: indexPath, direction: direction)
-        }
-
-    }
-
-    struct IndexPathIterator: IteratorProtocol {
-
-        let collectionView: InteractiveCollectionView
-        var indexPath: IndexPath
-        let direction: SequenceDirection
-
-        init(collectionView: InteractiveCollectionView, indexPath: IndexPath, direction: SequenceDirection) {
-            self.collectionView = collectionView
-            self.indexPath = indexPath
-            self.direction = direction
-        }
-
-        mutating func next() -> IndexPath? {
-            switch direction {
-            case .forwards:
-                guard let nextIndexPath = collectionView.indexPath(after: indexPath) else {
-                    return nil
-                }
-                indexPath = nextIndexPath
-                return indexPath
-            case .backwards:
-                guard let nextIndexPath = collectionView.indexPath(before: indexPath) else {
-                    return nil
-                }
-                indexPath = nextIndexPath
-                return indexPath
-            }
-        }
-
-    }
-
     weak var interactionDelegate: InteractiveCollectionViewDelegate?
 
     var cursor: IndexPath?
 
     override func menu(for event: NSEvent) -> NSMenu? {
-
-        // TODO: REset with Cmd+A
 
         // Update the selection if necessary.
         let point = convert(event.locationInWindow, from: nil)
