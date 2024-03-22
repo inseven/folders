@@ -14,6 +14,7 @@
 		D82B95842B23DC2B00C8B6FB /* FSEventsWrapper in Frameworks */ = {isa = PBXBuildFile; productRef = D82B95832B23DC2B00C8B6FB /* FSEventsWrapper */; };
 		D83312E32B76FE4E00B994B3 /* Filter.swift in Sources */ = {isa = PBXBuildFile; fileRef = D83312E22B76FE4E00B994B3 /* Filter.swift */; };
 		D83312E92B77132B00B994B3 /* Details.swift in Sources */ = {isa = PBXBuildFile; fileRef = D83312E82B77132B00B994B3 /* Details.swift */; };
+		D83E624D2BADF8960039EC83 /* NavigationDirection.swift in Sources */ = {isa = PBXBuildFile; fileRef = D83E624C2BADF8960039EC83 /* NavigationDirection.swift */; };
 		D8472A642B2517A50070DB64 /* ShortcutItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8472A632B2517A50070DB64 /* ShortcutItemView.swift */; };
 		D8472A662B2517DE0070DB64 /* StoreView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8472A652B2517DE0070DB64 /* StoreView.swift */; };
 		D8472A682B2518320070DB64 /* FixedItemSizeCollectionViewLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8472A672B2518320070DB64 /* FixedItemSizeCollectionViewLayout.swift */; };
@@ -87,6 +88,7 @@
 		D82B95802B231AD000C8B6FB /* Store.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Store.swift; sourceTree = "<group>"; };
 		D83312E22B76FE4E00B994B3 /* Filter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Filter.swift; sourceTree = "<group>"; };
 		D83312E82B77132B00B994B3 /* Details.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Details.swift; sourceTree = "<group>"; };
+		D83E624C2BADF8960039EC83 /* NavigationDirection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationDirection.swift; sourceTree = "<group>"; };
 		D8472A632B2517A50070DB64 /* ShortcutItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShortcutItemView.swift; sourceTree = "<group>"; };
 		D8472A652B2517DE0070DB64 /* StoreView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreView.swift; sourceTree = "<group>"; };
 		D8472A672B2518320070DB64 /* FixedItemSizeCollectionViewLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FixedItemSizeCollectionViewLayout.swift; sourceTree = "<group>"; };
@@ -176,6 +178,7 @@
 				D8DDBCC72B2A1582003EAF4E /* DirectoryScanner.swift */,
 				D83312E22B76FE4E00B994B3 /* Filter.swift */,
 				D8A82E3C2BADF38000DD32DA /* IndexPathSequence.swift */,
+				D83E624C2BADF8960039EC83 /* NavigationDirection.swift */,
 				D8A82E3A2BADF35400DD32DA /* SequenceDirection.swift */,
 				D814EA002B7EB620008BF46C /* Sort.swift */,
 				D82B95802B231AD000C8B6FB /* Store.swift */,
@@ -486,6 +489,7 @@
 				D87653B42AC9F01600E8B65D /* FoldersApp.swift in Sources */,
 				D8F349B52B8150690037D66A /* UTType.swift in Sources */,
 				D8A82E3B2BADF35400DD32DA /* SequenceDirection.swift in Sources */,
+				D83E624D2BADF8960039EC83 /* NavigationDirection.swift in Sources */,
 				D89622DE2ACD3B82006F7D2E /* Settings.swift in Sources */,
 				D8DDBCC62B2A1317003EAF4E /* FileManager.swift in Sources */,
 				D89622DB2ACD394A006F7D2E /* ApplicationModel.swift in Sources */,
