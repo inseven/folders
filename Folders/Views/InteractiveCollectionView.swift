@@ -200,38 +200,6 @@ class InteractiveCollectionView: NSCollectionView {
         }
     }
 
-    enum NavigationDirection {
-        case up
-        case down
-        case left
-        case right
-
-        init?(_ keyCode: UInt16) {
-            switch Int(keyCode) {
-            case kVK_LeftArrow:
-                self = .left
-            case kVK_RightArrow:
-                self = .right
-            case kVK_UpArrow:
-                self = .up
-            case kVK_DownArrow:
-                self = .down
-            default:
-                return nil
-            }
-        }
-
-        var sequenceDirection: SequenceDirection {
-            switch self {
-            case .up, .left:
-                return .backwards
-            case .down, .right:
-                return .forwards
-            }
-        }
-
-    }
-
     func indexPaths(following indexPath: IndexPath, direction: SequenceDirection) -> IndexPathSequence {
         return IndexPathSequence(collectionView: self, indexPath: indexPath, direction: direction)
     }
