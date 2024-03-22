@@ -20,17 +20,17 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-import Foundation
+import AppKit
 
 struct IndexPathSequence: Sequence {
 
     struct Iterator: IteratorProtocol {
 
-        let collectionView: InteractiveCollectionView
+        let collectionView: NSCollectionView
         var indexPath: IndexPath
         let direction: SequenceDirection
 
-        init(collectionView: InteractiveCollectionView, indexPath: IndexPath, direction: SequenceDirection) {
+        init(collectionView: NSCollectionView, indexPath: IndexPath, direction: SequenceDirection) {
             self.collectionView = collectionView
             self.indexPath = indexPath
             self.direction = direction
@@ -39,13 +39,13 @@ struct IndexPathSequence: Sequence {
         mutating func next() -> IndexPath? {
             switch direction {
             case .forwards:
-                guard let nextIndexPath = collectionView.indexPath(after: indexPath) else {
+                guard let nextIndexPath = collectionView.indexPath(following: indexPath, direction: direction) else {
                     return nil
                 }
                 indexPath = nextIndexPath
                 return indexPath
             case .backwards:
-                guard let nextIndexPath = collectionView.indexPath(before: indexPath) else {
+                guard let nextIndexPath = collectionView.indexPath(following: indexPath, direction: direction) else {
                     return nil
                 }
                 indexPath = nextIndexPath
@@ -55,11 +55,11 @@ struct IndexPathSequence: Sequence {
 
     }
 
-    let collectionView: InteractiveCollectionView
+    let collectionView: NSCollectionView
     let indexPath: IndexPath
     let direction: SequenceDirection
 
-    init(collectionView: InteractiveCollectionView, indexPath: IndexPath, direction: SequenceDirection = .forwards) {
+    init(collectionView: NSCollectionView, indexPath: IndexPath, direction: SequenceDirection = .forwards) {
         self.collectionView = collectionView
         self.indexPath = indexPath
         self.direction = direction

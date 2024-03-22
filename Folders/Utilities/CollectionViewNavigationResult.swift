@@ -20,28 +20,17 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-import AppKit
-import Carbon
+import Foundation
 
-enum NavigationDirection {
-    case up
-    case down
-    case left
-    case right
+struct CollectionViewNavigationResult {
+    let nextIndexPath: IndexPath
+    let intermediateIndexPaths: [IndexPath]
 
-    init?(_ keyCode: UInt16) {
-        switch Int(keyCode) {
-        case kVK_LeftArrow:
-            self = .left
-        case kVK_RightArrow:
-            self = .right
-        case kVK_UpArrow:
-            self = .up
-        case kVK_DownArrow:
-            self = .down
-        default:
+    init?(nextIndexPath: IndexPath?, intermediateIndexPaths: [IndexPath] = []) {
+        guard let nextIndexPath else {
             return nil
         }
+        self.nextIndexPath = nextIndexPath
+        self.intermediateIndexPaths = intermediateIndexPaths
     }
-
 }
