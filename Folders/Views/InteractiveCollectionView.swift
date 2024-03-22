@@ -48,28 +48,28 @@ class InteractiveCollectionView: NSCollectionView {
         }
     }
 
-    struct IndexPathSequence: Sequence {
+    enum SequenceDirection {
+        case forwards
+        case backwards
 
-        enum Direction {
-            case forwards
-            case backwards
-
-            static prefix func !(direction: Direction) -> Direction {
-                switch direction {
-                case .forwards:
-                    return .backwards
-                case .backwards:
-                    return .forwards
-                }
-
+        static prefix func !(direction: SequenceDirection) -> SequenceDirection {
+            switch direction {
+            case .forwards:
+                return .backwards
+            case .backwards:
+                return .forwards
             }
+
         }
+    }
+
+    struct IndexPathSequence: Sequence {
 
         let collectionView: InteractiveCollectionView
         let indexPath: IndexPath
-        let direction: Direction
+        let direction: SequenceDirection
 
-        init(collectionView: InteractiveCollectionView, indexPath: IndexPath, direction: Direction = .forwards) {
+        init(collectionView: InteractiveCollectionView, indexPath: IndexPath, direction: SequenceDirection = .forwards) {
             self.collectionView = collectionView
             self.indexPath = indexPath
             self.direction = direction
@@ -85,9 +85,9 @@ class InteractiveCollectionView: NSCollectionView {
 
         let collectionView: InteractiveCollectionView
         var indexPath: IndexPath
-        let direction: IndexPathSequence.Direction
+        let direction: SequenceDirection
 
-        init(collectionView: InteractiveCollectionView, indexPath: IndexPath, direction: IndexPathSequence.Direction) {
+        init(collectionView: InteractiveCollectionView, indexPath: IndexPath, direction: SequenceDirection) {
             self.collectionView = collectionView
             self.indexPath = indexPath
             self.direction = direction
@@ -137,7 +137,7 @@ class InteractiveCollectionView: NSCollectionView {
         return super.menu(for: event)
     }
 
-    func fixupSelection(direction: Direction) {
+    func fixupSelection(direction: NavigationDirection) {
 
         // Sometimes the selection can change outside of our control, so we implement the following recovery
         // mechanism. This seems to match the implementation in Photos.app.
@@ -272,8 +272,7 @@ class InteractiveCollectionView: NSCollectionView {
         }
     }
 
-    // TODO: Rename to cursor direction?
-    enum Direction {
+    enum NavigationDirection {
         case up
         case down
         case left
@@ -294,7 +293,7 @@ class InteractiveCollectionView: NSCollectionView {
             }
         }
 
-        var sequenceDirection: IndexPathSequence.Direction {
+        var sequenceDirection: SequenceDirection {
             switch self {
             case .up, .left:
                 return .backwards
@@ -305,7 +304,7 @@ class InteractiveCollectionView: NSCollectionView {
 
     }
 
-    func indexPaths(following indexPath: IndexPath, direction: IndexPathSequence.Direction) -> IndexPathSequence {
+    func indexPaths(following indexPath: IndexPath, direction: SequenceDirection) -> IndexPathSequence {
         return IndexPathSequence(collectionView: self, indexPath: indexPath, direction: direction)
     }
 
@@ -360,7 +359,7 @@ class InteractiveCollectionView: NSCollectionView {
 
     }
 
-    func indexPath(following indexPath: IndexPath, direction: IndexPathSequence.Direction, distance: Int = 1) -> IndexPath? {
+    func indexPath(following indexPath: IndexPath, direction: SequenceDirection, distance: Int = 1) -> IndexPath? {
         var indexPath: IndexPath? = indexPath
         for _ in 0..<distance {
             guard let testIndexPath = indexPath else {
@@ -376,7 +375,7 @@ class InteractiveCollectionView: NSCollectionView {
         return indexPath
     }
 
-    func closestIndexPath(toIndexPath indexPath: IndexPath, direction: Direction) -> NavigationResult? {
+    func closestIndexPath(toIndexPath indexPath: IndexPath, direction: NavigationDirection) -> NavigationResult? {
 
         guard let layout = collectionViewLayout else {
             return nil
@@ -424,7 +423,7 @@ class InteractiveCollectionView: NSCollectionView {
         return nil
     }
 
-    func nextIndex(_ direction: Direction, indexPath: IndexPath?) -> NavigationResult? {
+    func nextIndex(_ direction: NavigationDirection, indexPath: IndexPath?) -> NavigationResult? {
 
         // This implementation makes some assumptions that will work with packed grid-like layouts but are unlikely to
         // work well with sparsely packed layouts or irregular layouts. Specifically:
@@ -485,8 +484,7 @@ class InteractiveCollectionView: NSCollectionView {
         }
 
         // Handle custom selection wrapping behavior.
-        // TODO: The selection model has a secondary behaviour if the selection is non-contiguous.
-        if let direction = Direction(event.keyCode) {
+        if let direction = NavigationDirection(event.keyCode) {
 
             // We perform some fixup to ensure handle non-contiguous cursor-based selection which can lead to our
             // selection getting out of sync.
