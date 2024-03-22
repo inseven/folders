@@ -33,55 +33,11 @@ protocol InteractiveCollectionViewDelegate: NSObject {
 
 }
 
-
-struct Selection {
-
-    var anchor: IndexPath
-    var cursor: IndexPath
-
-    var min: IndexPath {
-        return Swift.min(anchor, cursor)
-    }
-
-    var max: IndexPath {
-        return Swift.max(anchor, cursor)
-    }
-
-    init(indexPath: IndexPath) {
-        self.anchor = indexPath
-        self.cursor = indexPath
-    }
-
-    init(anchor: IndexPath, cursor: IndexPath) {
-        self.anchor = anchor
-        self.cursor = cursor
-    }
-
-    mutating func reset(_ indexPath: IndexPath) {
-        anchor = indexPath
-        cursor = indexPath
-    }
-
-    func contains(_ indexPath: IndexPath) -> Bool {
-        if anchor <= cursor {
-            return indexPath <= cursor && indexPath >= anchor
-        } else {
-            return indexPath <= anchor && indexPath >= cursor
-        }
-    }
-
-}
-
 class InteractiveCollectionView: NSCollectionView {
 
     struct NavigationResult {
         let nextIndexPath: IndexPath
         let intermediateIndexPaths: [IndexPath]
-
-        // TODO: Construct this on creation?
-        var allIndexPaths: Set<IndexPath> {
-            return Set([nextIndexPath] + intermediateIndexPaths)
-        }
 
         init?(nextIndexPath: IndexPath?, intermediateIndexPaths: [IndexPath] = []) {
             guard let nextIndexPath else {
@@ -158,12 +114,6 @@ class InteractiveCollectionView: NSCollectionView {
 
     weak var interactionDelegate: InteractiveCollectionViewDelegate?
 
-//    var anchor: IndexPath? {
-//        didSet {
-//            print("anchor = \(String(describing: anchor))")
-//        }
-//    }
-
     var cursor: IndexPath? {
         didSet {
             print("cursor = \(String(describing: cursor))")
@@ -171,6 +121,8 @@ class InteractiveCollectionView: NSCollectionView {
     }
 
     override func menu(for event: NSEvent) -> NSMenu? {
+
+        // TODO: REset with Cmd+A
 
         // Update the selection if necessary.
         let point = convert(event.locationInWindow, from: nil)
@@ -189,47 +141,6 @@ class InteractiveCollectionView: NSCollectionView {
         return super.menu(for: event)
     }
 
-    func contiguousSelection(cursor: IndexPath, direction: IndexPathSequence.Direction) -> Selection {
-        precondition(selectionIndexPaths.contains(cursor))
-        var anchor = cursor
-        for indexPath in indexPaths(following: cursor, direction: direction) {
-            guard selectionIndexPaths.contains(indexPath) else {
-                break
-            }
-            anchor = indexPath
-        }
-        return Selection(anchor: anchor, cursor: cursor)
-    }
-
-    func findContiguousSelection(direction: Direction) -> Selection? {
-        switch direction {
-        case .down, .right:
-            guard let cursor = selectionIndexPaths.max() else {
-                return nil
-            }
-            var start = cursor
-            for indexPath in indexPaths(following: cursor, direction: .backwards) {
-                guard selectionIndexPaths.contains(indexPath) else {
-                    break
-                }
-                start = indexPath
-            }
-            return Selection(anchor: start, cursor: cursor)
-        case .up, .left:
-            guard let cursor = selectionIndexPaths.min() else {
-                return nil
-            }
-            var start = cursor
-            for indexPath in indexPaths(following: cursor, direction: .forwards) {
-                guard selectionIndexPaths.contains(indexPath) else {
-                    break
-                }
-                start = indexPath
-            }
-            return Selection(anchor: start, cursor: cursor)
-        }
-    }
-
     func fixupSelection(direction: Direction) {
 
         // Sometimes the selection can change outside of our control, so we implement the following recovery
@@ -246,17 +157,17 @@ class InteractiveCollectionView: NSCollectionView {
 
         // If the current selection is nil, then we double-check to see if we can find an existing selection.
         if cursor == nil {
-            guard let selection = findContiguousSelection(direction: direction) else {
-                return
+            switch direction.sequenceDirection {
+            case .forwards:
+                self.cursor = selectionIndexPaths.max()
+            case .backwards:
+                self.cursor = selectionIndexPaths.min()
             }
-            print(selection)
-//            self.anchor = selection.anchor
-            self.cursor = selection.cursor
+            return
         }
     }
 
     override func mouseDown(with event: NSEvent) {
-//        super.mouseDown(with: event)
 
         // Looking at the implementation of Photos (which we're trying to match), shift click always expands the
         // selection and resets the cursor to the new position if the new position represents a modification.
@@ -266,8 +177,6 @@ class InteractiveCollectionView: NSCollectionView {
             if event.modifierFlags.contains(.shift) {
 
                 if let cursor {
-
-//                    let selection = Selection(anchor: anchor, cursor: cursor)
 
                     // Shift clicking on a currently selected item does nothing.
                     guard !selectionIndexPaths.contains(indexPath) else {
@@ -290,7 +199,6 @@ class InteractiveCollectionView: NSCollectionView {
 
                         // Reset the selection bounds, placing the cursor at the new highlight.
                         self.cursor = indexPath
-//                        self.anchor = selection.min
 
                     } else {
                         var indexPaths = Set<IndexPath>()
@@ -307,7 +215,6 @@ class InteractiveCollectionView: NSCollectionView {
 
                         // Reset the selection bounds, placing the cursor at the new highlight.
                         self.cursor = indexPath
-//                        self.anchor = selection.max
                     }
 
                 }
@@ -317,45 +224,22 @@ class InteractiveCollectionView: NSCollectionView {
                 // This behaves like shift click if the new item is contiguous with the current selection. If not, it
                 // breaks the current selection and resets it to largest bounds that contain the new selection.
 
-                // Keyboard selection can slurp up existing blocks; if a new block is encountered then it merges with
-                // the current block and the anchor resets to the beginning (or end, depending on direction) of the block.
-
-                // Actually, I think the implementation might be dumber than this. It seems that _if_ there's a non-contiguous
-                // selection then the anchor always pushes instead of flips.
-
-                // This implementation only performs partial fixup of the selection and relies on `fixupSelection` which
-                // is called when the user navigates using the cursor and relies on the cursor direction as a hint.
-
                 let selectionIndexPaths = selectionIndexPaths
                 if selectionIndexPaths.contains(indexPath) {
                     deselectItems(at: [indexPath])
                     delegate?.collectionView?(self, didDeselectItemsAt: [indexPath])
 
-                    // Double check to see if this breaks a contiugous selection and fix it up if it does.
-
-                    // 1) Photos treats deselecting the cursor as a complete selection reset.
-                    // TODO: We should guard against this scenario in the fixup.
+                    // Here again, we copy Photos which treats deselecting the cursor as a complete selection reset.
                     if cursor == indexPath {
                         cursor = nil
-//                        anchor = nil
                         return
                     }
 
                 } else {
                     selectItems(at: [indexPath], scrollPosition: .nearestHorizontalEdge)
                     delegate?.collectionView?(self, didSelectItemsAt: [indexPath])
-                    // Reset the selection cursor and anchor to the last selection.
                     cursor = indexPath
                 }
-
-
-                // The logic here: we prefer the cursor, so we set the bounds to the selection bounds that contains the cursor, placing
-                // the anchor at the oposite end of that range. That works for both addition and removal. Addition sets the new cursor
-                // and removal leaves the cursor the same. Afterwards, we search from the cursor _towards_ the old anchor and set the
-                // new anchor to last index path in the first contiguous block.
-
-                // The anchor is allowed to _slide_ if there's a non-contiguous block.
-
 
             } else {
 
@@ -382,12 +266,6 @@ class InteractiveCollectionView: NSCollectionView {
 
     override func mouseUp(with event: NSEvent) {
         super.mouseUp(with: event)
-
-//        // Update the active selection details.
-//        let position = self.convert(event.locationInWindow, to: nil)
-//        let indexPath = self.indexPathForItem(at: position) ?? selectionIndexPaths.first
-//        anchor = indexPath
-//        cursor = indexPath
 
         // Handle double-click.
         if event.clickCount > 1, !selectionIndexPaths.isEmpty {
@@ -428,14 +306,6 @@ class InteractiveCollectionView: NSCollectionView {
         }
 
     }
-
-//    func indexPaths(after indexPath: IndexPath) -> IndexPathSequence {
-//        return IndexPathSequence(collectionView: self, indexPath: indexPath, direction: .forwards)
-//    }
-//
-//    func indexPaths(before indexPath: IndexPath) -> IndexPathSequence {
-//        return IndexPathSequence(collectionView: self, indexPath: indexPath, direction: .backwards)
-//    }
 
     func indexPaths(following indexPath: IndexPath, direction: IndexPathSequence.Direction) -> IndexPathSequence {
         return IndexPathSequence(collectionView: self, indexPath: indexPath, direction: direction)
@@ -567,10 +437,10 @@ class InteractiveCollectionView: NSCollectionView {
         //   contains a point immediately above or below the starting index path.
 
         guard let indexPath else {
-            switch direction {
-            case .down, .right:
+            switch direction.sequenceDirection {
+            case .forwards:
                 return NavigationResult(nextIndexPath: firstIndexPath())
-            case .up, .left:
+            case .backwards:
                 return NavigationResult(nextIndexPath: lastIndexPath())
             }
         }
@@ -679,11 +549,6 @@ class InteractiveCollectionView: NSCollectionView {
         }
 
         super.keyDown(with: event)
-
-        // TODO: Is this necessary?
-//        if let indexPath = selectionIndexPaths.first {
-//            selection = Selection(indexPath)
-//        }
     }
 
     override func keyUp(with event: NSEvent) {
