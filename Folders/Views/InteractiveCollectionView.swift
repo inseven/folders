@@ -76,16 +76,10 @@ class InteractiveCollectionView: NSCollectionView {
         // Sometimes the selection can change outside of our control, so we implement the following recovery
         // mechanism. This seems to match the implementation in Photos.app.
         //
-        // 1) If the current cursor is contained within a selection, reset the selection to the bounds of the
-        //    selected run that contains that cursor.
-        //
-        // 2) If the current cursor is outside the selection, reset the selection to the first range matching
-        //    the requested keyboard direction (up / left will find the first selection in the list, and down /
-        //    right) will find the last selection in the list.
+        // Specifically, if the current cursor is outside the selection, we place the cursor at the first or last
+        // selected item depending on the requested navigation direction--up/left will use the first selected item, and
+        // down/right will find the last selected item.
 
-        // Check to see if the selection range is currently valid; if it is, we've nothing to do.
-
-        // If the current selection is nil, then we double-check to see if we can find an existing selection.
         if cursor == nil {
             switch direction.sequenceDirection {
             case .forwards:
