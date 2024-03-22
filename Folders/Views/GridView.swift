@@ -223,7 +223,7 @@ extension InnerGridView: StoreViewDelegate {
 
 }
 
-extension InnerGridView: InteractiveCollectionViewDelegate {
+extension InnerGridView: CollectionViewInteractionDelegate {
 
     @objc func reveal(sender: NSMenuItem) {
         guard let identifiers = sender.representedObject as? [Details.Identifier] else {
@@ -278,10 +278,11 @@ extension InnerGridView: InteractiveCollectionViewDelegate {
         }
     }
 
-    func customCollectionView(_ customCollectionView: InteractiveCollectionView, contextMenuForSelection selection: IndexSet) -> NSMenu? {
+    func collectionView(_ customCollectionView: InteractiveCollectionView,
+                        contextMenuForSelection selection: Set<IndexPath>) -> NSMenu? {
         // TODO: Make this a utility.
-        let selections = selection.compactMap { index in
-            dataSource.itemIdentifier(for: IndexPath(item: index, section: 0))
+        let selections = selection.compactMap { indexPath in
+            dataSource.itemIdentifier(for: indexPath)
         }
         guard !selections.isEmpty else {
             return nil
@@ -306,14 +307,15 @@ extension InnerGridView: InteractiveCollectionViewDelegate {
         return menu
     }
     
-    func customCollectionView(_ customCollectionView: InteractiveCollectionView, didDoubleClickSelection selection: Set<IndexPath>) {
+    func collectionView(_ customCollectionView: InteractiveCollectionView,
+                        didDoubleClickSelection selection: Set<IndexPath>) {
         let identifiers = dataSource.itemIdentifiers(for: selection)
         for identifier in identifiers {
             NSWorkspace.shared.open(identifier.url)
         }
     }
 
-    func customCollectionViewShowPreview(_ customCollectionView: InteractiveCollectionView) {
+    func collectionViewShowPreview(_ customCollectionView: InteractiveCollectionView) {
         showPreview()
     }
 

@@ -36,3 +36,16 @@ enum SequenceDirection {
 
     }
 }
+
+extension NavigationDirection {
+
+    var sequenceDirection: SequenceDirection {
+        switch self {
+        case .up, .left:
+            return .backwards
+        case .down, .right:
+            return .forwards
+        }
+    }
+
+}

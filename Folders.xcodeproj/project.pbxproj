@@ -21,6 +21,8 @@
 		D8472A6A2B2518600070DB64 /* NSWorkspace.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8472A692B2518600070DB64 /* NSWorkspace.swift */; };
 		D8472A6C2B2518900070DB64 /* NSCollectionViewDiffableDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8472A6B2B2518900070DB64 /* NSCollectionViewDiffableDataSource.swift */; };
 		D8472A6E2B2518D00070DB64 /* InteractiveCollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8472A6D2B2518D00070DB64 /* InteractiveCollectionView.swift */; };
+		D85AC0D72BAE2005003CAE8F /* NSCollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D85AC0D62BAE2005003CAE8F /* NSCollectionView.swift */; };
+		D85AC0D92BAE217F003CAE8F /* CollectionViewNavigationResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = D85AC0D82BAE217F003CAE8F /* CollectionViewNavigationResult.swift */; };
 		D85C07B12B7EBC3A00C8BAA6 /* FolderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D85C07B02B7EBC3A00C8BAA6 /* FolderView.swift */; };
 		D870EC9E2B7EC47B00704688 /* FolderModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D870EC9D2B7EC47B00704688 /* FolderModel.swift */; };
 		D870ECA12B7ED5D700704688 /* Algorithms in Frameworks */ = {isa = PBXBuildFile; productRef = D870ECA02B7ED5D700704688 /* Algorithms */; };
@@ -95,6 +97,8 @@
 		D8472A692B2518600070DB64 /* NSWorkspace.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSWorkspace.swift; sourceTree = "<group>"; };
 		D8472A6B2B2518900070DB64 /* NSCollectionViewDiffableDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSCollectionViewDiffableDataSource.swift; sourceTree = "<group>"; };
 		D8472A6D2B2518D00070DB64 /* InteractiveCollectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InteractiveCollectionView.swift; sourceTree = "<group>"; };
+		D85AC0D62BAE2005003CAE8F /* NSCollectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSCollectionView.swift; sourceTree = "<group>"; };
+		D85AC0D82BAE217F003CAE8F /* CollectionViewNavigationResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionViewNavigationResult.swift; sourceTree = "<group>"; };
 		D85C07B02B7EBC3A00C8BAA6 /* FolderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolderView.swift; sourceTree = "<group>"; };
 		D861A32F2B8EC22900A79214 /* Folders.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = Folders.xctestplan; sourceTree = "<group>"; };
 		D870EC9D2B7EC47B00704688 /* FolderModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolderModel.swift; sourceTree = "<group>"; };
@@ -175,6 +179,7 @@
 		D82B95852B23DC5500C8B6FB /* Utilities */ = {
 			isa = PBXGroup;
 			children = (
+				D85AC0D82BAE217F003CAE8F /* CollectionViewNavigationResult.swift */,
 				D8DDBCC72B2A1582003EAF4E /* DirectoryScanner.swift */,
 				D83312E22B76FE4E00B994B3 /* Filter.swift */,
 				D8A82E3C2BADF38000DD32DA /* IndexPathSequence.swift */,
@@ -279,6 +284,7 @@
 				D8472A692B2518600070DB64 /* NSWorkspace.swift */,
 				D87653E12AC9F39100E8B65D /* URL.swift */,
 				D8F349B42B8150690037D66A /* UTType.swift */,
+				D85AC0D62BAE2005003CAE8F /* NSCollectionView.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -486,6 +492,7 @@
 				D85C07B12B7EBC3A00C8BAA6 /* FolderView.swift in Sources */,
 				D814EA012B7EB620008BF46C /* Sort.swift in Sources */,
 				D8DDBCC82B2A1582003EAF4E /* DirectoryScanner.swift in Sources */,
+				D85AC0D72BAE2005003CAE8F /* NSCollectionView.swift in Sources */,
 				D87653B42AC9F01600E8B65D /* FoldersApp.swift in Sources */,
 				D8F349B52B8150690037D66A /* UTType.swift in Sources */,
 				D8A82E3B2BADF35400DD32DA /* SequenceDirection.swift in Sources */,
@@ -503,6 +510,7 @@
 				D83312E92B77132B00B994B3 /* Details.swift in Sources */,
 				D83312E32B76FE4E00B994B3 /* Filter.swift in Sources */,
 				D879E3452AD27C7B00A021E0 /* SidebarItem.swift in Sources */,
+				D85AC0D92BAE217F003CAE8F /* CollectionViewNavigationResult.swift in Sources */,
 				D8472A662B2517DE0070DB64 /* StoreView.swift in Sources */,
 				D82B95812B231AD000C8B6FB /* Store.swift in Sources */,
 				D89622E02ACD3B9A006F7D2E /* FoldersError.swift in Sources */,
