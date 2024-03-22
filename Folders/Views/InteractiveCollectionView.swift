@@ -492,7 +492,6 @@ class InteractiveCollectionView: NSCollectionView {
 
             let modifierFlags = event.modifierFlags.intersection([.command, .shift])
 
-            // TODO: NavigationResult isn't much use.
             if let navigationResult = nextIndex(direction, indexPath: cursor) {
                 if modifierFlags == .shift {
 
