@@ -155,7 +155,7 @@ class InteractiveCollectionView: NSCollectionView {
                     cursor = indexPath
                 }
 
-            } else {
+            } else if !selectionIndexPaths.contains(indexPath) {
 
                 let selectionIndexPaths = selectionIndexPaths
                 deselectItems(at: selectionIndexPaths)
