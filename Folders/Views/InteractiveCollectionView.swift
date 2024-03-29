@@ -58,6 +58,7 @@ class InteractiveCollectionView: NSCollectionView {
     }
 
     override func menu(for event: NSEvent) -> NSMenu? {
+        window?.makeFirstResponder(self)
 
         // Update the selection if necessary.
         let point = convert(event.locationInWindow, from: nil)
