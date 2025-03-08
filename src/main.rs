@@ -11,6 +11,10 @@ use notify::{Watcher, RecursiveMode, watcher};
 use std::time::Duration;
 use std::sync::mpsc::channel;
 
+use adw::prelude::*;
+use adw::{ActionRow, Application, ApplicationWindow, HeaderBar};
+use gtk::{Box, ListBox, Orientation, SelectionMode};
+
 // So the logic looks a little like this:
 //
 // - Read the state.
@@ -36,6 +40,49 @@ fn update(path: &str) {
 
 fn main() {
 
+    let application = Application::builder()
+        .application_id("uk.co.jbmorley.fileaway")
+        .build();
+
+    application.connect_activate(|app| {
+
+        // Row.
+        let row = ActionRow::builder()
+            .activatable(true)
+            .title("Click me")
+            .build();
+        row.connect_activated(|_| {
+            eprintln!("Clicked!");
+        });
+
+        // List.
+        let list = ListBox::builder()
+            .margin_top(32)
+            .margin_end(32)
+            .margin_bottom(32)
+            .margin_start(32)
+            .selection_mode(SelectionMode::None)
+            .css_classes(vec![String::from("boxed-list")])
+            .build();
+        list.append(&row);
+
+        // Content.
+        let content = Box::new(Orientation::Vertical, 0);
+        content.append(&HeaderBar::new());
+        content.append(&list);
+
+        let window = ApplicationWindow::builder()
+            .application(app)
+            .title("First App")
+            .content(&content)
+            .build();
+        window.present();
+        
+    });
+
+    application.run();
+
+  
     // Print the initial state.
     let path = "/home/jbmorley/Downloads";
     update(path);

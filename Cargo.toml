@@ -7,3 +7,5 @@ edition = "2021"
 cursive = "0.21"
 walkdir = "2.5"
 notify = "4.0.12"
+gtk = { version = "0.9.6", package = "gtk4", features = ["v4_12"] }
+adw = { version = "0.7.1", package = "libadwaita", features = ["v1_5"] }
