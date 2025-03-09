@@ -1,0 +1,10 @@
+Both Fileaway and Folders require an up-to-date file database with derived data. Some derivation tasks will likely need to be platform sepecific. Some derived data will inherenetly affect whether an item shows up in a given view. Does all data associated with an item need to update atomically? I hope not.
+
+So there's an inherent pipeline.
+
+- Discovery
+- Derivation
+	- Data available immediately (FS metadata)
+	- Data available asynchronously
+
+It would seem to make sense to use a database (SQLite) to back views. How does type safety for metadata work?

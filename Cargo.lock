@@ -307,6 +307,7 @@ name = "fileaway-rs"
 version = "0.1.0"
 dependencies = [
  "cursive",
+ "glib",
  "gtk4",
  "libadwaita",
  "notify",
