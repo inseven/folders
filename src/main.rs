@@ -4,12 +4,16 @@ use gtk::ScrolledWindow;
 use integer_object::IntegerObject;
 
 mod integer_object;
+mod file_details;
+mod update;
+
+use file_details::FileDetails;
+use update::Update;
 
 use walkdir::WalkDir;
-use std::path::PathBuf;
 use std::{fmt, thread};
 
-use notify::{watcher, RecommendedWatcher, RecursiveMode, Watcher};
+use notify::{watcher, RecursiveMode, Watcher};
 use std::time::Duration;
 use std::sync::mpsc::{channel, Sender};
 
@@ -21,26 +25,10 @@ use gtk::{Box, Label, ListView, ListItem, Orientation, SignalListItemFactory, Si
 
 use gtk::gio;
 
-fn update(path: &str) {
-
-    // List the directory.
-    let paths = WalkDir::new(path);
-    
-    // Clear the screen and set the cursor to 1,1.
-    print!("{esc}[2J{esc}[1;1H", esc = 27 as char);
-
-    // Print the output.
-    for path in paths {
-        let dir = path.unwrap();
-        println!("{:?}", dir.path());
-    }
-}
-
 fn watch(tx: Sender<Update>) {
 
     // Print the initial state.
     let path = "/home/jbmorley/Local/Files";
-    update(path);
 
     // Watch for changes.
     let (watcher_tx, watcher_rx) = channel();
@@ -60,6 +48,7 @@ fn watch(tx: Sender<Update>) {
     }));
 
     // Send the initial state.
+    // TODO: We should handle failures here.
     tx.send(Update::Set(items));
 
     // Blocking wait on changes; this needs to happen in a thread.
@@ -87,16 +76,6 @@ fn watch(tx: Sender<Update>) {
 // - Cached FS watcher
 // - Smart view that basically reports array opertaions. add / remove / move / update
 // - What does a view actually look like??
-
-struct FileDetails {
-    path: PathBuf
-}
-
-enum Update {
-    Set(Vec<FileDetails>),
-    // Insert(FileDetails, i64),
-    // Remove(i64),
-}
 
 impl fmt::Display for Update {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -141,11 +120,9 @@ fn startup() {
 fn main() {
 
     let (tx, rx) = channel();
-
     thread::spawn(move || {
         watch(tx);
     });
-    // watch(tx);
 
     loop {
         match rx.recv() {
