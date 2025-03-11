@@ -1,10 +1,3 @@
-// use cursive::views::{Dialog, ListView, EditView};
-// use cursive::views::{TextView};
-// use cursive::view::Scrollable;
-// use cursive::view::Resizable;
-// use cursive::With;
-// use gtk::builders::SingleSelectionBuilder;
-// use gtk::subclass::selection_model;
 use gtk::{Button, CssProvider};
 use gtk::gdk::Display;
 use gtk::ScrolledWindow;
@@ -12,7 +5,6 @@ use integer_object::IntegerObject;
 
 mod integer_object;
 
-// use std::fs;
 use walkdir::WalkDir;
 
 use notify::{Watcher, RecursiveMode, watcher};
@@ -21,23 +13,11 @@ use std::sync::mpsc::channel;
 
 use rand::prelude::*;
 
-use glib::clone;
-
 use adw::prelude::*;
-use adw::{ActionRow, Application, ApplicationWindow, HeaderBar};
-use gtk::{Box, Label, ListBox, ListView, ListItem, Orientation, SelectionMode, SignalListItemFactory, SingleSelection};
-// use glib;
-// use glib::Object;
+use adw::{Application, ApplicationWindow, HeaderBar};
+use gtk::{Box, Label, ListView, ListItem, Orientation, SignalListItemFactory, SingleSelection};
 
 use gtk::gio;
-
-// So the logic looks a little like this:
-//
-// - Read the state.
-// - Render the state.
-// - Watch for changes.
-//     - Apply the changes.
-//     - Render the state.
 
 fn update(path: &str) {
 
@@ -52,6 +32,30 @@ fn update(path: &str) {
         let dir = path.unwrap();
         println!("{:?}", dir.path());
     }
+}
+
+fn watch() {
+
+    // Print the initial state.
+    let path = "/home/jbmorley/Downloads";
+    update(path);
+
+    // Watch for changes.
+    let (tx, rx) = channel();
+    let mut watcher = watcher(tx, Duration::from_millis(200)).unwrap();
+    watcher.watch(path, RecursiveMode::Recursive).unwrap();
+
+    // Blocking wait on changes.
+    loop {
+        match rx.recv() {
+            Ok(event) => {
+                println!("{:?}", event);
+                update(path);
+            },
+            Err(e) => println!("watch error {:?}", e),
+        }
+    }
+
 }
 
 fn startup() {
@@ -127,15 +131,6 @@ fn main() {
             .child(&list_view)
             .build();
 
-        // Row.
-        // let row = ActionRow::builder()
-        //     .activatable(true)
-        //     .title("Click me")
-        //     .build();
-        // row.connect_activated(|_| {
-        //     eprintln!("Clicked!");
-        // });
-
         let button = Button::builder()
             .label("Cheese")
             .build();
@@ -150,7 +145,6 @@ fn main() {
         content.set_widget_name("custom-data");
 
         content.append(&HeaderBar::new());
-        // content.append(&list);
         content.append(&scrolled_window);
         content.append(&button);
 
@@ -164,28 +158,4 @@ fn main() {
     });
 
     application.run();
-
-    return;
-
-  
-    // Print the initial state.
-    let path = "/home/jbmorley/Downloads";
-    update(path);
-
-    // Watch for changes.
-    let (tx, rx) = channel();
-    let mut watcher = watcher(tx, Duration::from_millis(200)).unwrap();
-    watcher.watch(path, RecursiveMode::Recursive).unwrap();
-
-    // Blocking wait on changes.
-    loop {
-        match rx.recv() {
-            Ok(event) => {
-                println!("{:?}", event);
-                update(path);
-            },
-            Err(e) => println!("watch error {:?}", e),
-        }
-    }
-
 }
