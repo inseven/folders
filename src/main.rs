@@ -1,10 +1,12 @@
 // use cursive::views::{Dialog, ListView, EditView};
 // use cursive::views::{TextView};
-use cursive::view::Scrollable;
-use cursive::view::Resizable;
-use cursive::With;
-use gtk::builders::SingleSelectionBuilder;
-use gtk::subclass::selection_model;
+// use cursive::view::Scrollable;
+// use cursive::view::Resizable;
+// use cursive::With;
+// use gtk::builders::SingleSelectionBuilder;
+// use gtk::subclass::selection_model;
+use gtk::{Button, CssProvider};
+use gtk::gdk::Display;
 use gtk::ScrolledWindow;
 use integer_object::IntegerObject;
 
@@ -16,6 +18,10 @@ use walkdir::WalkDir;
 use notify::{Watcher, RecursiveMode, watcher};
 use std::time::Duration;
 use std::sync::mpsc::channel;
+
+use rand::prelude::*;
+
+use glib::clone;
 
 use adw::prelude::*;
 use adw::{ActionRow, Application, ApplicationWindow, HeaderBar};
@@ -48,18 +54,36 @@ fn update(path: &str) {
     }
 }
 
+fn startup() {
+
+    // Load custom styles.
+    let provider = CssProvider::new();
+    provider.load_from_string("
+        #custom-data {
+            background-color: magenta;
+        }
+    ");
+    gtk::style_context_add_provider_for_display(
+        &Display::default().expect("Could not connect to a display."),
+        &provider,
+        gtk::STYLE_PROVIDER_PRIORITY_APPLICATION,
+    );
+
+}
+
 fn main() {
 
     let application = Application::builder()
         .application_id("uk.co.jbmorley.fileaway")
         .build();
 
+    application.connect_startup(|_| startup());
     application.connect_activate(|app| {
 
         // List source.
-        let vector: Vec<IntegerObject> = (0..100_000)
-        .map(IntegerObject::new)
-        .collect();
+        let vector: Vec<IntegerObject> = (0..10)
+            .map(IntegerObject::new)
+            .collect();
 
         let model = gio::ListStore::new::<IntegerObject>();
         model.extend_from_slice(&vector);
@@ -89,12 +113,17 @@ fn main() {
             label.set_label(&integer_object.number().to_string());
         });
 
-        let selection_model = SingleSelection::new(Some(model));
+        let model_clone = model.clone();
+        let selection_model = SingleSelection::new(Some(model_clone));
         let list_view = ListView::new(Some(selection_model), Some(factory));
 
         let scrolled_window = ScrolledWindow::builder()
             .hscrollbar_policy(gtk::PolicyType::Never)
+            .propagate_natural_height(true)
+            .propagate_natural_width(true)
             .min_content_width(300)
+            .min_content_height(500)
+            .kinetic_scrolling(false)
             .child(&list_view)
             .build();
 
@@ -107,22 +136,23 @@ fn main() {
         //     eprintln!("Clicked!");
         // });
 
-        // // List.
-        // let list = ListBox::builder()
-        //     .margin_top(32)
-        //     .margin_end(32)
-        //     .margin_bottom(32)
-        //     .margin_start(32)
-        //     .selection_mode(SelectionMode::None)
-        //     .css_classes(vec![String::from("boxed-list")])
-        //     .build();
-        // list.append(&row);
+        let button = Button::builder()
+            .label("Cheese")
+            .build();
+
+        button.connect_clicked(move |_| {
+            let item = IntegerObject::new(rand::rng().random());
+            model.insert(0, &item);
+        });
 
         // Content.
         let content = Box::new(Orientation::Vertical, 0);
+        content.set_widget_name("custom-data");
+
         content.append(&HeaderBar::new());
         // content.append(&list);
         content.append(&scrolled_window);
+        content.append(&button);
 
         let window = ApplicationWindow::builder()
             .application(app)
@@ -134,6 +164,8 @@ fn main() {
     });
 
     application.run();
+
+    return;
 
   
     // Print the initial state.
@@ -156,29 +188,4 @@ fn main() {
         }
     }
 
-    return;
-    
-    // let mut siv = cursive::default();
-    // siv.add_layer(
-    //     Dialog::new()
-    //         .title("Files")
-    //         .button("OK", |s| s.quit())
-    //         .content(
-    //             ListView::new()
-    //                 .child("Name", EditView::new().fixed_width(10))
-    //                 .with(|list| {
-    //                     for i in 0..50 {
-    //                         list.add_child(
-    //                             &format!("Item {i}"),
-    //                             EditView::new(),
-    //                         );
-    //                     }
-    //                 })
-    //                 .scrollable()
-    //         )
-    // );
-    // // siv.add_layer(Dialog::around(TextView::new("Hello Dialog!"))
-    // //     .title("Cursive")
-    // //     .button("Quit", |s| s.quit()));
-    // siv.run();
 }
