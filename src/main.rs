@@ -48,8 +48,8 @@ fn watch(tx: Sender<Update>) {
     }));
 
     // Send the initial state.
-    // TODO: We should handle failures here.
-    tx.send(Update::Set(items));
+    tx.send(Update::Set(items))
+        .expect("Failed to send item upates.");
 
     // Blocking wait on changes; this needs to happen in a thread.
     loop {
@@ -60,7 +60,8 @@ fn watch(tx: Sender<Update>) {
                         path: entry.unwrap().into_path()
                     }
                 }).collect());
-                tx.send(set);
+                tx.send(set)
+                    .expect("Failed to send item updates.");
             },
             Err(e) => println!("watch error {:?}", e),
         }
