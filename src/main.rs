@@ -6,10 +6,12 @@ use integer_object::IntegerObject;
 mod integer_object;
 
 use walkdir::WalkDir;
+use std::path::PathBuf;
+use std::{fmt, thread};
 
-use notify::{Watcher, RecursiveMode, watcher};
+use notify::{watcher, RecommendedWatcher, RecursiveMode, Watcher};
 use std::time::Duration;
-use std::sync::mpsc::channel;
+use std::sync::mpsc::{channel, Sender};
 
 use rand::prelude::*;
 
@@ -34,28 +36,89 @@ fn update(path: &str) {
     }
 }
 
-fn watch() {
+fn watch(tx: Sender<Update>) {
 
     // Print the initial state.
-    let path = "/home/jbmorley/Downloads";
+    let path = "/home/jbmorley/Local/Files";
     update(path);
 
     // Watch for changes.
-    let (tx, rx) = channel();
-    let mut watcher = watcher(tx, Duration::from_millis(200)).unwrap();
-    watcher.watch(path, RecursiveMode::Recursive).unwrap();
+    let (watcher_tx, watcher_rx) = channel();
+    let mut watcher = watcher(watcher_tx, Duration::from_millis(200)).unwrap();
+    watcher
+        .watch(path, RecursiveMode::Recursive)
+        .expect("Failed to watch directory for changes.");
 
-    // Blocking wait on changes.
+    // Keep a backing array.
+    let mut items: Vec<FileDetails> = vec![];
+
+    // Since we've started watching the file system, we can now safely query the file system.
+    items.extend(WalkDir::new(path).into_iter().map(|entry| {
+        FileDetails {
+            path: entry.unwrap().into_path()
+        }
+    }));
+
+    // Send the initial state.
+    tx.send(Update::Set(items));
+
+    // Blocking wait on changes; this needs to happen in a thread.
     loop {
-        match rx.recv() {
-            Ok(event) => {
-                println!("{:?}", event);
-                update(path);
+        match watcher_rx.recv() {
+            Ok(_) => {
+                let set = Update::Set(WalkDir::new(path).into_iter().map(|entry| {
+                    FileDetails {
+                        path: entry.unwrap().into_path()
+                    }
+                }).collect());
+                tx.send(set);
             },
             Err(e) => println!("watch error {:?}", e),
         }
     }
 
+}
+
+// The Swift version automatically keeps a live view up to date.
+// Ultimately we need this to go through an SQLite database, but maybe there can be an in-memory
+// solution in the short term.
+
+// - FS watcher
+// - Cached FS watcher
+// - Smart view that basically reports array opertaions. add / remove / move / update
+// - What does a view actually look like??
+
+struct FileDetails {
+    path: PathBuf
+}
+
+enum Update {
+    Set(Vec<FileDetails>),
+    // Insert(FileDetails, i64),
+    // Remove(i64),
+}
+
+impl fmt::Display for Update {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Update::Set(files) => {
+                write!(f, "Set({} files): [", files.len())?;
+                for (i, file) in files.iter().enumerate() {
+                    if i > 0 {
+                        write!(f, ", ")?; // Add comma between entries
+                    }
+                    write!(f, "{}", file.path.display())?;
+                }
+                write!(f, "]") // Close the list
+            }
+            // Update::Insert(file, index) => {
+            //     write!(f, "Insert({}, at index {})", file.path.display(), index)
+            // }
+            // Update::Remove(index) => {
+            //     write!(f, "Remove(at index {})", index)
+            // }
+        }
+    }
 }
 
 fn startup() {
@@ -76,6 +139,24 @@ fn startup() {
 }
 
 fn main() {
+
+    let (tx, rx) = channel();
+
+    thread::spawn(move || {
+        watch(tx);
+    });
+    // watch(tx);
+
+    loop {
+        match rx.recv() {
+            Ok(event) => {
+                println!("{}", event);
+            },
+            Err(e) => println!("watch error {:?}", e),
+        }
+    }
+
+    return;
 
     let application = Application::builder()
         .application_id("uk.co.jbmorley.fileaway")
