@@ -10,7 +10,7 @@ glib::wrapper! {
 }
 
 impl FileObject {
-    pub fn new(details: FileDetails) -> Self {
-        return Object::builder().property("details", details.path).build();
+    pub fn new(details: &FileDetails) -> Self {
+        return Object::builder().property("details", details.path.clone()).build();
     }
 }

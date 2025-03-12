@@ -99,9 +99,7 @@ fn startup() {
 
 fn main() {
     // Data source.
-    // let vector: Vec<FileDetails> = (0..10).map(IntegerObject::new).collect();
     let model = gio::ListStore::new::<FileObject>();
-    // model.extend_from_slice(&vector);
 
     // File watcher.
     let (tx, rx) = async_channel::unbounded();
@@ -116,15 +114,13 @@ fn main() {
                 println!("{}", event);
                 match event {
                     Update::Set(items) => {
-                        let objects: Vec<FileObject> = items.iter().map(|item| {
-                            // TODO: This is clearly an unnecessary copy!!
-                            return FileObject::new(item.clone());
-                        }).collect();
+                        let objects: Vec<FileObject> = items.iter()
+                            .map(FileObject::new)
+                            .collect();
                         model.remove_all();
                         model.extend_from_slice(&objects);
                     },
                 };
-                // model.insert(0, &IntegerObject::new(0));
             }
         }
     ));
