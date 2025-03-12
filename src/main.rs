@@ -5,9 +5,11 @@ use integer_object::IntegerObject;
 
 mod file_details;
 mod integer_object;
+mod file_object;
 mod update;
 
 use file_details::FileDetails;
+use crate::file_object::FileObject;
 use update::Update;
 
 use std::thread;
@@ -97,9 +99,9 @@ fn startup() {
 
 fn main() {
     // Data source.
-    let vector: Vec<IntegerObject> = (0..10).map(IntegerObject::new).collect();
-    let model = gio::ListStore::new::<IntegerObject>();
-    model.extend_from_slice(&vector);
+    // let vector: Vec<FileDetails> = (0..10).map(IntegerObject::new).collect();
+    let model = gio::ListStore::new::<FileObject>();
+    // model.extend_from_slice(&vector);
 
     // File watcher.
     let (tx, rx) = async_channel::unbounded();
@@ -112,7 +114,17 @@ fn main() {
         async move {
             while let Ok(event) = rx.recv().await {
                 println!("{}", event);
-                model.insert(0, &IntegerObject::new(0));
+                match event {
+                    Update::Set(items) => {
+                        let objects: Vec<FileObject> = items.iter().map(|item| {
+                            // TODO: This is clearly an unnecessary copy!!
+                            return FileObject::new(item.clone());
+                        }).collect();
+                        model.remove_all();
+                        model.extend_from_slice(&objects);
+                    },
+                };
+                // model.insert(0, &IntegerObject::new(0));
             }
         }
     ));
@@ -130,11 +142,11 @@ fn main() {
                 .set_child(Some(&label));
         });
         factory.connect_bind(move |_, list_item| {
-            let integer_object = list_item
+            let file_object = list_item
                 .downcast_ref::<ListItem>()
                 .unwrap()
                 .item()
-                .and_downcast::<IntegerObject>()
+                .and_downcast::<FileObject>()
                 .unwrap();
 
             let label = list_item
@@ -143,7 +155,7 @@ fn main() {
                 .child()
                 .and_downcast::<Label>()
                 .unwrap();
-            label.set_label(&integer_object.number().to_string());
+            label.set_label(&file_object.details().to_string_lossy().to_string());
         });
 
         let selection_model = SingleSelection::new(Some(model.clone()));
