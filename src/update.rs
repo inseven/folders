@@ -20,13 +20,12 @@ impl fmt::Display for Update {
                     write!(f, "{}", file.path.display())?;
                 }
                 write!(f, "]") // Close the list
-            }
-            // Update::Insert(file, index) => {
-            //     write!(f, "Insert({}, at index {})", file.path.display(), index)
-            // }
-            // Update::Remove(index) => {
-            //     write!(f, "Remove(at index {})", index)
-            // }
+            } // Update::Insert(file, index) => {
+              //     write!(f, "Insert({}, at index {})", file.path.display(), index)
+              // }
+              // Update::Remove(index) => {
+              //     write!(f, "Remove(at index {})", index)
+              // }
         }
     }
 }

@@ -1,32 +1,33 @@
-use gtk::{Button, CssProvider};
 use gtk::gdk::Display;
+use gtk::CssProvider;
 use gtk::ScrolledWindow;
 use integer_object::IntegerObject;
 
-mod integer_object;
 mod file_details;
+mod integer_object;
 mod update;
 
 use file_details::FileDetails;
 use update::Update;
 
+use std::thread;
 use walkdir::WalkDir;
-use std::{fmt, thread};
+
+use glib::clone;
 
 use notify::{watcher, RecursiveMode, Watcher};
+use std::sync::mpsc::channel;
 use std::time::Duration;
-use std::sync::mpsc::{channel, Sender};
-
-use rand::prelude::*;
 
 use adw::prelude::*;
 use adw::{Application, ApplicationWindow, HeaderBar};
-use gtk::{Box, Label, ListView, ListItem, Orientation, SignalListItemFactory, SingleSelection};
+use gtk::{Box, Label, ListItem, ListView, Orientation, SignalListItemFactory, SingleSelection};
 
 use gtk::gio;
 
-fn watch(tx: Sender<Update>) {
+const APP_ID: &str = "uk.co.jbmorley.fileaway";
 
+fn watch(tx: async_channel::Sender<Update>) {
     // Print the initial state.
     let path = "/home/jbmorley/Local/Files";
 
@@ -41,32 +42,31 @@ fn watch(tx: Sender<Update>) {
     let mut items: Vec<FileDetails> = vec![];
 
     // Since we've started watching the file system, we can now safely query the file system.
-    items.extend(WalkDir::new(path).into_iter().map(|entry| {
-        FileDetails {
-            path: entry.unwrap().into_path()
-        }
+    items.extend(WalkDir::new(path).into_iter().map(|entry| FileDetails {
+        path: entry.unwrap().into_path(),
     }));
 
     // Send the initial state.
-    tx.send(Update::Set(items))
+    tx.send_blocking(Update::Set(items))
         .expect("Failed to send item upates.");
 
     // Blocking wait on changes; this needs to happen in a thread.
     loop {
         match watcher_rx.recv() {
             Ok(_) => {
-                let set = Update::Set(WalkDir::new(path).into_iter().map(|entry| {
-                    FileDetails {
-                        path: entry.unwrap().into_path()
-                    }
-                }).collect());
-                tx.send(set)
-                    .expect("Failed to send item updates.");
-            },
+                let set = Update::Set(
+                    WalkDir::new(path)
+                        .into_iter()
+                        .map(|entry| FileDetails {
+                            path: entry.unwrap().into_path(),
+                        })
+                        .collect(),
+                );
+                tx.send_blocking(set).expect("Failed to send item updates.");
+            }
             Err(e) => println!("watch error {:?}", e),
         }
     }
-
 }
 
 // The Swift version automatically keeps a live view up to date.
@@ -78,57 +78,49 @@ fn watch(tx: Sender<Update>) {
 // - Smart view that basically reports array opertaions. add / remove / move / update
 // - What does a view actually look like??
 
-
 fn startup() {
-
     // Load custom styles.
     let provider = CssProvider::new();
-    provider.load_from_string("
+    provider.load_from_string(
+        "
         #custom-data {
             background-color: magenta;
         }
-    ");
+    ",
+    );
     gtk::style_context_add_provider_for_display(
         &Display::default().expect("Could not connect to a display."),
         &provider,
         gtk::STYLE_PROVIDER_PRIORITY_APPLICATION,
     );
-
 }
 
 fn main() {
+    // Data source.
+    let vector: Vec<IntegerObject> = (0..10).map(IntegerObject::new).collect();
+    let model = gio::ListStore::new::<IntegerObject>();
+    model.extend_from_slice(&vector);
 
-    let (tx, rx) = channel();
+    // File watcher.
+    let (tx, rx) = async_channel::unbounded();
     thread::spawn(move || {
         watch(tx);
     });
-
-    loop {
-        match rx.recv() {
-            Ok(event) => {
+    glib::spawn_future_local(clone!(
+        #[weak]
+        model,
+        async move {
+            while let Ok(event) = rx.recv().await {
                 println!("{}", event);
-            },
-            Err(e) => println!("watch error {:?}", e),
+                model.insert(0, &IntegerObject::new(0));
+            }
         }
-    }
+    ));
 
-    return;
-
-    let application = Application::builder()
-        .application_id("uk.co.jbmorley.fileaway")
-        .build();
-
+    // Application.
+    let application = Application::builder().application_id(APP_ID).build();
     application.connect_startup(|_| startup());
-    application.connect_activate(|app| {
-
-        // List source.
-        let vector: Vec<IntegerObject> = (0..10)
-            .map(IntegerObject::new)
-            .collect();
-
-        let model = gio::ListStore::new::<IntegerObject>();
-        model.extend_from_slice(&vector);
-
+    application.connect_activate(move |app| {
         let factory = SignalListItemFactory::new();
         factory.connect_setup(move |_, list_item| {
             let label = Label::new(None);
@@ -154,8 +146,7 @@ fn main() {
             label.set_label(&integer_object.number().to_string());
         });
 
-        let model_clone = model.clone();
-        let selection_model = SingleSelection::new(Some(model_clone));
+        let selection_model = SingleSelection::new(Some(model.clone()));
         let list_view = ListView::new(Some(selection_model), Some(factory));
 
         let scrolled_window = ScrolledWindow::builder()
@@ -164,26 +155,15 @@ fn main() {
             .propagate_natural_width(true)
             .min_content_width(300)
             .min_content_height(500)
-            .kinetic_scrolling(false)
             .child(&list_view)
             .build();
 
-        let button = Button::builder()
-            .label("Cheese")
-            .build();
-
-        button.connect_clicked(move |_| {
-            let item = IntegerObject::new(rand::rng().random());
-            model.insert(0, &item);
-        });
-
         // Content.
         let content = Box::new(Orientation::Vertical, 0);
-        content.set_widget_name("custom-data");
+        content.set_widget_name("custom-data"); // Used to set the background color.
 
         content.append(&HeaderBar::new());
         content.append(&scrolled_window);
-        content.append(&button);
 
         let window = ApplicationWindow::builder()
             .application(app)
@@ -191,7 +171,6 @@ fn main() {
             .content(&content)
             .build();
         window.present();
-        
     });
 
     application.run();
