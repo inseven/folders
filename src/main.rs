@@ -23,10 +23,11 @@ use std::time::Duration;
 
 use adw::prelude::*;
 use adw::{Application, ApplicationWindow, HeaderBar};
-use gtk::{Box, Label, ListItem, ListView, Orientation, SignalListItemFactory, SingleSelection, GridView};
+use gtk::{Label, ListItem, Orientation, SignalListItemFactory, GridView, Image};
 
 use gtk::gio;
 
+use gio::{Cancellable, File, FileQueryInfoFlags};
 
 const APP_ID: &str = "uk.co.jbmorley.folders";
 
@@ -134,27 +135,64 @@ fn main() {
         // Grid view.
         let grid_view_factory = SignalListItemFactory::new();
         grid_view_factory.connect_setup(move |_ , list_item| {
-            let label = Label::new(None);
-            label.set_max_width_chars(10);
+            let container = gtk::Box::new(gtk::Orientation::Vertical, 5);
+            let image = Image::new();
+            image.set_size_request(128, 128);
+            image.set_icon_size(gtk::IconSize::Large);
+            let label = gtk::Label::new(None);
+            container.append(&image);
+            container.append(&label);
             list_item
                 .downcast_ref::<ListItem>()
                 .expect("Needs to be ListItem")
-                .set_child(Some(&label));
+                .set_child(Some(&container));
         });
         grid_view_factory.connect_bind(move |_, list_item| {
-            let file_object = list_item
-                .downcast_ref::<ListItem>()
+
+            let list_item = list_item.downcast_ref::<ListItem>().unwrap();
+            let file_object = list_item.item().and_downcast::<FileObject>().unwrap();
+            let container = list_item.child().and_downcast::<gtk::Box>().unwrap();
+            let image = container
+                .first_child()
                 .unwrap()
-                .item()
-                .and_downcast::<FileObject>()
+                .downcast::<Image>()
                 .unwrap();
-            let label = list_item
-                .downcast_ref::<ListItem>()
+            let label = container
+                .last_child()
                 .unwrap()
-                .child()
-                .and_downcast::<Label>()
+                .downcast::<Label>()
                 .unwrap();
-            label.set_label(&file_object.details().to_string_lossy().to_string());
+            label.set_label(&file_object.details().file_name().unwrap().to_string_lossy());
+
+            println!("bind: {:?}", file_object.details());
+
+            let file = File::for_path(file_object.details());
+            // let url = Url::from_file_path(file_object.details()).unwrap().as_str();
+            file.query_info_async(
+                "thumbnail::path,standard::icon",
+                FileQueryInfoFlags::NONE,
+                glib::Priority::DEFAULT,
+                Cancellable::NONE,
+                clone!(#[weak] image, move |res| {
+                    if let Ok(info) = res {
+                        if let Some(thumbnail_path) = info.attribute_byte_string("thumbnail::path") {
+                            let path = std::path::PathBuf::from(thumbnail_path);
+                            image.set_from_file(Some(path));
+                            return;
+                        }
+                        if let Some(icon) = info.icon() {
+                            image.set_from_gicon(&icon);
+                        }
+                    }
+                }),
+            );
+
+
+        });
+        grid_view_factory.connect_unbind(|_, list_item| {
+            let list_item = list_item.downcast_ref::<ListItem>().unwrap();
+            let file_object = list_item.item().and_downcast::<FileObject>().unwrap();
+            println!("unbind: {:?}", file_object.details());
         });
         let grid_selection_model = MultiSelection::new(Some(model.clone()));
         let grid_view = GridView::new(Some(grid_selection_model), Some(grid_view_factory));
@@ -170,7 +208,7 @@ fn main() {
             .build();
 
         // Content.
-        let content = Box::new(Orientation::Vertical, 0);
+        let content = gtk::Box::new(Orientation::Vertical, 0);
         content.set_widget_name("custom-data"); // Used to set the background color.
 
         content.append(&HeaderBar::new());
