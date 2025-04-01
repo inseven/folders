@@ -1,4 +1,4 @@
-# Fileaway (Rust)
+# Folders (Rust)
 
 Proof-of-concept reimplementation of Fileaway in Rust
 
