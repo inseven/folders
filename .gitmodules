@@ -5,8 +5,8 @@
 	path = scripts/build-tools
 	url = https://github.com/jbmorley/build-tools.git
 [submodule "diligence"]
-	path = diligence
+	path = apple/diligence
 	url = git@github.com:inseven/diligence.git
 [submodule "interact"]
-	path = interact
+	path = apple/interact
 	url = git@github.com:inseven/interact.git
