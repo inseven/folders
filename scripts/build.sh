@@ -27,20 +27,21 @@ set -u
 
 SCRIPTS_DIRECTORY="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 
-ROOT_DIRECTORY="${SCRIPTS_DIRECTORY}/.."
-BUILD_DIRECTORY="${ROOT_DIRECTORY}/build"
-TEMPORARY_DIRECTORY="${ROOT_DIRECTORY}/temp"
+ROOT_DIRECTORY="$SCRIPTS_DIRECTORY/.."
+SOURCE_DIRECTORY="$ROOT_DIRECTORY/apple"
+BUILD_DIRECTORY="$ROOT_DIRECTORY/build"
+TEMPORARY_DIRECTORY="$ROOT_DIRECTORY/temp"
 
-KEYCHAIN_PATH="${TEMPORARY_DIRECTORY}/temporary.keychain"
-ARCHIVE_PATH="${BUILD_DIRECTORY}/Folders.xcarchive"
-ENV_PATH="${ROOT_DIRECTORY}/.env"
+KEYCHAIN_PATH="$TEMPORARY_DIRECTORY/temporary.keychain"
+ARCHIVE_PATH="$BUILD_DIRECTORY/Folders.xcarchive"
+ENV_PATH="$ROOT_DIRECTORY/.env"
 
-RELEASE_SCRIPT_PATH="${SCRIPTS_DIRECTORY}/release.sh"
+RELEASE_SCRIPT_PATH="$SCRIPTS_DIRECTORY/release.sh"
 
 IOS_XCODE_PATH=${IOS_XCODE_PATH:-/Applications/Xcode.app}
 MACOS_XCODE_PATH=${MACOS_XCODE_PATH:-/Applications/Xcode.app}
 
-source "${SCRIPTS_DIRECTORY}/environment.sh"
+source "$SCRIPTS_DIRECTORY/environment.sh"
 
 # Check that the GitHub command is available on the path.
 which gh || (echo "GitHub cli (gh) not available on the path." && exit 1)
@@ -72,7 +73,7 @@ if [ -f "$ENV_PATH" ] ; then
     source "$ENV_PATH"
 fi
 
-cd "$ROOT_DIRECTORY"
+cd "$SOURCE_DIRECTORY"
 
 # Select the correct Xcode.
 sudo xcode-select --switch "$MACOS_XCODE_PATH"
