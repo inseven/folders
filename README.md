@@ -4,10 +4,11 @@
 
 Library app for macOS (and Linux)
 
+![](screenshots/macos.png)
+
 # Platforms
 
 ### macOS
-
 
 
 ### Linux (GTK / Rust) Version
