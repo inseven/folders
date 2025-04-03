@@ -66,8 +66,13 @@ jobs:
 
     steps:
 
-    - name: Install dependencies
+    - name: Checkout repository
       uses: actions/checkout@v4
+      with:
+        submodules: recursive
+        fetch-depth: 0
+
+    - name: Install dependencies
       run: |
         sudo apt-get install -y \
           libglib2.0-dev \
