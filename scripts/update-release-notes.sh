@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright (c) 2023-2025 Jason Morley
+# Copyright (c) 2021-2023 Jason Morley, Tom Sutcliffe
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -26,16 +26,17 @@ set -x
 set -u
 
 SCRIPTS_DIRECTORY="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
-ROOT_DIRECTORY="$SCRIPTS_DIRECTORY/.."
-CHANGES_DIRECTORY="$SCRIPTS_DIRECTORY/changes"
-BUILD_TOOLS_DIRECTORY="$SCRIPTS_DIRECTORY/build-tools"
 
-source "$SCRIPTS_DIRECTORY/environment.sh"
+ROOT_DIRECTORY="${SCRIPTS_DIRECTORY}/.."
+RELEASE_NOTES_TEMPLATE_PATH="${SCRIPTS_DIRECTORY}/release-notes.markdown"
+HISTORY_PATH="${SCRIPTS_DIRECTORY}/history.yaml"
+RELEASE_NOTES_DIRECTORY="${ROOT_DIRECTORY}/docs/release-notes"
+RELEASE_NOTES_PATH="${RELEASE_NOTES_DIRECTORY}/index.markdown"
 
-if [ -d "$LOCAL_TOOLS_PATH" ] ; then
-    rm -r "$LOCAL_TOOLS_PATH"
-fi
+source "${SCRIPTS_DIRECTORY}/environment.sh"
 
-python -m pip install --target "$PYTHONUSERBASE" --upgrade pipenv wheel
-PIPENV_PIPFILE="$CHANGES_DIRECTORY/Pipfile" pipenv install
-PIPENV_PIPFILE="$BUILD_TOOLS_DIRECTORY/Pipfile" pipenv install
+
+cd "$ROOT_DIRECTORY"
+
+mkdir -p "$RELEASE_NOTES_DIRECTORY"
+changes notes --all --released --history "$HISTORY_PATH" --template "$RELEASE_NOTES_TEMPLATE_PATH" > "$RELEASE_NOTES_PATH"
