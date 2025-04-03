@@ -11,7 +11,7 @@ Library app for macOS (and Linux)
 ### macOS
 
 
-### Linux (GTK / Rust) Version
+### Linux
 
 Right now, this is simply a proof-of-concept reimplementation using Rust and GTK.
 
