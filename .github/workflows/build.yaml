@@ -67,7 +67,7 @@ jobs:
     steps:
 
     - name: Install dependencies
-    - uses: actions/checkout@v4
+      uses: actions/checkout@v4
       run: |
         sudo apt-get install -y \
           libglib2.0-dev \
