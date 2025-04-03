@@ -44,7 +44,7 @@ if [ -d "${RELEASE_NOTES_DIRECTORY}" ]; then
     rm -r "${RELEASE_NOTES_DIRECTORY}"
 fi
 mkdir -p "${RELEASE_NOTES_DIRECTORY}"
-changes notes --all --released --history "$HISTORY_PATH" --template "$RELEASE_NOTES_TEMPLATE_PATH" > "$RELEASE_NOTES_PATH"
+changes notes --all --released --template "$RELEASE_NOTES_TEMPLATE_PATH" > "$RELEASE_NOTES_PATH"
 
 # Install the Jekyll dependencies.
 export GEM_HOME="${ROOT_DIRECTORY}/.local/ruby"
