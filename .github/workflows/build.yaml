@@ -57,3 +57,34 @@ jobs:
       with:
         name: build-directory
         path: build
+
+  linux-build:
+    env:
+      CARGO_TERM_COLOR: always
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+        fetch-depth: 0
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get install -y \
+          libglib2.0-dev \
+          libgdk-pixbuf2.0-dev \
+          libcairo2-dev \
+          libpango1.0-dev \
+          libgraphene-1.0-dev \
+          libgtk-4-dev \
+          libadwaita-1-dev
+
+    - name: Build and test
+      run: |
+        cd gtk
+        cargo build --verbose
+        cargo test --verbose
