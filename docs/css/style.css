@@ -1,17 +1,19 @@
 :root {
-    --tint-color: color(display-p3 0.946 0.64 0.263);
-    --brand-color: color(display-p3 0.946 0.64 0.263);
-    --text-color: #000000;
+    --tint-color: #f2bcb3;
+    --brand-color: #f2bcb3;
+    --primary-foreground-color: #000000;
+    --secondary-foreground-color: gray;
     --background-color: #ffffff;
     --navigation-background: rgba(255, 255, 255, 0.7);
     --content-width: 900px;
-    --vertical-spacing: 15px;
+    --vertical-spacing: 1rem;
 }
 
 @media (prefers-color-scheme: dark) {
 
     :root {
-        --text-color: #ffffff;
+        --primary-foreground-color: #ffffff;
+        --secondary-foreground-color: gray;
         --background-color: #181818;
         --navigation-background: rgba(24, 24, 24, 0.7);
     }
@@ -21,22 +23,27 @@
 body {
     font-family: Helvetica, sans-serif;
     font-weight: 200;
+    font-size: 17px;
     margin: 0;
     background-color: var(--background-color);
-    color: var(--text-color);
+    color: var(--primary-foreground-color);
 }
 
 a {
     text-decoration: underline;
-    color: var(--text-color);
+    color: var(--primary-foreground-color);
 }
 
 a:hover {
     color: var(--brand-color);
 }
 
-p, h1, h2, h3, nav.actions {
-    margin: var(--vertical-spacing) 0 0 0;
+h1, h2, h3 {
+    margin: var(--vertical-spacing) 0 calc(2 * var(--vertical-spacing)) 0;
+}
+
+p {
+    margin: var(--vertical-spacing) 0 var(--vertical-spacing) 0;
 }
 
 ul.navigation {
@@ -69,27 +76,44 @@ ul.navigation > li {
     text-align: center;
 }
 
+.appname {
+    font-weight: 800;
+    text-align: center;
+    font-size: 3em;
+}
+
 .content {
     max-width: var(--content-width);
     margin: auto;
     padding: 0 2em;
-    font-size: 1.1em;
 }
 
-.tagline {
-    text-align: center;
-    font-size: 1.4em;
-    font-weight: 400;
-}
-
-.footer {
+footer {
     max-width: var(--content-width);
     margin: auto;
     padding: 2em;
+    text-align: center;
+    color: var(--secondary-foreground-color);
+    font-size: 0.9rem;
 }
 
-.copyright {
-    text-align: center;
+footer a {
+    color: var(--secondary-foreground-color);
+}
+
+footer p {
+    margin: var(--vertical-spacing) 0 calc(var(--vertical-spacing) / 2) 0;
+}
+
+footer nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+footer nav ul li {
+    display: inline;
+    margin-right: 0.4em;
 }
 
 h1 {
@@ -99,18 +123,4 @@ h1 {
 
 img.hero {
     max-width: 100%;
-}
-
-nav.actions {
-    text-align: center;
-    margin-top: 30px;
-}
-
-nav.actions a.button {
-    background-color: #1e62e9;
-    color: #fff;
-    border-radius: 100px;
-    padding: 0.5em 2em;
-    display: inline-block;
-    text-decoration: none;
 }

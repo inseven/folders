@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright (c) 2018-2023 Jason Morley, Tom Sutcliffe
+# Copyright (c) 2023-2025 Jason Morley
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -32,7 +32,7 @@ WEBSITE_DIRECTORY="${ROOT_DIRECTORY}/docs"
 WEBSITE_SIMULATOR_DIRECTORY="${ROOT_DIRECTORY}/docs/simulator"
 SIMULATOR_WEB_DIRECTORY="${ROOT_DIRECTORY}/simulator/web"
 
-RELEASE_NOTES_TEMPLATE_PATH="${SCRIPTS_DIRECTORY}/release-notes.markdown"
+RELEASE_NOTES_TEMPLATE_PATH="${SCRIPTS_DIRECTORY}/release-notes.md"
 HISTORY_PATH="${SCRIPTS_DIRECTORY}/history.yaml"
 RELEASE_NOTES_DIRECTORY="${ROOT_DIRECTORY}/docs/release-notes"
 RELEASE_NOTES_PATH="${RELEASE_NOTES_DIRECTORY}/index.markdown"
@@ -43,8 +43,9 @@ cd "$ROOT_DIRECTORY"
 if [ -d "${RELEASE_NOTES_DIRECTORY}" ]; then
     rm -r "${RELEASE_NOTES_DIRECTORY}"
 fi
-mkdir -p "${RELEASE_NOTES_DIRECTORY}"
-changes notes --all --released --template "$RELEASE_NOTES_TEMPLATE_PATH" > "$RELEASE_NOTES_PATH"
+"$SCRIPTS_DIRECTORY/update-release-notes.sh"
+# mkdir -p "${RELEASE_NOTES_DIRECTORY}"
+# changes notes --all --template "$RELEASE_NOTES_TEMPLATE_PATH" > "$RELEASE_NOTES_PATH"
 
 # Install the Jekyll dependencies.
 export GEM_HOME="${ROOT_DIRECTORY}/.local/ruby"

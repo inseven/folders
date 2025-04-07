@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright (c) 2021-2023 Jason Morley, Tom Sutcliffe
+# Copyright (c) 2023-2025 Jason Morley
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -28,15 +28,13 @@ set -u
 SCRIPTS_DIRECTORY="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 
 ROOT_DIRECTORY="${SCRIPTS_DIRECTORY}/.."
-RELEASE_NOTES_TEMPLATE_PATH="${SCRIPTS_DIRECTORY}/release-notes.markdown"
-HISTORY_PATH="${SCRIPTS_DIRECTORY}/history.yaml"
+RELEASE_NOTES_TEMPLATE_PATH="${SCRIPTS_DIRECTORY}/release-notes.md"
 RELEASE_NOTES_DIRECTORY="${ROOT_DIRECTORY}/docs/release-notes"
-RELEASE_NOTES_PATH="${RELEASE_NOTES_DIRECTORY}/index.markdown"
+RELEASE_NOTES_PATH="${RELEASE_NOTES_DIRECTORY}/index.md"
 
 source "${SCRIPTS_DIRECTORY}/environment.sh"
-
 
 cd "$ROOT_DIRECTORY"
 
 mkdir -p "$RELEASE_NOTES_DIRECTORY"
-changes notes --all --released --history "$HISTORY_PATH" --template "$RELEASE_NOTES_TEMPLATE_PATH" > "$RELEASE_NOTES_PATH"
+changes notes --all --template "$RELEASE_NOTES_TEMPLATE_PATH" > "$RELEASE_NOTES_PATH"

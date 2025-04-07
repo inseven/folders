@@ -1,4 +1,5 @@
 /_site
+/.local
 /build
 /docs/_site
 /docs/.jekyll-cache
