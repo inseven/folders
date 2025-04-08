@@ -5,7 +5,7 @@ title: Release Notes
 # Release Notes
 
 {% for release in releases -%}
-## {{ release.version }}{% if not release.is_released %} (Unreleased){% endif %}
+## {% if release.is_released %}<a href="https://github.com/inseven/folders/releases/tag/{{ release.version }}">{{ release.version }}</a>{% else %}{{ release.version }} (Unreleased){% endif %}
 {% for section in release.sections %}
 **{{ section.title }}**
 
