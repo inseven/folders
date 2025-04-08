@@ -55,10 +55,16 @@ bundle install
 
 # Get the latest release URL.
 if ! DOWNLOAD_URL=$("$SCRIPTS_DIRECTORY/latest-release" inseven folders "Folders-*.zip"); then
-  echo >&2 failed
-  exit 1
+    echo >&2 failed
+    exit 1
+fi
+# Belt-and-braces check that we managed to get the download URL.
+if [[ -z "$DOWNLOAD_URL" ]]; then
+    echo "Failed to get release download URL."
+    exit 1
 fi
 
 # Build the website.
 cd "${WEBSITE_DIRECTORY}"
+export DOWNLOAD_URL
 bundle exec jekyll build
