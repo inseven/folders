@@ -45,6 +45,8 @@ struct FoldersApp: App {
         let subject = "Folders Support (\(Bundle.main.version ?? "Unknown Version"))"
 
         About(repository: "inseven/folders", copyright: "Copyright © 2023-2025 Jason Morley") {
+            Action("Website", url: URL(string: "https://folders.jbmorley.co.uk")!)
+            Action("Privacy Policy", url: URL(string: "https://folders.jbmorley.co.uk/privacy-policy")!)
             Action("GitHub", url: URL(string: "https://github.com/inseven/folders")!)
             Action("Support", url: URL(address: "support@jbmorley.co.uk", subject: subject)!)
         } acknowledgements: {
