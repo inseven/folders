@@ -13,6 +13,7 @@ github_username:  jekyll
 theme: minima
 plugins:
   - jekyll-feed
+  - jekyll-environment-variables
 destination: ../_site
 
 defaults:

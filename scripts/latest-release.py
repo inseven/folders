@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env python3
 
 # Copyright (c) 2023-2025 Jason Morley
 #
@@ -20,23 +20,33 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-set -e
-set -o pipefail
-set -x
-set -u
+import argparse
+import fnmatch
+import re
+import requests
 
-SCRIPTS_DIRECTORY="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
-ROOT_DIRECTORY="$SCRIPTS_DIRECTORY/.."
-CHANGES_DIRECTORY="$SCRIPTS_DIRECTORY/changes"
-BUILD_TOOLS_DIRECTORY="$SCRIPTS_DIRECTORY/build-tools"
 
-source "$SCRIPTS_DIRECTORY/environment.sh"
+def main():
+    parser = argparse.ArgumentParser(description="Get the URL for an asset from the latest GitHub release matching a pattern.")
+    parser.add_argument("owner")
+    parser.add_argument("repository")
+    parser.add_argument("pattern")
+    options = parser.parse_args()
 
-if [ -d "$LOCAL_TOOLS_PATH" ] ; then
-    rm -r "$LOCAL_TOOLS_PATH"
-fi
+    response = requests.get(f"https://api.github.com/repos/{options.owner}/{options.repository}/releases/latest", headers={
+        'Accept': 'application/vnd.github+json',
+        'X-GitHub-Api-Version': '2022-11-28',
+    })
 
-python -m pip install --target "$PYTHONUSERBASE" --upgrade pipenv wheel
-PIPENV_PIPFILE="$SCRIPTS_DIRECTORY/Pipfile" pipenv install
-PIPENV_PIPFILE="$CHANGES_DIRECTORY/Pipfile" pipenv install
-PIPENV_PIPFILE="$BUILD_TOOLS_DIRECTORY/Pipfile" pipenv install
+    regex = re.compile(fnmatch.translate(options.pattern))
+    for asset in response.json()["assets"]:
+        if not regex.match(asset["name"]):
+            continue
+        print(asset["browser_download_url"])
+        return
+
+    exit(f"Failed to find asset with pattern '{options.pattern}'.")
+
+
+if __name__ == "__main__":
+    main()
