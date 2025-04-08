@@ -8,14 +8,12 @@ Folders is licensed under the MIT License (see [LICENSE](https://github.com/inse
 
 ---
 
-- [AutoGrowingTextField](https://christiantietze.de/posts/2020/02/auto-growing-nstextfield/), CC BY-SA 4.0
 - [Diligence](https://github.com/inseven/diligence), MIT License
-- [FrontmatterSwift](https://github.com/jbmorley/FrontmatterSwift), MIT License
 - [FSEventsWrapper](https://github.com/Frizlab/FSEventsWrapper), MIT License
-- [HashRainbow](https://github.com/saramah/HashRainbow), MIT License
-- [HighlightedTextEditor](https://github.com/kyle-n/HighlightedTextEditor/), MIT License
 - [Interact](https://github.com/inseven/interact), MIT License
 - [Licensable](https://github.com/inseven/licensable), MIT License
-- [Material Icons](https://github.com/google/material-design-icons), Apache License
-- [TagField](https://github.com/jbmorley/TagField), MIT License
+- [SQLite.swift](https://github.com/stephencelis/SQLite.swift), MIT License
+- [Swift Algorithms](https://github.com/apple/swift-algorithms), Apache 2.0 License
+- [Swift Collections](https://github.com/apple/swift-collections), Apache 2.0 License
+- [Swift Numerics](https://github.com/apple/swift-numerics), Apache 2.0 License
 - [Yams](https://github.com/jpsim/Yams), MIT License
