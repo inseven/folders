@@ -60,24 +60,45 @@ struct FoldersApp: App {
             .interact
             License("Folders",
                     author: "Jason Morley",
+                    attributes: [
+                        .init("GitHub", url: URL(string: "https://github.com/inseven/folders")!)
+                    ],
                     filename: "folders-license")
             License("FSEventsWrapper",
                     author: "François Lamboley",
+                    attributes: [
+                        .init("GitHub", url: URL(string: "https://github.com/Frizlab/FSEventsWrapper")!)
+                    ],
                     filename: "fs-events-wrapper-license")
             License("SQLite.swift",
                     author: "Stephen Celis",
+                    attributes: [
+                        .init("GitHub", url: URL(string: "https://github.com/stephencelis/SQLite.swift")!)
+                    ],
                     filename: "sqlite-swift-license")
             License("Swift Algorithms",
                     author: "Apple Inc. and the Swift Project Authors",
+                    attributes: [
+                        .init("GitHub", url: URL(string: "https://github.com/apple/swift-algorithms")!)
+                    ],
                     filename: "swift-algorithms-license")
             License("Swift Collections",
                     author: "Apple Inc. and the Swift Project Authors",
+                    attributes: [
+                        .init("GitHub", url: URL(string: "https://github.com/apple/swift-collections")!)
+                    ],
                     filename: "swift-collections-license")
             License("Swift Numerics",
                     author: "Apple Inc. and the Swift Numerics Project Authors",
+                    attributes: [
+                        .init("GitHub", url: URL(string: "https://github.com/apple/swift-numerics")!)
+                    ],
                     filename: "swift-numerics-license")
             License("Yams",
                     author: "JP Simard",
+                    attributes: [
+                        .init("GitHub", url: URL(string: "https://github.com/jpsim/Yams")!)
+                    ],
                     filename: "yams-license")
         }
 
