@@ -24,25 +24,8 @@ set -e
 set -o pipefail
 set -x
 
-# This script expects the macOS PKG as the first argument, and any additional files to be attached to the GitHub release
-# to be passed as subsequent arguments.
-
-# Upload the macOS build.
-xcrun altool --upload-app \
-    -f "$1" \
-    --primary-bundle-id "uk.co.jbmorley.folders.apps.appstore" \
-    --apiKey "$APPLE_API_KEY_ID" \
-    --apiIssuer "$APPLE_API_KEY_ISSUER_ID" \
-    --type macos
-
 # Actually make the release.
-FLAGS=()
-if $CHANGES_INITIAL_DEVELOPMENT ; then
-    FLAGS+=("--prerelease")
-elif $CHANGES_PRE_RELEASE ; then
-    FLAGS+=("--prerelease")
-fi
-gh release create "$CHANGES_TAG" --title "$CHANGES_QUALIFIED_TITLE" --notes-file "$CHANGES_NOTES_FILE" "${FLAGS[@]}"
+gh release create "$CHANGES_TAG" --title "$CHANGES_QUALIFIED_TITLE" --notes-file "$CHANGES_NOTES_FILE"
 
 # Upload the attachments.
 for attachment in "$@"

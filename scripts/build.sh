@@ -172,10 +172,6 @@ if [ "$NOTARIZATION_RESPONSE" != "Accepted" ] ; then
     exit 1
 fi
 
-APP_BASENAME="Folders.app"
-APP_PATH="$BUILD_DIRECTORY/$APP_BASENAME"
-PKG_PATH="$BUILD_DIRECTORY/Folders.pkg"
-
 # Archive the build directory.
 ZIP_BASENAME="build-${VERSION_NUMBER}-${BUILD_NUMBER}.zip"
 ZIP_PATH="${BUILD_DIRECTORY}/${ZIP_BASENAME}"
@@ -188,9 +184,8 @@ if $RELEASE ; then
     changes \
         release \
         --skip-if-empty \
-        --pre-release \
         --push \
         --exec "${RELEASE_SCRIPT_PATH}" \
-        "${PKG_PATH}" "${ZIP_PATH}"
+        "${RELEASE_ZIP_PATH}" "${ZIP_PATH}"
 
 fi
