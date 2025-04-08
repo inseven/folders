@@ -154,7 +154,8 @@ popd
 
 # Install the private key.
 mkdir -p ~/.appstoreconnect/private_keys/
-echo -n "$APPLE_API_KEY_BASE64" | base64 --decode -o ~/".appstoreconnect/private_keys/AuthKey_${APPLE_API_KEY_ID}.p8"
+API_KEY_PATH=~/".appstoreconnect/private_keys/AuthKey_${APPLE_API_KEY_ID}.p8"
+echo -n "$APPLE_API_KEY_BASE64" | base64 --decode -o "$API_KEY_PATH"
 
 # Notarize the app.
 xcrun notarytool submit "$RELEASE_ZIP_PATH" \
@@ -167,7 +168,7 @@ NOTARIZATION_ID=`cat command-notarization-response.json | jq -r ".id"`
 NOTARIZATION_RESPONSE=`cat command-notarization-response.json | jq -r ".status"`
 
 if [ "$NOTARIZATION_RESPONSE" != "Accepted" ] ; then
-    echo "Failed to notarize command."
+    echo "Failed to notarize app."
     exit 1
 fi
 
