@@ -86,6 +86,25 @@ ul.navigation > li {
 .tagline {
     text-align: center;
     font-size: 1.2em;
+    margin-bottom: var(--vertical-spacing);
+}
+
+.actions {
+    text-align: center;
+}
+
+.button {
+    color: white;
+    background-color: blue;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.button:hover {
+    color: white;
+    background-color: darkblue;
 }
 
 .content {

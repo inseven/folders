@@ -44,8 +44,6 @@ if [ -d "${RELEASE_NOTES_DIRECTORY}" ]; then
     rm -r "${RELEASE_NOTES_DIRECTORY}"
 fi
 "$SCRIPTS_DIRECTORY/update-release-notes.sh"
-# mkdir -p "${RELEASE_NOTES_DIRECTORY}"
-# changes notes --all --template "$RELEASE_NOTES_TEMPLATE_PATH" > "$RELEASE_NOTES_PATH"
 
 # Install the Jekyll dependencies.
 export GEM_HOME="${ROOT_DIRECTORY}/.local/ruby"
@@ -54,6 +52,12 @@ export PATH="${GEM_HOME}/bin":$PATH
 gem install bundler
 cd "${WEBSITE_DIRECTORY}"
 bundle install
+
+# Get the latest release URL.
+if ! export DOWNLOAD_URL=$("$SCRIPTS_DIRECTORY/latest-release" inseven folders "Folders-*.zip"); then
+  echo >&2 failed
+  exit 1
+fi
 
 # Build the website.
 cd "${WEBSITE_DIRECTORY}"
