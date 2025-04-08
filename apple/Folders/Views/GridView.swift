@@ -249,7 +249,7 @@ extension InnerGridView: CollectionViewInteractionDelegate {
     }
 
     @objc func preview(sender: NSMenuItem) {
-        guard let identifiers = sender.representedObject as? [Details.Identifier] else {
+        guard sender.representedObject is [Details.Identifier] else {
             return
         }
         showPreview()

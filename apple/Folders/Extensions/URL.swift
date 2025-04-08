@@ -25,7 +25,7 @@ import UniformTypeIdentifiers
 
 import FSEventsWrapper
 
-extension URL: Identifiable {
+extension URL: @retroactive Identifiable {
 
     public var id: Self {
         return self

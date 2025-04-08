@@ -42,7 +42,7 @@ struct FoldersApp: App {
                 .environmentObject(applicationModel)
         }
 
-        let subject = "Folders Support (\(Bundle.main.version ?? "Unknown Version"))"
+        let subject = "Folders Support (\(Bundle.main.extendedVersion ?? "Unknown Version"))"
 
         About(repository: "inseven/folders", copyright: "Copyright © 2023-2025 Jason Morley") {
             Action("Website", url: URL(string: "https://folders.jbmorley.co.uk")!)
