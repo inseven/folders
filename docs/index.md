@@ -8,6 +8,7 @@ title: About
          width="128"
          height="128" />
     <div class="appname">Folders</div>
+    <div class="tagline">Local-first library management for your files</div>
 </p>
 
 <picture class="hero">
