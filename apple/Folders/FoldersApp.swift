@@ -25,6 +25,16 @@ import SwiftUI
 import Diligence
 import Interact
 
+fileprivate let sparkleLicense = License(id: "https://github.com/sparkle-project/Sparkle",
+                                         name: "Sparkle",
+                                         author: "Sparkle Project",
+                                         text: String(contentsOfResource: "sparkle-license")!,
+                                         attributes: [
+                                            .url(URL(string: "https://github.com/sparkle-project/Sparkle")!, title: "GitHub"),
+                                            .url(URL(string: "https://sparkle-project.org")!, title: "Website"),
+                                         ],
+                                         licenses: [])
+
 @main
 struct FoldersApp: App {
 
@@ -102,6 +112,7 @@ struct FoldersApp: App {
                         .init("GitHub", url: URL(string: "https://github.com/jpsim/Yams")!)
                     ],
                     filename: "yams-license")
+            (sparkleLicense)
         }
 
     }
