@@ -80,6 +80,12 @@ ul.navigation > li {
     font-weight: 800;
     text-align: center;
     font-size: 3em;
+    margin-bottom: var(--vertical-spacing);
+}
+
+.tagline {
+    text-align: center;
+    font-size: 1.2em;
 }
 
 .content {
