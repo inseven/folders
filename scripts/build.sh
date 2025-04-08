@@ -141,13 +141,38 @@ xcodebuild \
     -exportPath "$BUILD_DIRECTORY" \
     -exportOptionsPlist "ExportOptions.plist"
 
-APP_BASENAME="Folders.app"
-APP_PATH="$BUILD_DIRECTORY/$APP_BASENAME"
-PKG_PATH="$BUILD_DIRECTORY/Folders.pkg"
+# Apple recommends we use ditto to prepare zips for notarization.
+# https://developer.apple.com/documentation/security/notarizing_macos_software_before_distribution/customizing_the_notarization_workflow
+RELEASE_BASENAME="Folders-$VERSION_NUMBER-$BUILD_NUMBER"
+RELEASE_ZIP_BASENAME="$RELEASE_BASENAME.zip"
+RELEASE_ZIP_PATH="$BUILD_DIRECTORY/$RELEASE_ZIP_BASENAME"
+pushd "$BUILD_DIRECTORY"
+/usr/bin/ditto -c -k --keepParent "Folders.app" "$RELEASE_ZIP_BASENAME"
+rm -r "Folders.app"
+popd
 
 # Install the private key.
 mkdir -p ~/.appstoreconnect/private_keys/
 echo -n "$APPLE_API_KEY_BASE64" | base64 --decode -o ~/".appstoreconnect/private_keys/AuthKey_${APPLE_API_KEY_ID}.p8"
+
+# Notarize the app.
+xcrun notarytool submit "$RELEASE_ZIP_PATH" \
+    --key "$API_KEY_PATH" \
+    --key-id "$APPLE_API_KEY_ID" \
+    --issuer "$APPLE_API_KEY_ISSUER_ID" \
+    --output-format json \
+    --wait | tee command-notarization-response.json
+NOTARIZATION_ID=`cat command-notarization-response.json | jq -r ".id"`
+NOTARIZATION_RESPONSE=`cat command-notarization-response.json | jq -r ".status"`
+
+if [ "$NOTARIZATION_RESPONSE" != "Accepted" ] ; then
+    echo "Failed to notarize command."
+    exit 1
+fi
+
+APP_BASENAME="Folders.app"
+APP_PATH="$BUILD_DIRECTORY/$APP_BASENAME"
+PKG_PATH="$BUILD_DIRECTORY/Folders.pkg"
 
 # Archive the build directory.
 ZIP_BASENAME="build-${VERSION_NUMBER}-${BUILD_NUMBER}.zip"
