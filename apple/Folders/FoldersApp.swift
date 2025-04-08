@@ -61,7 +61,7 @@ struct FoldersApp: App {
             License("Folders",
                     author: "Jason Morley",
                     attributes: [
-                        .init("GitHub", url: URL(string: "https://github.com/inseven/folder")!)
+                        .init("GitHub", url: URL(string: "https://github.com/inseven/folders")!)
                     ],
                     filename: "folders-license")
             License("FSEventsWrapper",
@@ -96,6 +96,9 @@ struct FoldersApp: App {
                     filename: "swift-numerics-license")
             License("Yams",
                     author: "JP Simard",
+                    attributes: [
+                        .init("GitHub", url: URL(string: "https://github.com/jpsim/Yams")!)
+                    ],
                     filename: "yams-license")
         }
 
