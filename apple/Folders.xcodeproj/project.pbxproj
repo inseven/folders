@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		D814EA012B7EB620008BF46C /* Sort.swift in Sources */ = {isa = PBXBuildFile; fileRef = D814EA002B7EB620008BF46C /* Sort.swift */; };
+		D825FFF02DA61C910050A0FD /* HelpCommands.swift in Sources */ = {isa = PBXBuildFile; fileRef = D825FFEF2DA61C8F0050A0FD /* HelpCommands.swift */; };
 		D82B957C2B23112C00C8B6FB /* GridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D82B957B2B23112C00C8B6FB /* GridView.swift */; };
 		D82B957F2B231A7900C8B6FB /* SQLite in Frameworks */ = {isa = PBXBuildFile; productRef = D82B957E2B231A7900C8B6FB /* SQLite */; };
 		D82B95812B231AD000C8B6FB /* Store.swift in Sources */ = {isa = PBXBuildFile; fileRef = D82B95802B231AD000C8B6FB /* Store.swift */; };
@@ -91,6 +92,7 @@
 
 /* Begin PBXFileReference section */
 		D814EA002B7EB620008BF46C /* Sort.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sort.swift; sourceTree = "<group>"; };
+		D825FFEF2DA61C8F0050A0FD /* HelpCommands.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelpCommands.swift; sourceTree = "<group>"; };
 		D82B957B2B23112C00C8B6FB /* GridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GridView.swift; sourceTree = "<group>"; };
 		D82B95802B231AD000C8B6FB /* Store.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Store.swift; sourceTree = "<group>"; };
 		D83312E22B76FE4E00B994B3 /* Filter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Filter.swift; sourceTree = "<group>"; };
@@ -186,6 +188,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		D825FFEE2DA61C800050A0FD /* Commands */ = {
+			isa = PBXGroup;
+			children = (
+				D825FFEF2DA61C8F0050A0FD /* HelpCommands.swift */,
+			);
+			path = Commands;
+			sourceTree = "<group>";
+		};
 		D82B95852B23DC5500C8B6FB /* Utilities */ = {
 			isa = PBXGroup;
 			children = (
@@ -245,12 +255,13 @@
 		D87653B22AC9F01600E8B65D /* Folders */ = {
 			isa = PBXGroup;
 			children = (
+				D87653B72AC9F01800E8B65D /* Assets.xcassets */,
+				D825FFEE2DA61C800050A0FD /* Commands */,
+				D87653E02AC9F38700E8B65D /* Extensions */,
 				D87653BC2AC9F01800E8B65D /* Folders.entitlements */,
-				D8ED594E2B687FE800010FB3 /* Info.plist */,
 				D87653B32AC9F01600E8B65D /* FoldersApp.swift */,
 				D89622DF2ACD3B9A006F7D2E /* FoldersError.swift */,
-				D87653B72AC9F01800E8B65D /* Assets.xcassets */,
-				D87653E02AC9F38700E8B65D /* Extensions */,
+				D8ED594E2B687FE800010FB3 /* Info.plist */,
 				D870ECA52B7EDDB100704688 /* Licenses */,
 				D89622DC2ACD3952006F7D2E /* Models */,
 				D87653B92AC9F01800E8B65D /* Preview Content */,
@@ -531,6 +542,7 @@
 				D88F05942DA5F2CC009EAB64 /* CheckForUpdatesView.swift in Sources */,
 				D879E3452AD27C7B00A021E0 /* SidebarItem.swift in Sources */,
 				D85AC0D92BAE217F003CAE8F /* CollectionViewNavigationResult.swift in Sources */,
+				D825FFF02DA61C910050A0FD /* HelpCommands.swift in Sources */,
 				D8472A662B2517DE0070DB64 /* StoreView.swift in Sources */,
 				D82B95812B231AD000C8B6FB /* Store.swift in Sources */,
 				D89622E02ACD3B9A006F7D2E /* FoldersError.swift in Sources */,
