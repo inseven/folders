@@ -5,6 +5,7 @@
     --secondary-foreground-color: gray;
     --background-color: #ffffff;
     --navigation-background: rgba(255, 255, 255, 0.7);
+    --primary-action-background-color: #007aff;
     --content-width: 900px;
     --vertical-spacing: 1rem;
 }
@@ -16,6 +17,7 @@
         --secondary-foreground-color: gray;
         --background-color: #181818;
         --navigation-background: rgba(24, 24, 24, 0.7);
+        --primary-action-background-color: #0a84ff;
     }
 
 }
@@ -93,18 +95,13 @@ ul.navigation > li {
     text-align: center;
 }
 
-.button {
+.button, .button:hover {
     color: white;
-    background-color: blue;
+    background-color: var(--primary-action-background-color);
     border-radius: 0.5rem;
     padding: 1rem;
     text-decoration: none;
     display: inline-block;
-}
-
-.button:hover {
-    color: white;
-    background-color: darkblue;
 }
 
 .content {
