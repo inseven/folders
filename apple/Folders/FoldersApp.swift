@@ -51,6 +51,11 @@ struct FoldersApp: App {
             LibraryView(applicationModel: applicationModel)
                 .environmentObject(applicationModel)
         }
+        .commands {
+            CommandGroup(before: .appSettings) {
+                CheckForUpdatesView(updater: applicationModel.updaterController.updater)
+            }
+        }
 
         let subject = "Folders Support (\(Bundle.main.extendedVersion ?? "Unknown Version"))"
 
