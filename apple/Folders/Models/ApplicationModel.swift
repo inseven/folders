@@ -23,6 +23,8 @@
 import Combine
 import SwiftUI
 
+import Sparkle
+
 class ApplicationModel: NSObject, ObservableObject {
 
     private let settings = Settings()
@@ -36,6 +38,9 @@ class ApplicationModel: NSObject, ObservableObject {
     @Published var dynamicSidebarItems: [SidebarItem] = []
 
     var cancellables = Set<AnyCancellable>()
+    let updaterController = SPUStandardUpdaterController(startingUpdater: false,
+                                                         updaterDelegate: nil,
+                                                         userDriverDelegate: nil)
 
     override init() {
 
@@ -82,6 +87,8 @@ class ApplicationModel: NSObject, ObservableObject {
         for updater in updaters {
             updater.start()
         }
+
+        updaterController.startUpdater()
 
     }
 
