@@ -29,9 +29,29 @@ public struct HelpCommands: Commands {
     public var body: some Commands {
 
         CommandGroup(replacing: .help) {
+            Button("Donate") {
+                openURL(URL(string: "https://jbmorley.co.uk/support")!)
+            }
             Button("More Software by Jason Morley") {
                 openURL(URL(string: "https://jbmorley.co.uk/software")!)
             }
+        }
+
+        CommandGroup(before: .help) {
+            Button("Website") {
+                openURL(URL(string: "https://folders.jbmorley.co.uk")!)
+            }
+            Button("Privacy Policy") {
+                openURL(URL(string: "https://folders.jbmorley.co.uk/privacy-policy")!)
+            }
+            Button("GitHub") {
+                openURL(URL(string: "https://github.com/inseven/folders")!)
+            }
+            Button("Support") {
+                let subject = "Folders Support (\(Bundle.main.extendedVersion ?? "Unknown Version"))"
+                openURL(URL(address: "support@jbmorley.co.uk", subject: subject)!)
+            }
+            Divider()
         }
 
     }
