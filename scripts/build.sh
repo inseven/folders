@@ -210,6 +210,6 @@ if $RELEASE ; then
         --skip-if-empty \
         --push \
         --exec "${RELEASE_SCRIPT_PATH}" \
-        "${RELEASE_ZIP_PATH}" "${ZIP_PATH}"
+        "${RELEASE_ZIP_PATH}" "${ZIP_PATH}" "$BUILD_DIRECTORY/appcast.xml"
 
 fi
