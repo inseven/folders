@@ -23,29 +23,35 @@
 import Combine
 import SwiftUI
 
-// TODO: Consider whether StoreObservers should be able to specify filters. This might also necessitate filters supporting just identifiers.
-
 class FolderModel: ObservableObject {
 
     @Published var settings: FolderSettings?
     @Published var error: Error?
 
     let store: Store
-    let url: URL
+    let identifiers: Set<Details.Identifier>
     var cancellables = Set<AnyCancellable>()
 
-    init(store: Store, url: URL) {
+    var title: String {
+        return identifiers.map { $0.url.displayName }
+            .sorted { $0.localizedCaseInsensitiveCompare($1) == .orderedAscending }
+            .joined(separator: ", ")
+    }
+
+    init(store: Store, identifiers: Set<Details.Identifier>) {
         self.store = store
-        self.url = url
+        self.identifiers = identifiers
     }
 
     func start() {
 
-        // TODO: Specify the owner too to avoid duplicates.
-        let settingsURL = url.appendingPathComponent("folders-settings.yaml")
+        // Only load folder settings if a single folder is selected.
+        guard identifiers.count == 1,
+              let settingsURL = identifiers.first?.url.appendingPathComponent("folders-settings.yaml") else {
+            return
+        }
 
         // TODO: Convenience contructor for running filters.
-        // TODO: Would it be better to implement this on a StoreView, or as a StoreViewDelegate?
         store
             .publisher()  // TODO: Rename to changes?
             .compactMap { (operation: StoreOperation) -> StoreOperation? in
@@ -66,10 +72,7 @@ class FolderModel: ObservableObject {
             }
             .receive(on: DispatchQueue.main)
             .sink { operation in
-                print("EVENT!! \(operation)" )
-
                 switch operation {
-
                 case .add:
                     do {
                         self.settings = try FolderSettings(contentsOf: settingsURL)
@@ -79,7 +82,6 @@ class FolderModel: ObservableObject {
                 case .remove:
                     self.settings = nil
                 }
-
             }
             .store(in: &cancellables)
 

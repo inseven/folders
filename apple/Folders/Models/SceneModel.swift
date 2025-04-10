@@ -27,22 +27,28 @@ class SceneModel: ObservableObject {
 
     let applicationModel: ApplicationModel
 
-    @Published var selection: Details.Identifier? = nil
+    @Published var selection: Set<Details.Identifier> = []
 
     init(applicationModel: ApplicationModel) {
         self.applicationModel = applicationModel
-        self.selection = applicationModel.sidebarItems.first?.id
+        self.selection = if let identifier = applicationModel.sidebarItems.first?.id {
+            [identifier]
+        } else {
+            []
+        }
+
     }
 
     func add() {
         guard let sidebarItem = applicationModel.add() else {
             return
         }
-        selection = sidebarItem.id
+        selection = [sidebarItem.id]
     }
 
     func remove(_ url: URL) {
-        selection = nil
+        // TODO: Pick a sensible side bar selection.
+        selection = []
         applicationModel.remove(url)
     }
 
