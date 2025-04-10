@@ -37,9 +37,9 @@ struct LibraryView: View {
         NavigationSplitView {
             Sidebar(applicationModel: applicationModel, sceneModel: sceneModel)
         } detail: {
-            if let selection = sceneModel.selection {
-                FolderView(applicationModel: applicationModel, ownerURL: selection.ownerURL, url: selection.url)
-                    .id(selection)
+            if !sceneModel.selection.isEmpty {
+                FolderView(applicationModel: applicationModel, identifiers: sceneModel.selection)
+                    .id(sceneModel.selection)
             } else {
                 ContentUnavailableView {
                     Label("No Folder Selected", systemImage: "folder")

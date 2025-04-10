@@ -33,6 +33,40 @@ protocol Filter {
 
 }
 
+struct AnyFilter: Filter {
+
+    let filter: SQLite.Expression<Bool>
+    let _matches: (Details) -> Bool
+
+    init(_ filter: any Filter) {
+        self.filter = filter.filter
+        _matches = { details in
+            filter.matches(details: details)
+        }
+    }
+
+    func matches(details: Details) -> Bool {
+        return _matches(details)
+    }
+
+}
+
+extension AnyFilter {
+
+    init(anding filters: [Filter]) {
+        self = filters.reduce(AnyFilter(TrueFilter())) { partialResult, filter in
+            return AnyFilter(partialResult && AnyFilter(filter))
+        }
+    }
+
+    init(oring filters: [Filter]) {
+        self = filters.reduce(AnyFilter(FalseFilter())) { partialResult, filter in
+            return AnyFilter(partialResult || AnyFilter(filter))
+        }
+    }
+
+}
+
 extension Filter where Self == TypeFilter {
 
     static func conforms(to type: UTType) -> TypeFilter {
@@ -64,6 +98,19 @@ struct TrueFilter: Filter {
     }
 
 }
+
+struct FalseFilter: Filter {
+
+    var filter: Expression<Bool> {
+        return Expression(value: false)
+    }
+
+    func matches(details: Details) -> Bool {
+        return false
+    }
+
+}
+
 
 struct AndFilter<A: Filter, B: Filter>: Filter {
 
@@ -180,4 +227,36 @@ extension TypeFilter: Filter {
         }
     }
 
+}
+
+func defaultTypesFilter() -> AnyFilter {
+    return AnyFilter(.conforms(to: .pdf)
+                     || .conforms(to: .jpeg)
+                     || .conforms(to: .gif)
+                     || .conforms(to: .png)
+                     || .conforms(to: .video)
+                     || .conforms(to: .mpeg4Movie)
+                     || .conforms(to: .cbz)
+                     || .conforms(to: .stl)
+                     || .conforms(to: .mp3)
+                     || .conforms(to: .tap)
+                     || .conforms(to: .mkv)
+                     || .conforms(to: .bmp)
+                     || .conforms(to: .webP)
+                     || .conforms(to: .ico)
+                     || .conforms(to: .avi))
+}
+
+func defaultFilter(owner ownerURL: URL, parent parentURL: URL) -> Filter {
+    return .owner(ownerURL) && .parent(parentURL) && defaultTypesFilter()
+}
+
+func identifierFilter(identifier: Details.Identifier) -> AndFilter<OwnerFilter, ParentFilter> {
+    return .owner(identifier.ownerURL) && .parent(identifier.url)
+}
+
+func defaultFilter(identifiers: Set<Details.Identifier>) -> Filter {
+    return AnyFilter(oring: (identifiers.map { identifier in
+        return identifierFilter(identifier: identifier) && defaultTypesFilter()
+    }))
 }

@@ -31,18 +31,18 @@ struct FolderView: View {
 
     @StateObject var folderModel: FolderModel
 
-    let ownerURL: URL
-    let url: URL
+    let identifiers: Set<Details.Identifier>
+    let filter: Filter
 
-    init(applicationModel: ApplicationModel, ownerURL: URL, url: URL) {
-        self.ownerURL = ownerURL
-        self.url = url
-        _folderModel = StateObject(wrappedValue: FolderModel(store: applicationModel.store, url: url))
+    init(applicationModel: ApplicationModel, identifiers: Set<Details.Identifier>) {
+        self.identifiers = identifiers
+        _folderModel = StateObject(wrappedValue: FolderModel(store: applicationModel.store, identifiers: identifiers))
+        self.filter = defaultFilter(identifiers: identifiers)
     }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            GridView(sceneModel: sceneModel, store: applicationModel.store, ownerURL: ownerURL, directoryURL: url)
+            GridView(sceneModel: sceneModel, store: applicationModel.store, filter: filter)
             if let links = folderModel.settings?.links {
                 Divider()
                 HStack {
@@ -66,7 +66,7 @@ struct FolderView: View {
                 .background(.thinMaterial)
             }
         }
-        .navigationTitle(url.displayName)
+        .navigationTitle(folderModel.title)
         .presents($folderModel.error)
         .onAppear {
             folderModel.start()
