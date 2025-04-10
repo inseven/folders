@@ -25,12 +25,20 @@ import UniformTypeIdentifiers
 
 extension UTType {
 
+    static var cbr: Self {
+        return UTType(filenameExtension: "cbr")!
+    }
+
     static var cbz: Self {
         return UTType(filenameExtension: "cbz")!
     }
 
     static var mkv: Self {
         return UTType(filenameExtension: "mkv")!
+    }
+
+    static var pbm: Self {
+        return UTType(filenameExtension: "pbm")!
     }
 
     static var stl: Self {

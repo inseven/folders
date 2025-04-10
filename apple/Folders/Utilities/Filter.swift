@@ -236,6 +236,7 @@ func defaultTypesFilter() -> AnyFilter {
                      || .conforms(to: .png)
                      || .conforms(to: .video)
                      || .conforms(to: .mpeg4Movie)
+                     || .conforms(to: .cbr)
                      || .conforms(to: .cbz)
                      || .conforms(to: .stl)
                      || .conforms(to: .mp3)
@@ -244,7 +245,9 @@ func defaultTypesFilter() -> AnyFilter {
                      || .conforms(to: .bmp)
                      || .conforms(to: .webP)
                      || .conforms(to: .ico)
-                     || .conforms(to: .avi))
+                     || .conforms(to: .avi)
+                     || .conforms(to: .pbm)
+                     || .conforms(to: .tiff))
 }
 
 func defaultFilter(owner ownerURL: URL, parent parentURL: URL) -> Filter {
