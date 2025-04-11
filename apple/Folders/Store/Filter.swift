@@ -29,7 +29,6 @@ import SQLite
 
 protocol Filter {
 
-    var filter: Expression<Bool> { get }  // TODO: Remove this
     var sql: String { get }
     func matches(details: Details) -> Bool
 
@@ -38,12 +37,10 @@ protocol Filter {
 struct AnyFilter: Filter {
 
     let sql: String
-    let filter: SQLite.Expression<Bool>
     let _matches: (Details) -> Bool
 
     init(_ filter: any Filter) {
         self.sql = filter.sql
-        self.filter = filter.filter
         _matches = { details in
             filter.matches(details: details)
         }
@@ -97,10 +94,6 @@ struct TrueFilter: Filter {
         return "true"
     }
 
-    var filter: Expression<Bool> {
-        return Expression(value: true)
-    }
-
     func matches(details: Details) -> Bool {
         return true
     }
@@ -111,10 +104,6 @@ struct FalseFilter: Filter {
 
     var sql: String {
         return "false"
-    }
-
-    var filter: Expression<Bool> {
-        return Expression(value: false)
     }
 
     func matches(details: Details) -> Bool {
@@ -136,10 +125,6 @@ struct AndFilter<A: Filter, B: Filter>: Filter {
 
     var sql: String {
         return "(\(lhs.sql)) and (\(rhs.sql))"
-    }
-
-    var filter: Expression<Bool> {
-        return lhs.filter && rhs.filter
     }
 
     func matches(details: Details) -> Bool {
@@ -164,10 +149,6 @@ struct OrFilter<A: Filter, B: Filter>: Filter {
 
     var sql: String {
         return "(\(lhs.sql)) or (\(rhs.sql))"
-    }
-
-    var filter: Expression<Bool> {
-        return lhs.filter || rhs.filter
     }
 
     func matches(details: Details) -> Bool {
@@ -203,12 +184,7 @@ struct ParentFilter: Filter {
     // TODO: Perhaps the SQL could be give with wildcard expressions for binding?
     var sql: String {
         // TODO: SAFETY SAFETY SAFETY
-        return "path like '\(parent)%'"
-    }
-
-    var filter: Expression<Bool> {
-        // TODO: Delimit parent!
-        return Store.Schema.path.like("\(parent)/%")
+        return "path like '\(parent)/%'"
     }
 
     func matches(details: Details) -> Bool {
@@ -228,10 +204,6 @@ struct OwnerFilter: Filter {
     var sql: String {
         // TODO: SAFETY SAFETY SAFETY
         return "owner = '\(owner)'"
-    }
-
-    var filter: Expression<Bool> {
-        return Store.Schema.owner == owner
     }
 
     func matches(details: Details) -> Bool {
@@ -273,18 +245,6 @@ struct TagFilter: Filter {
         return "files.id IN (\(tagSubselect))"
     }
 
-    // TODO: Can I even construct the required expression?
-    var filter: Expression<Bool> {
-
-//        let subselect = Store.Schema.filesToTags
-//            .join(Store.Schema.tags, on: Store.Schema.tagId == Store.Schema.fileId)
-//            .select(Store.Schema.fileId)
-//            .where(Store.Schema.name == name)  // TODO: Should tags be case sensitive?
-//
-
-        return Store.Schema.owner == name
-    }
-
     func matches(details: Details) -> Bool {
         return true
     }
@@ -321,13 +281,6 @@ extension TypeFilter: Filter {
         switch self {
         case .conformsTo(let contentType):
             return "type = '\(contentType.identifier)'"
-        }
-    }
-
-    var filter: Expression<Bool> {
-        switch self {
-        case .conformsTo(let contentType):
-            return Store.Schema.type == contentType.identifier
         }
     }
 
