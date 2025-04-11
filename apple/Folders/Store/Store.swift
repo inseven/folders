@@ -412,6 +412,8 @@ class Store {
                 files
             WHERE
                 \(filter.sql.0)
+            ORDER BY
+                \(sort.sql)
             """
 
         print(selectQuery)

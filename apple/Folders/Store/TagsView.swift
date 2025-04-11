@@ -37,7 +37,7 @@ protocol TagsViewDelegate: NSObject {
     func tagsView(_ tagsView: TagsView,
                   didRemoveTag tag: String,
                   atIndex index: Int,
-                  files: [String])
+                  tags: [String])
 
 }
 
@@ -180,7 +180,7 @@ class TagsView: NSObject, Store.Observer {
                     self.tags.remove(at: index)
                     let snapshot = self.tags
                     DispatchQueue.main.async {
-                        self.delegate?.tagsView(self, didRemoveTag: tag, atIndex: index, files: snapshot)
+                        self.delegate?.tagsView(self, didRemoveTag: tag, atIndex: index, tags: snapshot)
                     }
                 }
             } else {

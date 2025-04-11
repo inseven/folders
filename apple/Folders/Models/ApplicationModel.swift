@@ -253,7 +253,7 @@ extension ApplicationModel: TagsViewDelegate {
         self.tags = tags
     }
     
-    func tagsView(_ tagsView: TagsView, didRemoveTag tag: String, atIndex index: Int, files: [String]) {
+    func tagsView(_ tagsView: TagsView, didRemoveTag tag: String, atIndex index: Int, tags: [String]) {
         dispatchPrecondition(condition: .onQueue(.main))
         self.tags = tags
     }

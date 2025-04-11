@@ -28,6 +28,7 @@ protocol Sort {
 
     func compare(_ lhs: Details, _ rhs: Details) -> Bool
     var order: [Expressible] { get }
+    var sql: String { get }
 }
 
 struct DisplayNameAscending: Sort {
@@ -38,6 +39,10 @@ struct DisplayNameAscending: Sort {
 
     var order: [Expressible] {
         return [Store.Schema.name.asc]
+    }
+
+    var sql: String {
+        return "name ASC"
     }
 
 }
@@ -58,6 +63,10 @@ struct DisplayNameDescending: Sort {
 
     var order: [Expressible] {
         return [Store.Schema.name.desc]
+    }
+
+    var sql: String {
+        return "name DESC"
     }
 
 }

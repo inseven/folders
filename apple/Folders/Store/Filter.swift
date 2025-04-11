@@ -247,7 +247,7 @@ struct TagFilter: Filter {
     }
 
     func matches(details: Details) -> Bool {
-        return true
+        return details.tags?.contains(name) ?? false
     }
 
 }
