@@ -53,7 +53,7 @@ struct Sidebar: View {
             }
             Section("Tags") {
                 ForEach(applicationModel.tags, id: \.self) { tag in
-                    Text(tag)
+                    Label(tag, systemImage: "tag")
                         .tag(SidebarItem.Kind.tag(tag))
                 }
             }

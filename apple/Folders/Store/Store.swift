@@ -403,9 +403,22 @@ class Store {
 
     fileprivate func syncQueue_files(filter: Filter, sort: Sort) throws -> [Details] {
         dispatchPrecondition(condition: .onQueue(syncQueue))
-        return try connection.prepareRowIterator(Schema.files.select(Schema.files[*])
-            .filter(filter.filter)
-            .order(sort.order))
+
+        // TODO: Support ordering.
+        let selectQuery = """
+            SELECT
+                *
+            FROM
+                files
+            WHERE
+                \(filter.sql)
+            """
+
+        print(selectQuery)
+
+        return try connection.prepareRowIterator(selectQuery)
+//            .filter(filter.filter)
+//            .order(sort.order)
         .map { row in
             let type = UTType(row[Schema.type])!
             let ownerURL = URL(filePath: row[Schema.owner], directoryHint: .isDirectory)
