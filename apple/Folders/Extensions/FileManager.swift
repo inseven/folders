@@ -46,11 +46,13 @@ extension FileManager {
                 print("Failed to determine content type for \(fileURL).")
                 continue
             }
+            let tags = tags(for: fileURL)
             files.append(Details(uuid: UUID(),
                                  ownerURL: ownerURL ?? directoryURL,
                                  url: fileURL,
                                  contentType: contentType,
-                                 contentModificationDate: contentModificationDate.millisecondsSinceReferenceDate))
+                                 contentModificationDate: contentModificationDate.millisecondsSinceReferenceDate,
+                                 tags: tags))
         }
 
         let duration = date.distance(to: Date())
@@ -59,10 +61,15 @@ extension FileManager {
         return files
     }
 
-    func details(for path: String, owner: URL) throws -> Details {
-        let url = URL(filePath: path)
-        return try details(for: url, owner: owner)
+    func tags(for url: URL) -> Set<String> {
+        // TODO: Consider whether tags should just be considered in the relative path or the whole path.
+        return Extractor.tags(for: url)
     }
+
+//    func details(for path: String, owner: URL) throws -> Details {
+//        let url = URL(filePath: path)
+//        return try details(for: url, owner: owner)
+//    }
 
     func details(for url: URL, owner: URL) throws -> Details {
         guard let isDirectory = try url.isDirectory else {
@@ -77,11 +84,15 @@ extension FileManager {
             throw FoldersError.general("Unable to get content modification date for file '\(url.path)'.")
         }
 
+        // TODO: Detect the tags from from the filename.
+        let tags = tags(for: url)
+
         return Details(uuid: UUID(),
                        ownerURL: owner,
                        url: url,
                        contentType: isDirectory ? .directory : contentType,
-                       contentModificationDate: contentModificationDate.millisecondsSinceReferenceDate)
+                       contentModificationDate: contentModificationDate.millisecondsSinceReferenceDate,
+                       tags: tags)
     }
 
 }

@@ -22,10 +22,19 @@
 
 import Foundation
 
-enum FoldersError: Error {
+struct Extractor {
 
-    case general(String)
-    case unknownSchemaVersion(Int32)
-    case unknownTag(String)
+    static func tags(for url: URL) -> Set<String> {
+        let hashtags = (url.path.deletingPathExtension as NSString)
+            .pathComponents
+            .map({ component in
+                component
+                    .split(separator: " ")
+                    .filter { $0.starts(with: "#") }
+                    .map { String($0.dropFirst()) }
+            })
+            .flatMap { $0 }
+        return Set(hashtags)
+    }
 
 }

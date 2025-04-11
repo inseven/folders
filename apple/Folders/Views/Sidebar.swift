@@ -22,29 +22,68 @@
 
 import SwiftUI
 
+// TODO: It'd be good to show icons for folders to make it easier to debug stuff if they end up in the list.
+
+struct TaggedText: View {
+
+    let text: String
+    let title: String
+    let tags: String
+
+    init(_ text: String) {
+        self.text = text
+        let components = text.components(separatedBy: " ")
+        title = components.first ?? ""
+        tags = components.dropFirst().joined(separator: " ")
+    }
+
+    var body: some View {
+        HStack {
+            Text(title)
+            Text(tags)
+                .foregroundStyle(.secondary)
+        }
+    }
+
+}
+
 struct Sidebar: View {
 
     @ObservedObject var applicationModel: ApplicationModel
     @ObservedObject var sceneModel: SceneModel
 
     var body: some View {
-        List(applicationModel.dynamicSidebarItems, children: \.children, selection: $sceneModel.selection) { item in
-            Label(item.url.displayName, systemImage: item.systemImage)
-                .contextMenu {
-                    Button {
-                        NSWorkspace.shared.reveal(item.url)
-                    } label: {
-                        Text("Reveal in Finder")
+        List(selection: $sceneModel.selection) {
+            Section("Library") {
+                OutlineGroup(applicationModel.dynamicSidebarItems, children: \.children) { item in
+                    Label {
+                        Text(item.displayName)
+                    } icon: {
+                        Image(systemName: item.systemImage)
                     }
-                    if item.kind == .owner {
-                        Divider()
-                        Button(role: .destructive) {
-                            sceneModel.remove(item.url)
+                    .contextMenu {
+                        Button {
+                            sceneModel.reveal(item)
                         } label: {
-                            Label("Remove", systemImage: "trash")
+                            Text("Reveal in Finder")
+                        }
+                        if case .owner = item.kind {
+                            Divider()
+                            Button(role: .destructive) {
+                                sceneModel.remove(item)
+                            } label: {
+                                Label("Remove", systemImage: "trash")
+                            }
                         }
                     }
                 }
+            }
+            Section("Tags") {
+                ForEach(applicationModel.tags, id: \.self) { tag in
+                    Label(tag, systemImage: "tag")
+                        .tag(SidebarItem.Kind.tag(tag))
+                }
+            }
         }
         .toolbar {
             ToolbarItem {

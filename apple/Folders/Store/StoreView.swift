@@ -27,14 +27,26 @@ import Algorithms
 
 protocol StoreViewDelegate: NSObject {
 
-    func storeView(_ storeView: StoreView, didUpdateFiles files: [Details])
-    func storeView(_ storeView: StoreView, didInsertFile file: Details, atIndex: Int, files: [Details]) // TODO: atIndex index
-    func storeView(_ storeView: StoreView, didUpdateFile file: Details, atIndex: Int, files: [Details])
-    func storeView(_ storeView: StoreView, didRemoveFileWithIdentifier identifier: Details.Identifier, atIndex: Int, files: [Details])
+    func storeView(_ storeView: StoreView,
+                   didUpdateFiles files: [Details])
+    func storeView(_ storeView: StoreView,
+                   didInsertFile file: Details,
+                   atIndex index: Int,
+                   files: [Details])
+    func storeView(_ storeView: StoreView,
+                   didUpdateFile file: Details,
+                   atIndex index: Int,
+                   files: [Details])
+    func storeView(_ storeView: StoreView,
+                   didRemoveFileWithIdentifier identifier: Details.Identifier,
+                   atIndex index: Int,
+                   files: [Details])
 
 }
 
-class StoreView: NSObject, StoreObserver {
+// TODO: Right now this is just a file view and should probably be updated accordingly.
+//       Would this be better with a publisher or not?
+class StoreView: NSObject, Store.Observer {
 
     let store: Store
     let workQueue = DispatchQueue(label: "StoreView.workQueue", qos: .userInteractive)
@@ -214,6 +226,14 @@ class StoreView: NSObject, StoreObserver {
                 }
             }
         }
+    }
+
+    func store(_ store: Store, didInsertTags tags: [String]) {
+        // Do nothing.
+    }
+
+    func store(_ store: Store, didRemoveTags tags: [String]) {
+        // Do nothing.
     }
 
 }

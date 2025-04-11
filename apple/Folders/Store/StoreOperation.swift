@@ -25,4 +25,6 @@ import Foundation
 enum StoreOperation {
     case add([Details])
     case remove([Details.Identifier])
+    case addTags([String])
+    case removeTags([String])
 }

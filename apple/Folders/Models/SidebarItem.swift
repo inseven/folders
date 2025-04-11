@@ -26,41 +26,51 @@ import SwiftUI
 class SidebarItem: Hashable, Identifiable, Equatable {
 
     static func == (lhs: SidebarItem, rhs: SidebarItem) -> Bool {
-        return lhs.kind == rhs.kind && lhs.url == rhs.url && lhs.children == rhs.children
+        return lhs.kind == rhs.kind && lhs.children == rhs.children
     }
 
     func hash(into hasher: inout Hasher) {
         hasher.combine(kind)
-        hasher.combine(url)
         hasher.combine(children)
     }
 
-    enum Kind {
-        case owner
-        case folder
+    // Is the distinction between owner and folder correct _here_?
+    // Kind is actually wrong because it also includes an identifier. Maybe this is the SidebarItem's `Identifier`?
+    enum Kind: Hashable {
+        case owner(Details.Identifier)
+        case folder(Details.Identifier)
+        case tag(String)
     }
 
+    // TODO: Conveniences like this should live on the ID!
     var displayName: String {
-        return url.displayName
+        switch kind {
+        case .owner(let id):
+            return id.url.displayName
+        case .folder(let id):
+            return id.url.displayName
+        case .tag(let name):
+            return name
+        }
     }
 
-    let id: Details.Identifier
+    public var id: Kind {
+        return kind
+    }
+
+//    let id: Details.Identifier
     let kind: Kind
-    let ownerURL: URL
-    let url: URL
     var children: [SidebarItem]?
 
-    init(kind: Kind, ownerURL: URL, url: URL, children: [SidebarItem]?) {
-        precondition(url.hasDirectoryPath)
-        self.id = Details.Identifier(ownerURL: ownerURL, url: url)
+    init(kind: Kind, children: [SidebarItem]?) {
+//        precondition(id.url.hasDirectoryPath)  // TODO: This feels murky now
+//        self.id = id
         self.kind = kind
-        self.ownerURL = url
-        self.url = url
         self.children = children
     }
 
     func setting(children: [SidebarItem]? = nil) -> SidebarItem {
-        return SidebarItem(kind: self.kind, ownerURL: self.ownerURL, url: self.url, children: children)
+        return SidebarItem(kind: self.kind, children: children)
     }
 
 }
@@ -73,6 +83,8 @@ extension SidebarItem {
             return "archivebox"
         case .folder:
             return "folder"
+        case .tag:
+            return "tag"
         }
     }
 

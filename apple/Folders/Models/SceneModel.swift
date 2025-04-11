@@ -27,29 +27,48 @@ class SceneModel: ObservableObject {
 
     let applicationModel: ApplicationModel
 
-    @Published var selection: Set<Details.Identifier> = []
+    @Published var selection: Set<SidebarItem.ID> = []
 
     init(applicationModel: ApplicationModel) {
         self.applicationModel = applicationModel
-        self.selection = if let identifier = applicationModel.sidebarItems.first?.id {
-            [identifier]
+        self.selection = if let identifier = applicationModel.sidebarItems.first {
+            [.owner(identifier)]
         } else {
             []
         }
-
     }
 
     func add() {
         guard let sidebarItem = applicationModel.add() else {
             return
         }
-        selection = [sidebarItem.id]
+        selection = [sidebarItem]
     }
 
-    func remove(_ url: URL) {
+    func remove(_ sidebarItem: SidebarItem) {
         // TODO: Pick a sensible side bar selection.
         selection = []
-        applicationModel.remove(url)
+        switch sidebarItem.kind {
+        case .owner(let id):
+            applicationModel.remove(id.url)
+        case .folder(let id):
+            applicationModel.remove(id.url)
+        case .tag:
+            // TODO: Consider asserting as this isn't allowed.
+            break
+        }
+    }
+
+    func reveal(_ sidebarItem: SidebarItem) {
+        switch sidebarItem.kind {
+        case .owner(let id):
+            NSWorkspace.shared.reveal(id.url)
+        case .folder(let id):
+            NSWorkspace.shared.reveal(id.url)
+        case .tag:
+            // TODO: Consider asserting as this isn't allowed.
+            break
+        }
     }
 
 }
