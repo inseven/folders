@@ -16,6 +16,9 @@
 		D83312E32B76FE4E00B994B3 /* Filter.swift in Sources */ = {isa = PBXBuildFile; fileRef = D83312E22B76FE4E00B994B3 /* Filter.swift */; };
 		D83312E92B77132B00B994B3 /* Details.swift in Sources */ = {isa = PBXBuildFile; fileRef = D83312E82B77132B00B994B3 /* Details.swift */; };
 		D83E624D2BADF8960039EC83 /* NavigationDirection.swift in Sources */ = {isa = PBXBuildFile; fileRef = D83E624C2BADF8960039EC83 /* NavigationDirection.swift */; };
+		D83EA9A72DA867A7008DE7AE /* ExtractorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D83EA9A62DA867A4008DE7AE /* ExtractorTests.swift */; };
+		D83EA9A92DA871A4008DE7AE /* Extractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = D83EA9A82DA871A2008DE7AE /* Extractor.swift */; };
+		D83EA9AC2DA8925B008DE7AE /* TagsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D83EA9AB2DA89257008DE7AE /* TagsView.swift */; };
 		D8472A642B2517A50070DB64 /* ShortcutItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8472A632B2517A50070DB64 /* ShortcutItemView.swift */; };
 		D8472A662B2517DE0070DB64 /* StoreView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8472A652B2517DE0070DB64 /* StoreView.swift */; };
 		D8472A682B2518320070DB64 /* FixedItemSizeCollectionViewLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8472A672B2518320070DB64 /* FixedItemSizeCollectionViewLayout.swift */; };
@@ -98,6 +101,9 @@
 		D83312E22B76FE4E00B994B3 /* Filter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Filter.swift; sourceTree = "<group>"; };
 		D83312E82B77132B00B994B3 /* Details.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Details.swift; sourceTree = "<group>"; };
 		D83E624C2BADF8960039EC83 /* NavigationDirection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationDirection.swift; sourceTree = "<group>"; };
+		D83EA9A62DA867A4008DE7AE /* ExtractorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtractorTests.swift; sourceTree = "<group>"; };
+		D83EA9A82DA871A2008DE7AE /* Extractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extractor.swift; sourceTree = "<group>"; };
+		D83EA9AB2DA89257008DE7AE /* TagsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagsView.swift; sourceTree = "<group>"; };
 		D8472A632B2517A50070DB64 /* ShortcutItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShortcutItemView.swift; sourceTree = "<group>"; };
 		D8472A652B2517DE0070DB64 /* StoreView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreView.swift; sourceTree = "<group>"; };
 		D8472A672B2518320070DB64 /* FixedItemSizeCollectionViewLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FixedItemSizeCollectionViewLayout.swift; sourceTree = "<group>"; };
@@ -201,19 +207,28 @@
 			children = (
 				D85AC0D82BAE217F003CAE8F /* CollectionViewNavigationResult.swift */,
 				D8DDBCC72B2A1582003EAF4E /* DirectoryScanner.swift */,
-				D85D9F512C9A868D00178F10 /* Expression.swift */,
-				D83312E22B76FE4E00B994B3 /* Filter.swift */,
+				D83EA9A82DA871A2008DE7AE /* Extractor.swift */,
 				D8A82E3C2BADF38000DD32DA /* IndexPathSequence.swift */,
 				D83E624C2BADF8960039EC83 /* NavigationDirection.swift */,
 				D8A82E3A2BADF35400DD32DA /* SequenceDirection.swift */,
+				D8F6A6142B8D84840003B1A6 /* StoreUpdater.swift */,
+			);
+			path = Utilities;
+			sourceTree = "<group>";
+		};
+		D83EA9AA2DA88C64008DE7AE /* Store */ = {
+			isa = PBXGroup;
+			children = (
+				D85D9F512C9A868D00178F10 /* Expression.swift */,
+				D83312E22B76FE4E00B994B3 /* Filter.swift */,
 				D814EA002B7EB620008BF46C /* Sort.swift */,
 				D82B95802B231AD000C8B6FB /* Store.swift */,
 				D8F6A6122B8D7CC00003B1A6 /* StoreOperation.swift */,
 				D8F6A6102B8D64BA0003B1A6 /* StorePublisher.swift */,
-				D8F6A6142B8D84840003B1A6 /* StoreUpdater.swift */,
 				D8472A652B2517DE0070DB64 /* StoreView.swift */,
+				D83EA9AB2DA89257008DE7AE /* TagsView.swift */,
 			);
-			path = Utilities;
+			path = Store;
 			sourceTree = "<group>";
 		};
 		D870ECA52B7EDDB100704688 /* Licenses */ = {
@@ -255,16 +270,17 @@
 		D87653B22AC9F01600E8B65D /* Folders */ = {
 			isa = PBXGroup;
 			children = (
+				D87653BC2AC9F01800E8B65D /* Folders.entitlements */,
+				D8ED594E2B687FE800010FB3 /* Info.plist */,
+				D87653B32AC9F01600E8B65D /* FoldersApp.swift */,
+				D89622DF2ACD3B9A006F7D2E /* FoldersError.swift */,
 				D87653B72AC9F01800E8B65D /* Assets.xcassets */,
 				D825FFEE2DA61C800050A0FD /* Commands */,
 				D87653E02AC9F38700E8B65D /* Extensions */,
-				D87653BC2AC9F01800E8B65D /* Folders.entitlements */,
-				D87653B32AC9F01600E8B65D /* FoldersApp.swift */,
-				D89622DF2ACD3B9A006F7D2E /* FoldersError.swift */,
-				D8ED594E2B687FE800010FB3 /* Info.plist */,
 				D870ECA52B7EDDB100704688 /* Licenses */,
 				D89622DC2ACD3952006F7D2E /* Models */,
 				D87653B92AC9F01800E8B65D /* Preview Content */,
+				D83EA9AA2DA88C64008DE7AE /* Store */,
 				D82B95852B23DC5500C8B6FB /* Utilities */,
 				D87653E72AC9F5FB00E8B65D /* Views */,
 			);
@@ -282,9 +298,10 @@
 		D87653C42AC9F01900E8B65D /* FoldersTests */ = {
 			isa = PBXGroup;
 			children = (
-				D8FE1FDF2B8E7D8E006FE439 /* Extensions */,
-				D87653C52AC9F01900E8B65D /* FoldersTests.swift */,
 				D8FE1FDD2B8E7D7A006FE439 /* DirectoryScannerTests.swift */,
+				D83EA9A62DA867A4008DE7AE /* ExtractorTests.swift */,
+				D87653C52AC9F01900E8B65D /* FoldersTests.swift */,
+				D8FE1FDF2B8E7D8E006FE439 /* Extensions */,
 			);
 			path = FoldersTests;
 			sourceTree = "<group>";
@@ -426,7 +443,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1500;
-				LastUpgradeCheck = 1520;
+				LastUpgradeCheck = 1630;
 				TargetAttributes = {
 					D87653AF2AC9F01600E8B65D = {
 						CreatedOnToolsVersion = 15.0;
@@ -521,6 +538,7 @@
 				D85C07B12B7EBC3A00C8BAA6 /* FolderView.swift in Sources */,
 				D814EA012B7EB620008BF46C /* Sort.swift in Sources */,
 				D8DDBCC82B2A1582003EAF4E /* DirectoryScanner.swift in Sources */,
+				D83EA9A92DA871A4008DE7AE /* Extractor.swift in Sources */,
 				D85AC0D72BAE2005003CAE8F /* NSCollectionView.swift in Sources */,
 				D87653B42AC9F01600E8B65D /* FoldersApp.swift in Sources */,
 				D8F349B52B8150690037D66A /* UTType.swift in Sources */,
@@ -532,6 +550,7 @@
 				D89622E22ACD4200006F7D2E /* Sidebar.swift in Sources */,
 				D870EC9E2B7EC47B00704688 /* FolderModel.swift in Sources */,
 				D8472A682B2518320070DB64 /* FixedItemSizeCollectionViewLayout.swift in Sources */,
+				D83EA9AC2DA8925B008DE7AE /* TagsView.swift in Sources */,
 				D8F6A6112B8D64BA0003B1A6 /* StorePublisher.swift in Sources */,
 				D8F6A60D2B8D46720003B1A6 /* FolderSettings.swift in Sources */,
 				D8A82E3D2BADF38000DD32DA /* IndexPathSequence.swift in Sources */,
@@ -561,6 +580,7 @@
 				D87653C62AC9F01900E8B65D /* FoldersTests.swift in Sources */,
 				D8FE1FE12B8E7D98006FE439 /* XCTestCase.swift in Sources */,
 				D8FE1FE32B8EAE2D006FE439 /* FileManager.swift in Sources */,
+				D83EA9A72DA867A7008DE7AE /* ExtractorTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -776,7 +796,6 @@
 		D87653D92AC9F01900E8B65D /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -795,7 +814,6 @@
 		D87653DA2AC9F01900E8B65D /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -814,7 +832,6 @@
 		D87653DC2AC9F01900E8B65D /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = YES;
@@ -832,7 +849,6 @@
 		D87653DD2AC9F01900E8B65D /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = YES;

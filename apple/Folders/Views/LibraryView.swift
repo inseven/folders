@@ -33,12 +33,28 @@ struct LibraryView: View {
         _sceneModel = StateObject(wrappedValue: SceneModel(applicationModel: applicationModel))
     }
 
+    // TODO: This is a gross hack that needs removing and making nice and generic.
+    // TODO: This should return filters.
+    // TODO: Move this into the sidebar item or the filter?
+    func filter(for sidebarItems: Set<SidebarItem.ID>) -> Filter {
+        AnyFilter(oring: sidebarItems.map { kind in
+            switch kind {
+            case .owner(let identifier):
+                return identifierFilter(identifier: identifier) && defaultTypesFilter()
+            case .folder(let identifier):
+                return identifierFilter(identifier: identifier) && defaultTypesFilter()
+            case .tag(let name):
+                return AnyFilter(.tag(name) && defaultTypesFilter())
+            }
+        })
+    }
+
     var body: some View {
         NavigationSplitView {
             Sidebar(applicationModel: applicationModel, sceneModel: sceneModel)
         } detail: {
             if !sceneModel.selection.isEmpty {
-                FolderView(applicationModel: applicationModel, identifiers: sceneModel.selection)
+                FolderView(applicationModel: applicationModel, filter: filter(for: sceneModel.selection), sidebarItems: sceneModel.selection)
                     .id(sceneModel.selection)
             } else {
                 ContentUnavailableView {

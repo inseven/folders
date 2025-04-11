@@ -22,29 +22,41 @@
 
 import SwiftUI
 
+// TODO: It'd be good to show icons for folders to make it easier to debug stuff if they end up in the list.
+
 struct Sidebar: View {
 
     @ObservedObject var applicationModel: ApplicationModel
     @ObservedObject var sceneModel: SceneModel
 
     var body: some View {
-        List(applicationModel.dynamicSidebarItems, children: \.children, selection: $sceneModel.selection) { item in
-            Label(item.url.displayName, systemImage: item.systemImage)
-                .contextMenu {
-                    Button {
-                        NSWorkspace.shared.reveal(item.url)
-                    } label: {
-                        Text("Reveal in Finder")
-                    }
-                    if item.kind == .owner {
-                        Divider()
-                        Button(role: .destructive) {
-                            sceneModel.remove(item.url)
-                        } label: {
-                            Label("Remove", systemImage: "trash")
+        List(selection: $sceneModel.selection) {
+            Section("Library") {
+                OutlineGroup(applicationModel.dynamicSidebarItems, children: \.children) { item in
+                    Label(item.displayName, systemImage: item.systemImage)
+                        .contextMenu {
+                            Button {
+                                sceneModel.reveal(item)
+                            } label: {
+                                Text("Reveal in Finder")
+                            }
+                            if case .owner = item.kind {
+                                Divider()
+                                Button(role: .destructive) {
+                                    sceneModel.remove(item)
+                                } label: {
+                                    Label("Remove", systemImage: "trash")
+                                }
+                            }
                         }
-                    }
                 }
+            }
+            Section("Tags") {
+                ForEach(applicationModel.tags, id: \.self) { tag in
+                    Text(tag)
+                        .tag(SidebarItem.Kind.tag(tag))
+                }
+            }
         }
         .toolbar {
             ToolbarItem {

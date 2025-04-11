@@ -25,34 +25,41 @@ import UniformTypeIdentifiers
 
 import Algorithms
 
-protocol StoreViewDelegate: NSObject {
+// TODO: Move into TagsView?
+protocol TagsViewDelegate: NSObject {
 
-    func storeView(_ storeView: StoreView, didUpdateFiles files: [Details])
-    func storeView(_ storeView: StoreView, didInsertFile file: Details, atIndex: Int, files: [Details]) // TODO: atIndex index
-    func storeView(_ storeView: StoreView, didUpdateFile file: Details, atIndex: Int, files: [Details])
-    func storeView(_ storeView: StoreView, didRemoveFileWithIdentifier identifier: Details.Identifier, atIndex: Int, files: [Details])
+    func tagsView(_ tagsView: TagsView,
+                  didUpdateTags tags: [String])
+    func tagsView(_ tagsView: TagsView,
+                  didInsertTag tag: String,
+                  atIndex index: Int,
+                  tags: [String])
+    func tagsView(_ tagsView: TagsView,
+                  didRemoveTag tag: String,
+                  atIndex index: Int,
+                  files: [String])
 
 }
 
-class StoreView: NSObject, StoreObserver {
+// TODO: Right now this is just a file view and should probably be updated accordingly.
+//       Would this be better with a publisher or not?
+class TagsView: NSObject, Store.Observer {
 
     let store: Store
     let workQueue = DispatchQueue(label: "StoreView.workQueue", qos: .userInteractive)
-    let filter: Filter
-    let sort: Sort
+//    let sort: Sort  // TODO: Do we still need this?? Could it be templated??
     let threshold: Int
     private var isRunning: Bool = false  // Synchronized on workQueue
-    private var files: [Details] = []  // Synchronized on workQueue
+    private var tags: [String] = []  // Synchronized on workQueue
 
     // TODO: We _could_ consider using a thread to guard against mutation to `files` instead of the queue.
     // TODO: It might be nice to have a targetQueue for the delegate to make the serialisation explicit.
 
-    weak var delegate: StoreViewDelegate? = nil
+    weak var delegate: TagsViewDelegate? = nil
 
-    init(store: Store, filter: Filter = TrueFilter(), sort: Sort = .displayNameAscending, threshold: Int = 10) {
+    init(store: Store, sort: Sort = .displayNameAscending, threshold: Int = 10) {
         self.store = store
-        self.filter = filter
-        self.sort = sort
+//        self.sort = sort
         self.threshold = threshold
         super.init()
     }
@@ -70,12 +77,12 @@ class StoreView: NSObject, StoreObserver {
                 // Get them out sorted.
                 let queryStart = Date()
                 let queryDuration = queryStart.distance(to: Date())
-                self.files = try self.store.filesBlocking(filter: self.filter, sort: self.sort)
-                print("Query took \(queryDuration.formatted()) seconds and returned \(self.files.count) files.")
+                self.tags = try self.store.tagsBlocking(sort: .displayNameAscending)  // TODO: Common sort architecture??
+                print("Query took \(queryDuration.formatted()) seconds and returned \(self.tags.count) tags.")
 
-                let snapshot = self.files
+                let snapshot = self.tags
                 DispatchQueue.main.async { [self] in
-                    self.delegate?.storeView(self, didUpdateFiles: snapshot)
+                    self.delegate?.tagsView(self, didUpdateTags: snapshot)
                 }
             } catch {
                 // TODO: Provide a delegate model that actually returns errors.
@@ -90,6 +97,18 @@ class StoreView: NSObject, StoreObserver {
     }
 
     func store(_ store: Store, didInsertFiles files: [Details]) {
+        // Do nothing.
+    }
+
+    func store(_ store: Store, didUpdateFiles files: [Details]) {
+        // Do nothing.
+    }
+
+    func store(_ store: Store, didRemoveFilesWithIdentifiers identifiers: [Details.Identifier]) {
+        // Do nothing.
+    }
+
+    func store(_ store: Store, didInsertTags tags: [String]) {
         dispatchPrecondition(condition: .notOnQueue(.main))
         workQueue.async {
             guard self.isRunning else {
@@ -102,83 +121,46 @@ class StoreView: NSObject, StoreObserver {
             // our database query.
             // TODO: Using a flat array to store our files isn't very efficient for this kind of lookup.
             // TODO: It's very slightly possible this could be an update?
-            let files = files.filter { self.filter.matches(details: $0) && !self.files.contains($0) }
-            guard files.count > 0 else {
+            let tags = tags.filter { !self.tags.contains($0) }
+            guard tags.count > 0 else {
                 return
             }
 
             // These sets should never intersect.
-            assert(Set(self.files.map { $0.url }).intersection(files.map { $0.url }).count == 0)
+            assert(Set(self.tags).intersection(tags).count == 0)
 
-            if files.count < self.threshold {
-                for file in files {
-                    let index = self.files.partitioningIndex {
-                        return self.sort.compare(file, $0)
+            if tags.count < self.threshold {
+                for tag in tags {
+                    let index = self.tags.partitioningIndex {
+                        return tag.localizedCaseInsensitiveCompare($0) == .orderedAscending
+//                        return self.sort.compare(tag, $0)
                     }
-                    self.files.insert(file, at: index)
-                    let snapshot = self.files
+                    self.tags.insert(tag, at: index)
+                    let snapshot = self.tags
                     DispatchQueue.main.async {
-                        self.delegate?.storeView(self, didInsertFile: file, atIndex: index, files: snapshot)
+                        self.delegate?.tagsView(self, didInsertTag: tag, atIndex: index, tags: snapshot)
                     }
                 }
             } else {
                 // TODO: There's an optimisation here if the list is empty.
-                for file in files {
-                    let index = self.files.partitioningIndex {
-                        return self.sort.compare(file, $0)
+                for tag in tags {
+                    let index = self.tags.partitioningIndex {
+//                        return self.sort.compare(file, $0)
+                        return tag.localizedCaseInsensitiveCompare($0) == .orderedAscending
                     }
-                    self.files.insert(file, at: index)
+                    self.tags.insert(tag, at: index)
                 }
                 // TODO: We might as well cascade these changes down to the table view to allow it decide on performance
                 //       characteristics.
-                let snapshot = self.files
+                let snapshot = self.tags
                 DispatchQueue.main.async {
-                    self.delegate?.storeView(self, didUpdateFiles: snapshot)
+                    self.delegate?.tagsView(self, didUpdateTags: snapshot)
                 }
             }
         }
     }
 
-    func store(_ store: Store, didUpdateFiles files: [Details]) {
-        dispatchPrecondition(condition: .notOnQueue(.main))
-        workQueue.async {
-            guard self.isRunning else {
-                return
-            }
-
-            // Ignore unrelated updates.
-            let files = files.filter { self.filter.matches(details: $0) }
-            guard files.count > 0 else {
-                return
-            }
-
-            // TODO: We have a race condition during startup whereby we can sometimes receive updates as we're querying
-            //       and before we've received the full dataset.
-            var indexes = [(Details, Int)]()
-            for file in files {
-                let index = self.files.firstIndex { $0.uuid == file.uuid }!
-                self.files[index] = file
-                indexes.append((file, index))
-            }
-            // TODO: Actual update API.
-
-            if indexes.count < self.threshold {
-                let snapshot = self.files
-                for (file, index) in indexes {
-                    DispatchQueue.main.async {
-                        self.delegate?.storeView(self, didUpdateFile: file, atIndex: index, files: snapshot)
-                    }
-                }
-            } else {
-                let snapshot = self.files
-                DispatchQueue.main.async {
-                    self.delegate?.storeView(self, didUpdateFiles: snapshot)
-                }
-            }
-        }
-    }
-
-    func store(_ store: Store, didRemoveFilesWithIdentifiers identifiers: [Details.Identifier]) {
+    func store(_ store: Store, didRemoveTags tags: [String]) {
         dispatchPrecondition(condition: .notOnQueue(.main))
         // TODO: Maybe this shouldn't live on main queue
         // TODO: Pre-filter the updates.
@@ -190,27 +172,27 @@ class StoreView: NSObject, StoreObserver {
             // TODO: Pre-filter the identifiers here if we can? Or somehow work out which intersect before deciding
             // how to notify our delegate.
 
-            if identifiers.count < self.threshold {
-                for identifier in identifiers {
-                    guard let index = self.files.firstIndex(where: { $0.identifier == identifier }) else {
+            if tags.count < self.threshold {
+                for tag in tags {
+                    guard let index = self.tags.firstIndex(of: tag) else {
                         continue
                     }
-                    self.files.remove(at: index)
-                    let snapshot = self.files
+                    self.tags.remove(at: index)
+                    let snapshot = self.tags
                     DispatchQueue.main.async {
-                        self.delegate?.storeView(self, didRemoveFileWithIdentifier: identifier, atIndex: index, files: snapshot)
+                        self.delegate?.tagsView(self, didRemoveTag: tag, atIndex: index, files: snapshot)
                     }
                 }
             } else {
-                for identifier in identifiers {
-                    guard let index = self.files.firstIndex(where: { $0.identifier == identifier }) else {
+                for tag in tags {
+                    guard let index = self.tags.firstIndex(of: tag) else {
                         continue
                     }
-                    self.files.remove(at: index)
+                    self.tags.remove(at: index)
                 }
-                let snapshot = self.files
+                let snapshot = self.tags
                 DispatchQueue.main.async {
-                    self.delegate?.storeView(self, didUpdateFiles: snapshot)
+                    self.delegate?.tagsView(self, didUpdateTags: snapshot)
                 }
             }
         }

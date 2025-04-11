@@ -211,6 +211,57 @@ extension Filter where Self == OwnerFilter {
 
 }
 
+// TODO: This doesn't work at all right now!
+struct TagFilter: Filter {
+
+    let name: String
+
+    init(name: String) {
+        self.name = name
+    }
+
+    // TODO: Can I even construct the required expression?
+    var filter: Expression<Bool> {
+
+        let subselect = Store.Schema.filesToTags
+            .join(Store.Schema.tags, on: Store.Schema.tagId == Store.Schema.fileId)
+            .select(Store.Schema.fileId)
+            .where(Store.Schema.name == name)  // TODO: Should tags be case sensitive?
+
+
+        return Store.Schema.owner == name
+    }
+
+    func matches(details: Details) -> Bool {
+        return true
+    }
+
+}
+
+extension Filter where Self == TagFilter {
+
+    static func tag(_ name: String) -> TagFilter {
+        return TagFilter(name: name)
+    }
+
+}
+
+//        let tagsFilter = Database.Schema.name.lowercaseString == name.lowercased()
+//        let tagSubselect = """
+//            SELECT
+//                item_id
+//            FROM
+//                items_to_tags
+//            JOIN
+//                tags
+//            ON
+//                items_to_tags.tag_id = tags.id
+//            WHERE
+//                \(tagsFilter.asSQL())
+//            """
+//        return "items.id IN (\(tagSubselect))"
+
+
 extension TypeFilter: Filter {
 
     var filter: Expression<Bool> {
