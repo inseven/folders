@@ -411,12 +411,12 @@ class Store {
             FROM
                 files
             WHERE
-                \(filter.sql)
+                \(filter.sql.0)
             """
 
         print(selectQuery)
 
-        return try connection.prepareRowIterator(selectQuery)
+        return try connection.prepareRowIterator(selectQuery, bindings: filter.sql.1)
 //            .filter(filter.filter)
 //            .order(sort.order)
         .map { row in

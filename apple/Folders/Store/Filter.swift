@@ -27,16 +27,18 @@ import SQLite
 
 // TODO: Don't forget that there needs to be a mechanism to inflate tags when load files from the database.
 
+// TODO: BoundStatement?
+
 protocol Filter {
 
-    var sql: String { get }
+    var sql: (String, [Binding?]) { get }
     func matches(details: Details) -> Bool
 
 }
 
 struct AnyFilter: Filter {
 
-    let sql: String
+    let sql: (String, [Binding?])
     let _matches: (Details) -> Bool
 
     init(_ filter: any Filter) {
@@ -90,8 +92,8 @@ extension Filter where Self == ParentFilter {
 
 struct TrueFilter: Filter {
 
-    var sql: String {
-        return "true"
+    var sql: (String, [Binding?]) {
+        return ("true", [])
     }
 
     func matches(details: Details) -> Bool {
@@ -102,8 +104,8 @@ struct TrueFilter: Filter {
 
 struct FalseFilter: Filter {
 
-    var sql: String {
-        return "false"
+    var sql: (String, [Binding?]) {
+        return ("false", [])
     }
 
     func matches(details: Details) -> Bool {
@@ -123,8 +125,8 @@ struct AndFilter<A: Filter, B: Filter>: Filter {
         self.rhs = rhs
     }
 
-    var sql: String {
-        return "(\(lhs.sql)) and (\(rhs.sql))"
+    var sql: (String, [Binding?]) {
+        return ("(\(lhs.sql.0)) and (\(rhs.sql.0))", lhs.sql.1 + rhs.sql.1)
     }
 
     func matches(details: Details) -> Bool {
@@ -147,8 +149,8 @@ struct OrFilter<A: Filter, B: Filter>: Filter {
         self.rhs = rhs
     }
 
-    var sql: String {
-        return "(\(lhs.sql)) or (\(rhs.sql))"
+    var sql: (String, [Binding?]) {
+        return ("(\(lhs.sql.0)) or (\(rhs.sql.0))", lhs.sql.1 + rhs.sql.1)
     }
 
     func matches(details: Details) -> Bool {
@@ -182,9 +184,9 @@ struct ParentFilter: Filter {
 //    db.changes // -> {Some 1}
 
     // TODO: Perhaps the SQL could be give with wildcard expressions for binding?
-    var sql: String {
+    var sql: (String, [Binding?]) {
         // TODO: SAFETY SAFETY SAFETY
-        return "path like '\(parent)/%'"
+        return ("path like ?", [parent + "/%"])
     }
 
     func matches(details: Details) -> Bool {
@@ -201,9 +203,8 @@ struct OwnerFilter: Filter {
         self.owner = owner
     }
 
-    var sql: String {
-        // TODO: SAFETY SAFETY SAFETY
-        return "owner = '\(owner)'"
+    var sql: (String, [Binding?]) {
+        return ("owner = ?", [owner])
     }
 
     func matches(details: Details) -> Bool {
@@ -229,7 +230,7 @@ struct TagFilter: Filter {
         self.name = name
     }
 
-    var sql: String {
+    var sql: (String, [Binding?]) {
         let tagSubselect = """
             SELECT
                 file_id
@@ -240,9 +241,9 @@ struct TagFilter: Filter {
             ON
                 files_to_tags.tag_id = tags.id
             WHERE
-                name = '\(name)'
+                name = ?
             """
-        return "files.id IN (\(tagSubselect))"
+        return ("files.id IN (\(tagSubselect))", [name])
     }
 
     func matches(details: Details) -> Bool {
@@ -259,28 +260,12 @@ extension Filter where Self == TagFilter {
 
 }
 
-//        let tagsFilter = Database.Schema.name.lowercaseString == name.lowercased()
-//        let tagSubselect = """
-//            SELECT
-//                item_id
-//            FROM
-//                items_to_tags
-//            JOIN
-//                tags
-//            ON
-//                items_to_tags.tag_id = tags.id
-//            WHERE
-//                \(tagsFilter.asSQL())
-//            """
-//        return "items.id IN (\(tagSubselect))"
-
-
 extension TypeFilter: Filter {
 
-    var sql: String {
+    var sql: (String, [Binding?]) {
         switch self {
         case .conformsTo(let contentType):
-            return "type = '\(contentType.identifier)'"
+            return ("type = ?", [contentType.identifier])
         }
     }
 
