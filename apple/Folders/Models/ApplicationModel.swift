@@ -34,7 +34,7 @@ class ApplicationModel: NSObject, ObservableObject {
     var directoriesView: StoreView
     var tagsView: TagsView
 
-    @Published var sidebarItems: [Details.Identifier]  // TODO: Rename this to locations? Perhaps just URLs?
+    @Published var locations: [Details.Identifier]
     @Published var lookup: [Details.Identifier: SidebarItem] = [:]
     @Published var dynamicSidebarItems: [SidebarItem] = []
     @Published var tags: [String] = []
@@ -47,13 +47,13 @@ class ApplicationModel: NSObject, ObservableObject {
     override init() {
 
         // Load the sidebar items.
-        sidebarItems = settings
+        locations = settings
             .rootURLs
             .map { folderURL in
                 return Details.Identifier(ownerURL: folderURL, url: folderURL)
             }
-            .sorted {  // TODO: Consider a convenience?
-                $0.url.displayName.localizedCaseInsensitiveCompare($1.url.displayName) == .orderedAscending
+            .sorted { lhs, rhs in
+                lhs.url.displayName.localizedCaseInsensitiveCompare(rhs.url.displayName) == .orderedAscending
             }
 
         let applicationSupportURL = FileManager.default.urls(for: .applicationSupportDirectory,
@@ -101,9 +101,7 @@ class ApplicationModel: NSObject, ObservableObject {
     func start() {
         dispatchPrecondition(condition: .onQueue(.main))
 
-        // TODO: Consider renaming this to locations or something.
-        // I guess the sidebar structure needs to be distinct from the locations we're monitoring long-term.
-        $sidebarItems
+        $locations
             .combineLatest($lookup)
             .receive(on: DispatchQueue.main)
             .map { sidebarItems, lookup in
@@ -115,8 +113,7 @@ class ApplicationModel: NSObject, ObservableObject {
             .assign(to: \.dynamicSidebarItems, on: self)
             .store(in: &cancellables)
 
-        // TODO: This seems like an incredibly janky way to start and stop the watchers.
-        $sidebarItems
+        $locations
             .map { $0.map { $0.url } }
             .receive(on: DispatchQueue.main)
             .assign(to: \.rootURLs, on: settings)
@@ -144,13 +141,13 @@ class ApplicationModel: NSObject, ObservableObject {
         }
 
         // Don't add existing directories.
-        if let sidebarItem = sidebarItems.first(where: { $0.url == url }) {
+        if let sidebarItem = locations.first(where: { $0.url == url }) {
             return .owner(sidebarItem)
         }
 
         // Create the new sidebar item.
         let sidebarItem = Details.Identifier(ownerURL: url, url: url)
-        sidebarItems.append(sidebarItem)
+        locations.append(sidebarItem)
 
         // Create a new updater.
         let updater = StoreUpdater(store: store, url: url)
@@ -169,7 +166,7 @@ class ApplicationModel: NSObject, ObservableObject {
         }
 
         // Remove the sidebar entry.
-        sidebarItems.removeAll { $0.url == url }
+        locations.removeAll { $0.url == url }
 
         // Remove the entires from the database.
         DispatchQueue.global(qos: .background).async {

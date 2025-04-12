@@ -54,8 +54,10 @@ struct LibraryView: View {
             Sidebar(applicationModel: applicationModel, sceneModel: sceneModel)
         } detail: {
             if !sceneModel.selection.isEmpty {
-                FolderView(applicationModel: applicationModel, filter: filter(for: sceneModel.selection), sidebarItems: sceneModel.selection)
-                    .id(sceneModel.selection)
+                FolderView(applicationModel: applicationModel,
+                           filter: filter(for: sceneModel.selection),
+                           selection: sceneModel.selection)
+                .id(sceneModel.selection)
             } else {
                 ContentUnavailableView {
                     Label("No Folder Selected", systemImage: "folder")

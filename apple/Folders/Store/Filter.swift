@@ -25,8 +25,6 @@ import UniformTypeIdentifiers
 
 import SQLite
 
-// TODO: Don't forget that there needs to be a mechanism to inflate tags when load files from the database.
-
 // TODO: BoundStatement?
 
 protocol Filter {
@@ -177,15 +175,7 @@ struct ParentFilter: Filter {
         self.parent = parent
     }
 
-    // Binding example:
-//    let stmt = try db.prepare("INSERT INTO users (email) VALUES (?)")
-//    Once prepared, statements may be executed using run, binding any unbound parameters.
-//    try stmt.run("alice@mac.com")
-//    db.changes // -> {Some 1}
-
-    // TODO: Perhaps the SQL could be give with wildcard expressions for binding?
     var sql: (String, [Binding?]) {
-        // TODO: SAFETY SAFETY SAFETY
         return ("path like ?", [parent + "/%"])
     }
 
@@ -221,7 +211,6 @@ extension Filter where Self == OwnerFilter {
 
 }
 
-// TODO: This doesn't work at all right now!
 struct TagFilter: Filter {
 
     let name: String

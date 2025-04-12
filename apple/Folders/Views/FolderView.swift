@@ -33,9 +33,8 @@ struct FolderView: View {
 
     let filter: Filter
 
-    // TODO: Rename sidebarItems to selection?
-    init(applicationModel: ApplicationModel, filter: Filter = TrueFilter(), sidebarItems: Set<SidebarItem.ID>) {
-        _folderModel = StateObject(wrappedValue: FolderModel(store: applicationModel.store, sidebarItems: sidebarItems))
+    init(applicationModel: ApplicationModel, filter: Filter = TrueFilter(), selection: Set<SidebarItem.ID>) {
+        _folderModel = StateObject(wrappedValue: FolderModel(store: applicationModel.store, selection: selection))
         self.filter = filter
     }
 

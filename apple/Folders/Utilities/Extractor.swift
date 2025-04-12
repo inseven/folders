@@ -24,6 +24,7 @@ import Foundation
 
 struct Extractor {
 
+    // TODO: Don't allow empty tags.
     static func tags(for url: URL) -> Set<String> {
         let hashtags = (url.path.deletingPathExtension as NSString)
             .pathComponents

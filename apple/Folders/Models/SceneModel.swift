@@ -31,7 +31,7 @@ class SceneModel: ObservableObject {
 
     init(applicationModel: ApplicationModel) {
         self.applicationModel = applicationModel
-        self.selection = if let identifier = applicationModel.sidebarItems.first {
+        self.selection = if let identifier = applicationModel.locations.first {
             [.owner(identifier)]
         } else {
             []
@@ -54,7 +54,6 @@ class SceneModel: ObservableObject {
         case .folder(let id):
             applicationModel.remove(id.url)
         case .tag:
-            // TODO: Consider asserting as this isn't allowed.
             break
         }
     }
@@ -66,7 +65,6 @@ class SceneModel: ObservableObject {
         case .folder(let id):
             NSWorkspace.shared.reveal(id.url)
         case .tag:
-            // TODO: Consider asserting as this isn't allowed.
             break
         }
     }

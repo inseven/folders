@@ -27,7 +27,6 @@ import SQLite
 protocol Sort {
 
     func compare(_ lhs: Details, _ rhs: Details) -> Bool
-    var order: [Expressible] { get }
     var sql: String { get }
 }
 
@@ -35,10 +34,6 @@ struct DisplayNameAscending: Sort {
 
     func compare(_ lhs: Details, _ rhs: Details) -> Bool {
         return lhs.url.displayName.localizedStandardCompare(rhs.url.displayName) == .orderedAscending
-    }
-
-    var order: [Expressible] {
-        return [Store.Schema.name.asc]
     }
 
     var sql: String {
@@ -59,10 +54,6 @@ struct DisplayNameDescending: Sort {
 
     func compare(_ lhs: Details, _ rhs: Details) -> Bool {
         return lhs.url.displayName.localizedStandardCompare(rhs.url.displayName) == .orderedDescending
-    }
-
-    var order: [Expressible] {
-        return [Store.Schema.name.desc]
     }
 
     var sql: String {

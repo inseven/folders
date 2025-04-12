@@ -38,14 +38,13 @@ class FolderModel: ObservableObject {
             .joined(separator: ", ")
     }
 
-    // TODO: Rename to selection
-    init(store: Store, sidebarItems: Set<SidebarItem.ID>) {
+    init(store: Store, selection: Set<SidebarItem.ID>) {
         self.store = store
 
-        // TODO: This is a hack.
+        // TODO: Support combining metadata when multiple sidebar items are selected
         // This is responsible for selecting the identifiers which are then used to look up display information about
         // the currently selected folder. It can only do sensible things when there's a single 'pure' folder selected.
-        self.identifiers = sidebarItems.compactMap { sidebarItem in
+        self.identifiers = selection.compactMap { sidebarItem in
             switch sidebarItem {
             case .owner(let identifier):
                 return identifier
@@ -68,7 +67,7 @@ class FolderModel: ObservableObject {
 
         // TODO: Convenience contructor for running filters.
         store
-            .publisher()  // TODO: Rename to changes? Could/should this take a filter? File publisher vs tag publisher?
+            .publisher()  // TODO: Support passing filters into the publisher.
             .compactMap { (operation: StoreOperation) -> StoreOperation? in
                 switch operation {
                 case .add(let files):

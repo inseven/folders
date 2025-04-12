@@ -57,9 +57,9 @@ struct Sidebar: View {
             Section("Library") {
                 OutlineGroup(applicationModel.dynamicSidebarItems, children: \.children) { item in
                     Label {
-                        Text(item.displayName)
+                        Text(item.kind.displayName)
                     } icon: {
-                        Image(systemName: item.systemImage)
+                        Image(systemName: item.kind.systemImage)
                     }
                     .contextMenu {
                         Button {

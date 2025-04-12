@@ -23,7 +23,6 @@
 import Foundation
 import UniformTypeIdentifiers
 
-// TODO: Rename this to `File`, `FileDetails`, or `FileInfo`. Might be clearer?
 struct Details: Hashable {
 
     // TODO: This isn't really an identifier anymore is it.
@@ -84,23 +83,11 @@ struct Details: Hashable {
                        tags: tags)
     }
 
-    // TODO: Document exactly what this means.
     func equivalent(to details: Details) -> Bool {
-        // TODO: Does the content type ever change?
-        // TODO: Function overload?
         return (ownerURL == details.ownerURL &&
                 url == details.url &&
                 contentType == details.contentType &&
                 contentModificationDate == details.contentModificationDate)
     }
-
-    // TODO: Document where this is used. This is actually only setting the content modification date.
-//    func applying(details: Details) -> Details {
-//        return Details(uuid: uuid,
-//                       ownerURL: ownerURL,
-//                       url: url,
-//                       contentType: contentType,
-//                       contentModificationDate: details.contentModificationDate)
-//    }
 
 }

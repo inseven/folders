@@ -437,10 +437,10 @@ class Store {
         }
     }
 
-    fileprivate func syncQueue_tags(sort: Sort) throws -> [String] {
+    fileprivate func syncQueue_tags() throws -> [String] {
         dispatchPrecondition(condition: .onQueue(syncQueue))
         return try connection.prepareRowIterator(Schema.tags.select(Schema.name)
-            .order(sort.order))
+            .order(Store.Schema.name.asc))
         .map { row in
             row[Schema.name]
         }
@@ -469,9 +469,9 @@ extension Store {
         }
     }
 
-    func tagsBlocking(sort: Sort) throws -> [String] {
+    func tagsBlocking() throws -> [String] {
         return try runBlocking {
-            return try self.syncQueue_tags(sort: sort)
+            return try self.syncQueue_tags()
         }
     }
 

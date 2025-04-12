@@ -42,29 +42,14 @@ class SidebarItem: Hashable, Identifiable, Equatable {
         case tag(String)
     }
 
-    // TODO: Conveniences like this should live on the ID!
-    var displayName: String {
-        switch kind {
-        case .owner(let id):
-            return id.url.displayName
-        case .folder(let id):
-            return id.url.displayName
-        case .tag(let name):
-            return name
-        }
-    }
-
     public var id: Kind {
         return kind
     }
 
-//    let id: Details.Identifier
     let kind: Kind
     var children: [SidebarItem]?
 
     init(kind: Kind, children: [SidebarItem]?) {
-//        precondition(id.url.hasDirectoryPath)  // TODO: This feels murky now
-//        self.id = id
         self.kind = kind
         self.children = children
     }
@@ -75,10 +60,21 @@ class SidebarItem: Hashable, Identifiable, Equatable {
 
 }
 
-extension SidebarItem {
+extension SidebarItem.Kind {
+
+    var displayName: String {
+        switch self {
+        case .owner(let id):
+            return id.url.displayName
+        case .folder(let id):
+            return id.url.displayName
+        case .tag(let name):
+            return name
+        }
+    }
 
     var systemImage: String {
-        switch kind {
+        switch self {
         case .owner:
             return "archivebox"
         case .folder:
@@ -94,7 +90,7 @@ extension Array where Element == SidebarItem {
 
     func sorted() -> [SidebarItem] {
         return sorted { lhs, rhs in
-            return lhs.displayName.localizedStandardCompare(rhs.displayName) == .orderedAscending
+            return lhs.kind.displayName.localizedStandardCompare(rhs.kind.displayName) == .orderedAscending
         }
     }
 
