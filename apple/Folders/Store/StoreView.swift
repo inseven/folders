@@ -44,8 +44,7 @@ protocol StoreViewDelegate: NSObject {
 
 }
 
-// TODO: Right now this is just a file view and should probably be updated accordingly.
-//       Would this be better with a publisher or not?
+// TODO: Rename to reflect the fact that this is a view on the files
 class StoreView: NSObject, Store.Observer {
 
     let store: Store
