@@ -25,21 +25,20 @@ import UniformTypeIdentifiers
 
 import SQLite
 
-
 protocol Filter {
 
-    var filter: Expression<Bool> { get }
+    var sql: (String, [Binding?]) { get }
     func matches(details: Details) -> Bool
 
 }
 
 struct AnyFilter: Filter {
 
-    let filter: SQLite.Expression<Bool>
+    let sql: (String, [Binding?])
     let _matches: (Details) -> Bool
 
     init(_ filter: any Filter) {
-        self.filter = filter.filter
+        self.sql = filter.sql
         _matches = { details in
             filter.matches(details: details)
         }
@@ -89,8 +88,8 @@ extension Filter where Self == ParentFilter {
 
 struct TrueFilter: Filter {
 
-    var filter: Expression<Bool> {
-        return Expression(value: true)
+    var sql: (String, [Binding?]) {
+        return ("true", [])
     }
 
     func matches(details: Details) -> Bool {
@@ -101,8 +100,8 @@ struct TrueFilter: Filter {
 
 struct FalseFilter: Filter {
 
-    var filter: Expression<Bool> {
-        return Expression(value: false)
+    var sql: (String, [Binding?]) {
+        return ("false", [])
     }
 
     func matches(details: Details) -> Bool {
@@ -122,8 +121,8 @@ struct AndFilter<A: Filter, B: Filter>: Filter {
         self.rhs = rhs
     }
 
-    var filter: Expression<Bool> {
-        return lhs.filter && rhs.filter
+    var sql: (String, [Binding?]) {
+        return ("(\(lhs.sql.0)) and (\(rhs.sql.0))", lhs.sql.1 + rhs.sql.1)
     }
 
     func matches(details: Details) -> Bool {
@@ -146,8 +145,8 @@ struct OrFilter<A: Filter, B: Filter>: Filter {
         self.rhs = rhs
     }
 
-    var filter: Expression<Bool> {
-        return lhs.filter || rhs.filter
+    var sql: (String, [Binding?]) {
+        return ("(\(lhs.sql.0)) or (\(rhs.sql.0))", lhs.sql.1 + rhs.sql.1)
     }
 
     func matches(details: Details) -> Bool {
@@ -174,9 +173,8 @@ struct ParentFilter: Filter {
         self.parent = parent
     }
 
-    var filter: Expression<Bool> {
-        // TODO: Delimit parent!
-        return Store.Schema.path.like("\(parent)/%")
+    var sql: (String, [Binding?]) {
+        return ("path like ?", [parent + "/%"])
     }
 
     func matches(details: Details) -> Bool {
@@ -193,8 +191,8 @@ struct OwnerFilter: Filter {
         self.owner = owner
     }
 
-    var filter: Expression<Bool> {
-        return Store.Schema.owner == owner
+    var sql: (String, [Binding?]) {
+        return ("owner = ?", [owner])
     }
 
     func matches(details: Details) -> Bool {
@@ -211,12 +209,50 @@ extension Filter where Self == OwnerFilter {
 
 }
 
+struct TagFilter: Filter {
+
+    let name: String
+
+    init(name: String) {
+        self.name = name
+    }
+
+    var sql: (String, [Binding?]) {
+        let tagSubselect = """
+            SELECT
+                file_id
+            FROM
+                files_to_tags
+            JOIN
+                tags
+            ON
+                files_to_tags.tag_id = tags.id
+            WHERE
+                name = ?
+            """
+        return ("files.id IN (\(tagSubselect))", [name])
+    }
+
+    func matches(details: Details) -> Bool {
+        return details.tags?.contains(name) ?? false
+    }
+
+}
+
+extension Filter where Self == TagFilter {
+
+    static func tag(_ name: String) -> TagFilter {
+        return TagFilter(name: name)
+    }
+
+}
+
 extension TypeFilter: Filter {
 
-    var filter: Expression<Bool> {
+    var sql: (String, [Binding?]) {
         switch self {
         case .conformsTo(let contentType):
-            return Store.Schema.type == contentType.identifier
+            return ("type = ?", [contentType.identifier])
         }
     }
 

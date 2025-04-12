@@ -26,53 +26,59 @@ import SwiftUI
 class SidebarItem: Hashable, Identifiable, Equatable {
 
     static func == (lhs: SidebarItem, rhs: SidebarItem) -> Bool {
-        return lhs.kind == rhs.kind && lhs.url == rhs.url && lhs.children == rhs.children
+        return lhs.kind == rhs.kind && lhs.children == rhs.children
     }
 
     func hash(into hasher: inout Hasher) {
         hasher.combine(kind)
-        hasher.combine(url)
         hasher.combine(children)
     }
 
-    enum Kind {
-        case owner
-        case folder
+    enum Kind: Hashable {
+        case owner(Details.Identifier)
+        case folder(Details.Identifier)
+        case tag(String)
     }
 
-    var displayName: String {
-        return url.displayName
+    public var id: Kind {
+        return kind
     }
 
-    let id: Details.Identifier
     let kind: Kind
-    let ownerURL: URL
-    let url: URL
     var children: [SidebarItem]?
 
-    init(kind: Kind, ownerURL: URL, url: URL, children: [SidebarItem]?) {
-        precondition(url.hasDirectoryPath)
-        self.id = Details.Identifier(ownerURL: ownerURL, url: url)
+    init(kind: Kind, children: [SidebarItem]?) {
         self.kind = kind
-        self.ownerURL = url
-        self.url = url
         self.children = children
     }
 
     func setting(children: [SidebarItem]? = nil) -> SidebarItem {
-        return SidebarItem(kind: self.kind, ownerURL: self.ownerURL, url: self.url, children: children)
+        return SidebarItem(kind: self.kind, children: children)
     }
 
 }
 
-extension SidebarItem {
+extension SidebarItem.Kind {
+
+    var displayName: String {
+        switch self {
+        case .owner(let id):
+            return id.url.displayName
+        case .folder(let id):
+            return id.url.displayName
+        case .tag(let name):
+            return name
+        }
+    }
 
     var systemImage: String {
-        switch kind {
+        switch self {
         case .owner:
             return "archivebox"
         case .folder:
             return "folder"
+        case .tag:
+            return "tag"
         }
     }
 
@@ -82,7 +88,7 @@ extension Array where Element == SidebarItem {
 
     func sorted() -> [SidebarItem] {
         return sorted { lhs, rhs in
-            return lhs.displayName.localizedStandardCompare(rhs.displayName) == .orderedAscending
+            return lhs.kind.displayName.localizedStandardCompare(rhs.kind.displayName) == .orderedAscending
         }
     }
 

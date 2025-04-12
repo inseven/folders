@@ -22,50 +22,20 @@
 
 import Foundation
 
-import SQLite
+struct Extractor {
 
-protocol Sort {
-
-    func compare(_ lhs: Details, _ rhs: Details) -> Bool
-    var order: [Expressible] { get }
-}
-
-struct DisplayNameAscending: Sort {
-
-    func compare(_ lhs: Details, _ rhs: Details) -> Bool {
-        return lhs.url.displayName.localizedStandardCompare(rhs.url.displayName) == .orderedAscending
-    }
-
-    var order: [Expressible] {
-        return [Store.Schema.name.asc]
-    }
-
-}
-
-extension Sort where Self == DisplayNameAscending {
-
-    static var displayNameAscending: DisplayNameAscending {
-        return DisplayNameAscending()
-    }
-
-}
-
-struct DisplayNameDescending: Sort {
-
-    func compare(_ lhs: Details, _ rhs: Details) -> Bool {
-        return lhs.url.displayName.localizedStandardCompare(rhs.url.displayName) == .orderedDescending
-    }
-
-    var order: [Expressible] {
-        return [Store.Schema.name.desc]
-    }
-
-}
-
-extension Sort where Self == DisplayNameDescending {
-
-    static var displayNameDescending: DisplayNameDescending {
-        return DisplayNameDescending()
+    // TODO: Don't allow empty tags.
+    static func tags(for url: URL) -> Set<String> {
+        let hashtags = (url.path.deletingPathExtension as NSString)
+            .pathComponents
+            .map({ component in
+                component
+                    .split(separator: " ")
+                    .filter { $0.starts(with: "#") }
+                    .map { String($0.dropFirst()) }
+            })
+            .flatMap { $0 }
+        return Set(hashtags)
     }
 
 }

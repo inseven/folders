@@ -22,7 +22,50 @@
 
 import Foundation
 
-enum StoreOperation {
-    case add([Details])
-    case remove([Details.Identifier])
+import SQLite
+
+protocol Sort {
+
+    func compare(_ lhs: Details, _ rhs: Details) -> Bool
+    var sql: String { get }
+}
+
+struct DisplayNameAscending: Sort {
+
+    func compare(_ lhs: Details, _ rhs: Details) -> Bool {
+        return lhs.url.displayName.localizedStandardCompare(rhs.url.displayName) == .orderedAscending
+    }
+
+    var sql: String {
+        return "name ASC"
+    }
+
+}
+
+extension Sort where Self == DisplayNameAscending {
+
+    static var displayNameAscending: DisplayNameAscending {
+        return DisplayNameAscending()
+    }
+
+}
+
+struct DisplayNameDescending: Sort {
+
+    func compare(_ lhs: Details, _ rhs: Details) -> Bool {
+        return lhs.url.displayName.localizedStandardCompare(rhs.url.displayName) == .orderedDescending
+    }
+
+    var sql: String {
+        return "name DESC"
+    }
+
+}
+
+extension Sort where Self == DisplayNameDescending {
+
+    static var displayNameDescending: DisplayNameDescending {
+        return DisplayNameDescending()
+    }
+
 }

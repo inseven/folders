@@ -31,13 +31,11 @@ struct FolderView: View {
 
     @StateObject var folderModel: FolderModel
 
-    let identifiers: Set<Details.Identifier>
     let filter: Filter
 
-    init(applicationModel: ApplicationModel, identifiers: Set<Details.Identifier>) {
-        self.identifiers = identifiers
-        _folderModel = StateObject(wrappedValue: FolderModel(store: applicationModel.store, identifiers: identifiers))
-        self.filter = defaultFilter(identifiers: identifiers)
+    init(applicationModel: ApplicationModel, filter: Filter = TrueFilter(), selection: Set<SidebarItem.ID>) {
+        _folderModel = StateObject(wrappedValue: FolderModel(store: applicationModel.store, selection: selection))
+        self.filter = filter
     }
 
     var body: some View {

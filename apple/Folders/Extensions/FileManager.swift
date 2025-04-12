@@ -50,18 +50,14 @@ extension FileManager {
                                  ownerURL: ownerURL ?? directoryURL,
                                  url: fileURL,
                                  contentType: contentType,
-                                 contentModificationDate: contentModificationDate.millisecondsSinceReferenceDate))
+                                 contentModificationDate: contentModificationDate.millisecondsSinceReferenceDate,
+                                 tags: Extractor.tags(for: fileURL)))
         }
 
         let duration = date.distance(to: Date())
         print("Listing for '\(directoryURL.displayName)' took \(duration.formatted()) seconds (\(files.count) files).")
 
         return files
-    }
-
-    func details(for path: String, owner: URL) throws -> Details {
-        let url = URL(filePath: path)
-        return try details(for: url, owner: owner)
     }
 
     func details(for url: URL, owner: URL) throws -> Details {
@@ -81,7 +77,8 @@ extension FileManager {
                        ownerURL: owner,
                        url: url,
                        contentType: isDirectory ? .directory : contentType,
-                       contentModificationDate: contentModificationDate.millisecondsSinceReferenceDate)
+                       contentModificationDate: contentModificationDate.millisecondsSinceReferenceDate,
+                       tags: Extractor.tags(for: url))
     }
 
 }

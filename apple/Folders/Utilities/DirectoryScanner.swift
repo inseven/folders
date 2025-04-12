@@ -93,12 +93,11 @@ class DirectoryScanner {
                         let details = try fileManager.details(for: url, owner: ownerURL)
 
                         // If a file exists at the new path and also exists in our runtime cache of files then we infer
-                        // that this rename actuall represents a content modification operation; our file has been
+                        // that this rename actually represents a content modification operation; our file has been
                         // atomically replaced by a new file containing new content.
                         if let old = self.identifiers[details.identifier] {
                             print("File updated by rename '\(url)'")
-//                            onFileDeletion([details.identifier])
-                            let update = old.applying(details: details)
+                            let update = old.setting(contentModificationDate: details.contentModificationDate)
                             self.identifiers[details.identifier] = update
                             onFileUpdate([update])
                             return
@@ -155,7 +154,7 @@ class DirectoryScanner {
 
                     // Remove the file if it exists in our set.
                     if let old = self.identifiers[identifier] {
-                        let new = old.applying(details: details)
+                        let new = old.setting(contentModificationDate: details.contentModificationDate)
                         onFileUpdate([new])
                         self.identifiers[identifier] = new
                         return
@@ -223,7 +222,7 @@ class DirectoryScanner {
             for file in current {
                 if let snapshot = snapshotIdentifiers[file.identifier] {
                     if !snapshot.equivalent(to: file) {  // Modified.
-                        let update = snapshot.applying(details: file)
+                        let update = snapshot.setting(contentModificationDate: file.contentModificationDate)
                         updates.append(update)
                         state[file.identifier] = update
                     } else {  // Unchanged.

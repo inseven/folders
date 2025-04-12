@@ -32,10 +32,12 @@ class ApplicationModel: NSObject, ObservableObject {
     let store: Store
     var updaters: [StoreUpdater] = []
     var directoriesView: StoreView
+    var tagsView: TagsView
 
-    @Published var sidebarItems: [SidebarItem]
+    @Published var locations: [Details.Identifier]
     @Published var lookup: [Details.Identifier: SidebarItem] = [:]
     @Published var dynamicSidebarItems: [SidebarItem] = []
+    @Published var tags: [String] = []
 
     var cancellables = Set<AnyCancellable>()
     let updaterController = SPUStandardUpdaterController(startingUpdater: false,
@@ -45,12 +47,14 @@ class ApplicationModel: NSObject, ObservableObject {
     override init() {
 
         // Load the sidebar items.
-        sidebarItems = settings
+        locations = settings
             .rootURLs
             .map { folderURL in
-                return SidebarItem(kind: .owner, ownerURL: folderURL, url: folderURL, children: nil)
+                return Details.Identifier(ownerURL: folderURL, url: folderURL)
             }
-            .sorted()
+            .sorted { lhs, rhs in
+                lhs.url.displayName.localizedCaseInsensitiveCompare(rhs.url.displayName) == .orderedAscending
+            }
 
         let applicationSupportURL = FileManager.default.urls(for: .applicationSupportDirectory,
                                                              in: .userDomainMask).first!
@@ -78,10 +82,12 @@ class ApplicationModel: NSObject, ObservableObject {
         }
 
         self.directoriesView = StoreView(store: store, filter: .conforms(to: .directory) || .conforms(to: .folder))
+        self.tagsView = TagsView(store: store)
 
         super.init()
 
         self.directoriesView.delegate = self
+        self.tagsView.delegate = self
 
         // Start the updaters.
         for updater in updaters {
@@ -95,32 +101,35 @@ class ApplicationModel: NSObject, ObservableObject {
     func start() {
         dispatchPrecondition(condition: .onQueue(.main))
 
-        $sidebarItems
+        $locations
             .combineLatest($lookup)
             .receive(on: DispatchQueue.main)
             .map { sidebarItems, lookup in
                 return sidebarItems.map { sidebarItem in
-                    let children = lookup[sidebarItem.id]?.children ?? nil
-                    return sidebarItem.setting(children: children)
+                    let children = lookup[sidebarItem]?.children ?? nil
+                    return SidebarItem(kind: .owner(sidebarItem), children: children)
                 }.sorted()
             }
             .assign(to: \.dynamicSidebarItems, on: self)
             .store(in: &cancellables)
 
-        $sidebarItems
+        $locations
             .map { $0.map { $0.url } }
             .receive(on: DispatchQueue.main)
             .assign(to: \.rootURLs, on: settings)
             .store(in: &cancellables)
+
         directoriesView.start()
+        tagsView.start()
     }
 
     func stop() {
         cancellables.removeAll()
         directoriesView.stop()
+        tagsView.stop()
     }
 
-    func add() -> SidebarItem? {
+    func add() -> SidebarItem.ID? {
         // TODO: Allow multiple selection.
         let openPanel = NSOpenPanel()
         openPanel.canChooseFiles = false
@@ -132,20 +141,20 @@ class ApplicationModel: NSObject, ObservableObject {
         }
 
         // Don't add existing directories.
-        if let sidebarItem = sidebarItems.first(where: { $0.url == url }) {
-            return sidebarItem
+        if let sidebarItem = locations.first(where: { $0.url == url }) {
+            return .owner(sidebarItem)
         }
 
         // Create the new sidebar item.
-        let sidebarItem = SidebarItem(kind: .owner, ownerURL: url, url: url, children: nil)
-        sidebarItems.append(sidebarItem)
+        let sidebarItem = Details.Identifier(ownerURL: url, url: url)
+        locations.append(sidebarItem)
 
         // Create a new updater.
         let updater = StoreUpdater(store: store, url: url)
         updater.start()
         updaters.append(updater)
 
-        return sidebarItem
+        return .owner(sidebarItem)
     }
 
     func remove(_ url: URL) {
@@ -157,7 +166,7 @@ class ApplicationModel: NSObject, ObservableObject {
         }
 
         // Remove the sidebar entry.
-        sidebarItems.removeAll { $0.url == url }
+        locations.removeAll { $0.url == url }
 
         // Remove the entires from the database.
         DispatchQueue.global(qos: .background).async {
@@ -187,13 +196,9 @@ extension ApplicationModel: StoreViewDelegate {
             let parentIdentiifer = Details.Identifier(ownerURL: details.ownerURL, url: details.parentURL)
 
             // Get or create the current node and parent node.
-            let item = items[identifier] ?? SidebarItem(kind: .folder,
-                                                        ownerURL: details.ownerURL,
-                                                        url: details.url,
+            let item = items[identifier] ?? SidebarItem(kind: .folder(details.identifier),
                                                         children: nil)
-            let parent = items[parentIdentiifer] ?? SidebarItem(kind: .folder,
-                                                                ownerURL: details.ownerURL,
-                                                                url: details.parentURL,
+            let parent = items[parentIdentiifer] ?? SidebarItem(kind: .folder(details.parentIdentifier),
                                                                 children: nil)
 
             // Update the parent's children.
@@ -229,6 +234,25 @@ extension ApplicationModel: StoreViewDelegate {
     func storeView(_ storeView: StoreView, didRemoveFileWithIdentifier identifier: Details.Identifier, atIndex: Int, files: [Details]) {
         assert(Set(files.map({ $0.url })).count == files.count)
         self.lookup = sidebarItems(for: files)
+    }
+
+}
+
+extension ApplicationModel: TagsViewDelegate {
+
+    func tagsView(_ tagsView: TagsView, didUpdateTags tags: [String]) {
+        dispatchPrecondition(condition: .onQueue(.main))
+        self.tags = tags
+    }
+    
+    func tagsView(_ tagsView: TagsView, didInsertTag tag: String, atIndex index: Int, tags: [String]) {
+        dispatchPrecondition(condition: .onQueue(.main))
+        self.tags = tags
+    }
+    
+    func tagsView(_ tagsView: TagsView, didRemoveTag tag: String, atIndex index: Int, tags: [String]) {
+        dispatchPrecondition(condition: .onQueue(.main))
+        self.tags = tags
     }
 
 }

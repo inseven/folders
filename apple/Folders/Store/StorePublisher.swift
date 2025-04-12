@@ -27,7 +27,7 @@ struct StorePublisher: Publisher {
 
     class Subscription<Target: Subscriber>: NSObject,
                                             Combine.Subscription,
-                                            StoreObserver where Target.Input == StoreOperation {
+                                            Store.Observer where Target.Input == StoreOperation {
 
         var id = UUID()
 
@@ -51,12 +51,21 @@ struct StorePublisher: Publisher {
             _ = target?.receive(.add(files))
         }
 
+        // TODO: Update the events to match the granularity of the Store.Observer
         func store(_ store: Store, didUpdateFiles files: [Details]) {
             _ = target?.receive(.add(files))
         }
 
         func store(_ store: Store, didRemoveFilesWithIdentifiers identifiers: [Details.Identifier]) {
             _ = target?.receive(.remove(identifiers))
+        }
+
+        func store(_ store: Store, didInsertTags tags: [String]) {
+            _ = target?.receive(.addTags(tags))
+        }
+
+        func store(_ store: Store, didRemoveTags tags: [String]) {
+            _ = target?.receive(.removeTags(tags))
         }
 
     }

@@ -34,6 +34,7 @@ class StoreUpdater {
         self.scanner = DirectoryScanner(url: url)
     }
 
+    // TODO: Would it be better to reduce this down to a stream processing?
     func start() {
         dispatchPrecondition(condition: .onQueue(.main))
         self.scanner.start {

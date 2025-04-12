@@ -22,10 +22,9 @@
 
 import Foundation
 
-enum FoldersError: Error {
-
-    case general(String)
-    case unknownSchemaVersion(Int32)
-    case unknownTag(String)
-
+enum StoreOperation {
+    case add([Details])
+    case remove([Details.Identifier])
+    case addTags([String])
+    case removeTags([String])
 }

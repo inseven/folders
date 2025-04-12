@@ -40,23 +40,29 @@ struct Details: Hashable {
     let uuid: UUID
     let url: URL
     let contentType: UTType
+    let tags: Set<String>?
 
     // Even though modern Swift APIs expose the content modification date, round-tripping this into SQLite looses
     // precision causing us to incorrectly think files have changed. To make it much harder to make this mistake, we
     // instead store the contentModificationDate as an Int which represents milliseconds since the reference data.
     let contentModificationDate: Int
 
-    init(uuid: UUID, ownerURL: URL, url: URL, contentType: UTType, contentModificationDate: Int) {
+    init(uuid: UUID, ownerURL: URL, url: URL, contentType: UTType, contentModificationDate: Int, tags: Set<String>?) {
         self.uuid = uuid
         self.identifier = Identifier(ownerURL: ownerURL, url: url)
         self.ownerURL = ownerURL
         self.url = url
         self.contentType = contentType
         self.contentModificationDate = contentModificationDate
+        self.tags = tags
     }
 
     var parentURL: URL {
         return url.deletingLastPathComponent()
+    }
+
+    var parentIdentifier: Identifier {
+        return Identifier(ownerURL: ownerURL, url: parentURL)
     }
 
     func setting(ownerURL: URL) -> Details {
@@ -64,24 +70,24 @@ struct Details: Hashable {
                        ownerURL: ownerURL,
                        url: url,
                        contentType: contentType,
-                       contentModificationDate: contentModificationDate)
+                       contentModificationDate: contentModificationDate,
+                       tags: tags)
     }
 
-    func equivalent(to details: Details) -> Bool {
-        // TODO: Does the content type ever change?
-        // TODO: Function overload?
-        return (ownerURL == details.ownerURL &&
-                url == details.url &&
-                contentType == details.contentType &&
-                contentModificationDate == details.contentModificationDate)
-    }
-
-    func applying(details: Details) -> Details {
+    func setting(contentModificationDate: Int) -> Details {
         return Details(uuid: uuid,
                        ownerURL: ownerURL,
                        url: url,
                        contentType: contentType,
-                       contentModificationDate: details.contentModificationDate)
+                       contentModificationDate: contentModificationDate,
+                       tags: tags)
+    }
+
+    func equivalent(to details: Details) -> Bool {
+        return (ownerURL == details.ownerURL &&
+                url == details.url &&
+                contentType == details.contentType &&
+                contentModificationDate == details.contentModificationDate)
     }
 
 }

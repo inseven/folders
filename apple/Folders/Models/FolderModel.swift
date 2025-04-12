@@ -29,7 +29,7 @@ class FolderModel: ObservableObject {
     @Published var error: Error?
 
     let store: Store
-    let identifiers: Set<Details.Identifier>
+    let identifiers: [Details.Identifier]
     var cancellables = Set<AnyCancellable>()
 
     var title: String {
@@ -38,9 +38,23 @@ class FolderModel: ObservableObject {
             .joined(separator: ", ")
     }
 
-    init(store: Store, identifiers: Set<Details.Identifier>) {
+    init(store: Store, selection: Set<SidebarItem.ID>) {
         self.store = store
-        self.identifiers = identifiers
+
+        // TODO: Support combining metadata when multiple sidebar items are selected
+        // This is responsible for selecting the identifiers which are then used to look up display information about
+        // the currently selected folder. It can only do sensible things when there's a single 'pure' folder selected.
+        self.identifiers = selection.compactMap { sidebarItem in
+            switch sidebarItem {
+            case .owner(let identifier):
+                return identifier
+            case .folder(let identifier):
+                return identifier
+            case .tag:
+                return nil
+            }
+        }
+
     }
 
     func start() {
@@ -53,7 +67,7 @@ class FolderModel: ObservableObject {
 
         // TODO: Convenience contructor for running filters.
         store
-            .publisher()  // TODO: Rename to changes?
+            .publisher()  // TODO: Support passing filters into the publisher.
             .compactMap { (operation: StoreOperation) -> StoreOperation? in
                 switch operation {
                 case .add(let files):
@@ -68,6 +82,10 @@ class FolderModel: ObservableObject {
                         return nil
                     }
                     return StoreOperation.remove(identifiers)
+                case .addTags:
+                    return nil
+                case .removeTags:
+                    return nil
                 }
             }
             .receive(on: DispatchQueue.main)
@@ -81,6 +99,10 @@ class FolderModel: ObservableObject {
                     }
                 case .remove:
                     self.settings = nil
+                case .addTags:
+                    break
+                case .removeTags:
+                    break
                 }
             }
             .store(in: &cancellables)
