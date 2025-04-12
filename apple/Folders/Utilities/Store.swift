@@ -60,6 +60,7 @@ class Store {
         static let modificationDate = Expression<Int>("modification_date")
     }
 
+    // TODO: This represents an external management of the database an should probably be moved out.
     static let majorVersion = 49
 
     private var observers: [Observer] = []
@@ -164,30 +165,13 @@ class Store {
         }
     }
 
-//    private func syncQueue_insertOrReplace(bookmark: Bookmark) throws {
-//        let tags = try bookmark.tags.map { try syncQueue_fetchOrInsertTag(name: $0) }
-//        let itemId = try self.db.run(Schema.items.insert(or: .replace,
-//                                                         Schema.identifier <- bookmark.identifier,
-//                                                         Schema.title <- bookmark.title,
-//                                                         Schema.url <- bookmark.url.absoluteString,
-//                                                         Schema.date <- bookmark.date,
-//                                                         Schema.toRead <- bookmark.toRead,
-//                                                         Schema.shared <- bookmark.shared,
-//                                                         Schema.notes <- bookmark.notes))
-//        for tagId in tags {
-//            _ = try self.db.run(Schema.items_to_tags.insert(or: .replace,
-//                                                            Schema.itemId <- itemId,
-//                                                            Schema.tagId <- tagId))
-//        }
-//        try syncQueue_pruneTags()
-//    }
-
     // TODO: Cleaner return type.
     // N.B. This function does not make any effort to notify observers to allow batching of insertion notifications.
     //      One possible way to improve on this and make it a little less likely that callers forget to notify our
     //      observers of new tags would be to make it take an array of items to insert. Or perhaps we could
     //      use the transaction archtiecture to track and batch notifications and then automatically dispatch them at
     //      the close of a transaction.
+    // TODO: Cache tag identifiers to avoid unnecessary database queries when inserting tags.
     private func syncQueue_fetchOrInsertTag(name: String) throws -> (Int64, Bool) {
         dispatchPrecondition(condition: .onQueue(syncQueue))
         if let id = try? syncQueue_tag(name: name) {
@@ -199,9 +183,6 @@ class Store {
         return (id, true)
     }
 
-    // TODO: Pluck?
-    // TODO: Cache tags since the performance of this would suuuuuuck if we're dealing with a lot of files.
-    // TODO: Double check the query API and if it could be cleaner?
     private func syncQueue_tag(name: String) throws -> Int64 {
         dispatchPrecondition(condition: .onQueue(syncQueue))
         let results = try connection.prepare(Schema.tags.filter(Schema.name == name).limit(1)).map { row in
@@ -213,12 +194,10 @@ class Store {
         return result
     }
 
-    // TODO: Use the query builder for this.
     private func syncQueue_pruneTags() throws -> [String] {
         dispatchPrecondition(condition: .onQueue(syncQueue))
 
-        // First we want to look up the set of tags we're about to delete.
-        // TODO: Can I actually do this using the typesafe stuff?
+        // Look up the set of tags we're about to delete so we can return them to the caller.
         let deletions = try self.connection.prepare("""
             SELECT
                 name
@@ -239,6 +218,7 @@ class Store {
             return []
         }
 
+        // Actually perform the deletions.
         try self.connection.run("""
             DELETE
             FROM
@@ -255,8 +235,8 @@ class Store {
         return deletions
     }
 
-    // N.B. Metadata is stored normalized. Tags are treated as a special case as there's a 1-to-n relationship between
-    //      files and tags whereas, for most other metadata, I anticipate a 1-to-1 relationship.
+    // N.B. Metadata is stored normalized. Tags are treated as a special case as there's a n-to-n relationship between
+    //      files and tags whereas, for most other metadata, I anticipate a 1-to-n relationship.
     //      Metadata (properties and tags) are available on the file model objects but they're all nullable to indicate
     //      they've not been loaded. If these properties are null, they'll be ignored in mutations, otherwise they'll
     //      be treated as updates.
@@ -297,12 +277,8 @@ class Store {
                 }
 
                 // Track the inserted files to notify our observers.
-                // TODO: Our store needs to be able to 'inflate' queries to include metadata as it's not guaranteed.
                 insertions.append(file)
             }
-
-            // TODO: This shouldn't actually be necessary as we should only ever be inserting new files.
-//            try syncQueue_pruneTags()
 
             self.observerLock.withLock {
                 for observer in self.observers {
@@ -320,6 +296,7 @@ class Store {
     }
 
     // TODO: Support updating tags.
+    // TODO: Check where this is actually used.
     func updateBlocking(files: any Collection<Details>) throws {
         return try runBlocking { [connection] in
             try connection.transaction {
@@ -404,7 +381,6 @@ class Store {
     fileprivate func syncQueue_files(filter: Filter, sort: Sort) throws -> [Details] {
         dispatchPrecondition(condition: .onQueue(syncQueue))
 
-        // TODO: Support ordering.
         let selectQuery = """
             SELECT
                 *
@@ -419,22 +395,20 @@ class Store {
         print(selectQuery)
 
         return try connection.prepareRowIterator(selectQuery, bindings: filter.sql.1)
-//            .filter(filter.filter)
-//            .order(sort.order)
-        .map { row in
-            let type = UTType(row[Schema.type])!
-            let ownerURL = URL(filePath: row[Schema.owner], directoryHint: .isDirectory)
-            let url = URL(filePath: row[Schema.path],
-                          directoryHint: type.conforms(to: .directory) ? .isDirectory : .notDirectory)
-            let modificationDate = row[Schema.modificationDate]
-            let uuid = row[Schema.uuid]
-            return Details(uuid: uuid,
-                           ownerURL: ownerURL,
-                           url: url,
-                           contentType: type,
-                           contentModificationDate: modificationDate,
-                           tags: nil)
-        }
+            .map { row in
+                let type = UTType(row[Schema.type])!
+                let ownerURL = URL(filePath: row[Schema.owner], directoryHint: .isDirectory)
+                let url = URL(filePath: row[Schema.path],
+                              directoryHint: type.conforms(to: .directory) ? .isDirectory : .notDirectory)
+                let modificationDate = row[Schema.modificationDate]
+                let uuid = row[Schema.uuid]
+                return Details(uuid: uuid,
+                               ownerURL: ownerURL,
+                               url: url,
+                               contentType: type,
+                               contentModificationDate: modificationDate,
+                               tags: nil)
+            }
     }
 
     fileprivate func syncQueue_tags() throws -> [String] {

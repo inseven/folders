@@ -23,12 +23,11 @@
 import Combine
 import Foundation
 
-// TODO: Support tags as well as files.
 struct StorePublisher: Publisher {
 
     class Subscription<Target: Subscriber>: NSObject,
                                             Combine.Subscription,
-                                            Store.Observer where Target.Input == StoreOperation {        
+                                            Store.Observer where Target.Input == StoreOperation {
 
         var id = UUID()
 
@@ -52,7 +51,7 @@ struct StorePublisher: Publisher {
             _ = target?.receive(.add(files))
         }
 
-        // TODO: Uhm. This is an update.
+        // TODO: Update the events to match the granularity of the Store.Observer
         func store(_ store: Store, didUpdateFiles files: [Details]) {
             _ = target?.receive(.add(files))
         }

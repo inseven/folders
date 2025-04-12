@@ -34,8 +34,6 @@ class SidebarItem: Hashable, Identifiable, Equatable {
         hasher.combine(children)
     }
 
-    // Is the distinction between owner and folder correct _here_?
-    // Kind is actually wrong because it also includes an identifier. Maybe this is the SidebarItem's `Identifier`?
     enum Kind: Hashable {
         case owner(Details.Identifier)
         case folder(Details.Identifier)

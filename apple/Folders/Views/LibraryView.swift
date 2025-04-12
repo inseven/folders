@@ -33,9 +33,6 @@ struct LibraryView: View {
         _sceneModel = StateObject(wrappedValue: SceneModel(applicationModel: applicationModel))
     }
 
-    // TODO: This is a gross hack that needs removing and making nice and generic.
-    // TODO: This should return filters.
-    // TODO: Move this into the sidebar item or the filter?
     func filter(for sidebarItems: Set<SidebarItem.ID>) -> Filter {
         AnyFilter(oring: sidebarItems.map { kind in
             switch kind {

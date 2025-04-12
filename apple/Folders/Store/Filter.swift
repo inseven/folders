@@ -25,8 +25,6 @@ import UniformTypeIdentifiers
 
 import SQLite
 
-// TODO: BoundStatement?
-
 protocol Filter {
 
     var sql: (String, [Binding?]) { get }

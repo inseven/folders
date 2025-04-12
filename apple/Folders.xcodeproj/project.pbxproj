@@ -212,6 +212,7 @@
 				D83E624C2BADF8960039EC83 /* NavigationDirection.swift */,
 				D8A82E3A2BADF35400DD32DA /* SequenceDirection.swift */,
 				D8F6A6142B8D84840003B1A6 /* StoreUpdater.swift */,
+				D82B95802B231AD000C8B6FB /* Store.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -222,7 +223,6 @@
 				D85D9F512C9A868D00178F10 /* Expression.swift */,
 				D83312E22B76FE4E00B994B3 /* Filter.swift */,
 				D814EA002B7EB620008BF46C /* Sort.swift */,
-				D82B95802B231AD000C8B6FB /* Store.swift */,
 				D8F6A6122B8D7CC00003B1A6 /* StoreOperation.swift */,
 				D8F6A6102B8D64BA0003B1A6 /* StorePublisher.swift */,
 				D8472A652B2517DE0070DB64 /* StoreView.swift */,
