@@ -129,32 +129,42 @@ class ApplicationModel: NSObject, ObservableObject {
         tagsView.stop()
     }
 
-    func add() -> SidebarItem.ID? {
-        // TODO: Allow multiple selection.
+    func add() -> Set<SidebarItem.ID>? {
+
         let openPanel = NSOpenPanel()
         openPanel.canChooseFiles = false
         openPanel.canChooseDirectories = true
         openPanel.canCreateDirectories = true
-        guard openPanel.runModal() ==  NSApplication.ModalResponse.OK,
-              let url = openPanel.url else {
+        openPanel.allowsMultipleSelection = true
+        guard openPanel.runModal() ==  NSApplication.ModalResponse.OK else {
             return nil
         }
 
-        // Don't add existing directories.
-        if let sidebarItem = locations.first(where: { $0.url == url }) {
-            return .owner(sidebarItem)
+        // Iterate over all the returned urls and add the ones that don't exist already.
+        for url in openPanel.urls {
+
+            // Don't add existing directories.
+            if locations.contains(where: { $0.url == url }) {
+                continue
+            }
+
+            // Create the new sidebar item.
+            let sidebarItem = Details.Identifier(ownerURL: url, url: url)
+            locations.append(sidebarItem)
+
+            // Create a new updater.
+            let updater = StoreUpdater(store: store, url: url)
+            updater.start()
+            updaters.append(updater)
         }
 
-        // Create the new sidebar item.
-        let sidebarItem = Details.Identifier(ownerURL: url, url: url)
-        locations.append(sidebarItem)
-
-        // Create a new updater.
-        let updater = StoreUpdater(store: store, url: url)
-        updater.start()
-        updaters.append(updater)
-
-        return .owner(sidebarItem)
+        // Return the relevant sidebar items.
+        return Set(openPanel.urls.compactMap { url in
+            guard let sidebarItem = locations.first(where: { $0.url == url }) else {
+                return nil
+            }
+            return .owner(sidebarItem)
+        })
     }
 
     func remove(_ url: URL) {

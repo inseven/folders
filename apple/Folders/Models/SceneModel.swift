@@ -39,10 +39,10 @@ class SceneModel: ObservableObject {
     }
 
     func add() {
-        guard let sidebarItem = applicationModel.add() else {
+        guard let sidebarItems = applicationModel.add() else {
             return
         }
-        selection = [sidebarItem]
+        selection = sidebarItems
     }
 
     func remove(_ sidebarItem: SidebarItem) {
