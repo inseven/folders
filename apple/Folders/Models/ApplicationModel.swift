@@ -171,7 +171,7 @@ class ApplicationModel: NSObject, ObservableObject {
         // Remove the entires from the database.
         DispatchQueue.global(qos: .background).async {
             do {
-                try self.store.removeBlocking(owner: url)
+                try self.store.remove(owner: url)
             } catch {
                 // TODO: Better error handling.
                 print("Failed to remove files with error \(error).")

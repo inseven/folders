@@ -241,6 +241,7 @@ class Store {
     //      they've not been loaded. If these properties are null, they'll be ignored in mutations, otherwise they'll
     //      be treated as updates.
     fileprivate func syncQueue_insert(files: any Collection<Details>) throws {
+        dispatchPrecondition(condition: .onQueue(syncQueue))
         try connection.transaction {
 
             var insertions: [Details] = []
@@ -297,59 +298,57 @@ class Store {
 
     // TODO: Support updating tags.
     // TODO: Check where this is actually used.
-    func updateBlocking(files: any Collection<Details>) throws {
-        return try runBlocking { [connection] in
-            try connection.transaction {
-                var updates = [Details]()
-                for file in files {
-                    let row = Schema.files.filter(Schema.uuid == file.uuid)
-                    let count = try connection.run(row.update(Schema.owner <- file.ownerURL.path,
-                                                              Schema.path <- file.url.path,
-                                                              Schema.name <- file.url.displayName,
-                                                              Schema.type <- file.contentType.identifier,
-                                                              Schema.modificationDate <- file.contentModificationDate))
-                    if count > 0 {
-                        updates.append(file)
-                    }
+    func syncQueue_update(files: any Collection<Details>) throws {
+        dispatchPrecondition(condition: .onQueue(syncQueue))
+        try connection.transaction {
+            var updates = [Details]()
+            for file in files {
+                let row = Schema.files.filter(Schema.uuid == file.uuid)
+                let count = try connection.run(row.update(Schema.owner <- file.ownerURL.path,
+                                                          Schema.path <- file.url.path,
+                                                          Schema.name <- file.url.displayName,
+                                                          Schema.type <- file.contentType.identifier,
+                                                          Schema.modificationDate <- file.contentModificationDate))
+                if count > 0 {
+                    updates.append(file)
                 }
-                self.observerLock.withLock {
-                    for observer in self.observers {
-                        DispatchQueue.global(qos: .default).async {
-                            observer.store(self, didUpdateFiles: updates)
-                        }
+            }
+            self.observerLock.withLock {
+                for observer in self.observers {
+                    DispatchQueue.global(qos: .default).async {
+                        observer.store(self, didUpdateFiles: updates)
                     }
                 }
             }
         }
     }
 
-    func removeBlocking(identifiers: any Collection<Details.Identifier>) throws {
-        return try runBlocking { [connection] in
-            guard identifiers.count > 0 else {
+    fileprivate func syncQueue_remove(identifiers: any Collection<Details.Identifier>) throws {
+        dispatchPrecondition(condition: .onQueue(syncQueue))
+        guard identifiers.count > 0 else {
+            return
+        }
+        try connection.transaction {
+            var removals = [Details.Identifier]()
+            for identifier in identifiers {
+                let count = try connection.run(Schema.files.filter(Schema.owner == identifier.ownerURL.path && Schema.path == identifier.url.path).delete())
+                if count > 0 {
+                    removals.append(identifier)
+                }
+            }
+            guard removals.count > 0 else {
                 return
             }
-            try connection.transaction {
-                var removals = [Details.Identifier]()
-                for identifier in identifiers {
-                    let count = try connection.run(Schema.files.filter(Schema.owner == identifier.ownerURL.path && Schema.path == identifier.url.path).delete())
-                    if count > 0 {
-                        removals.append(identifier)
-                    }
-                }
-                guard removals.count > 0 else {
-                    return
-                }
-                let tagRemovals = try self.syncQueue_pruneTags()
-                self.observerLock.withLock {
-                    for observer in self.observers {
-                        DispatchQueue.global(qos: .default).async {
-                            // TODO: It'd be really great to be able to move this to a per-transaction tracker.
-                            if !removals.isEmpty {
-                                observer.store(self, didRemoveFilesWithIdentifiers: removals)
-                            }
-                            if !tagRemovals.isEmpty {
-                                observer.store(self, didRemoveTags: tagRemovals)
-                            }
+            let tagRemovals = try self.syncQueue_pruneTags()
+            self.observerLock.withLock {
+                for observer in self.observers {
+                    DispatchQueue.global(qos: .default).async {
+                        // TODO: It'd be really great to be able to move this to a per-transaction tracker.
+                        if !removals.isEmpty {
+                            observer.store(self, didRemoveFilesWithIdentifiers: removals)
+                        }
+                        if !tagRemovals.isEmpty {
+                            observer.store(self, didRemoveTags: tagRemovals)
                         }
                     }
                 }
@@ -422,30 +421,41 @@ class Store {
 
 }
 
-// TODO: These are all blocking by design. Rename them.
 extension Store {
 
-    func insertBlocking(files: any Collection<Details>) throws {
+    func insert(files: any Collection<Details>) throws {
         return try runBlocking {
             try self.syncQueue_insert(files: files)
         }
     }
 
-    func removeBlocking(owner: URL) throws {
+    func remove(owner: URL) throws {
         try runBlocking {
             try self.syncQueue_remove(owner: owner)
         }
     }
 
-    func filesBlocking(filter: Filter, sort: Sort) throws -> [Details] {
+    func files(filter: Filter, sort: Sort) throws -> [Details] {
         return try runBlocking {
             return try self.syncQueue_files(filter: filter, sort: sort)
         }
     }
 
-    func tagsBlocking() throws -> [String] {
+    func tags() throws -> [String] {
         return try runBlocking {
             return try self.syncQueue_tags()
+        }
+    }
+
+    func remove(identifiers: any Collection<Details.Identifier>) throws {
+        try runBlocking {
+            try self.syncQueue_remove(identifiers: identifiers)
+        }
+    }
+
+    func update(files: any Collection<Details>) throws {
+        try runBlocking {
+            try self.syncQueue_update(files: files)
         }
     }
 
