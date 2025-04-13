@@ -281,8 +281,8 @@ class Store {
                 insertions.append(file)
             }
 
-            self.observerLock.withLock {
-                for observer in self.observers {
+            observerLock.withLock {
+                for observer in observers {
                     DispatchQueue.global(qos: .default).async {  // TODO: I think each observer should have a serial queue for updates.
                         if !insertions.isEmpty {  // TODO: Is this check necessary
                             observer.store(self, didInsertFiles: insertions)
@@ -313,8 +313,8 @@ class Store {
                     updates.append(file)
                 }
             }
-            self.observerLock.withLock {
-                for observer in self.observers {
+            observerLock.withLock {
+                for observer in observers {
                     DispatchQueue.global(qos: .default).async {
                         observer.store(self, didUpdateFiles: updates)
                     }
@@ -340,8 +340,8 @@ class Store {
                 return
             }
             let tagRemovals = try self.syncQueue_pruneTags()
-            self.observerLock.withLock {
-                for observer in self.observers {
+            observerLock.withLock {
+                for observer in observers {
                     DispatchQueue.global(qos: .default).async {
                         // TODO: It'd be really great to be able to move this to a per-transaction tracker.
                         if !removals.isEmpty {
@@ -362,8 +362,8 @@ class Store {
             let files = try self.syncQueue_files(filter: .owner(owner), sort: .displayNameAscending)
             try connection.run(Schema.files.filter(Schema.owner == owner.path).delete())
             let tagRemovals = try self.syncQueue_pruneTags()
-            self.observerLock.withLock {
-                for observer in self.observers {
+            observerLock.withLock {
+                for observer in observers {
                     DispatchQueue.global(qos: .default).async {
                         if !files.isEmpty {
                             observer.store(self, didRemoveFilesWithIdentifiers: files.map({ $0.identifier }))
