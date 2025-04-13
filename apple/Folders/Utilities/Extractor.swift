@@ -24,14 +24,13 @@ import Foundation
 
 struct Extractor {
 
-    // TODO: Don't allow empty tags.
     static func tags(for url: URL) -> Set<String> {
         let hashtags = (url.path.deletingPathExtension as NSString)
             .pathComponents
             .map({ component in
                 component
                     .split(separator: " ")
-                    .filter { $0.starts(with: "#") }
+                    .filter { $0.starts(with: "#") && $0.count > 1 }
                     .map { String($0.dropFirst()) }
             })
             .flatMap { $0 }

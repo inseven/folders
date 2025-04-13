@@ -28,6 +28,7 @@ import Testing
 @Suite("Extractor tests") struct ExtractorTests {
 
     @Test("Test tag extraction", arguments: [
+
         ("/Users/jbmorley/File.txt", []),
         ("/Users/jbmorley/File #a.txt", ["a"]),
         ("/Users/jbmorley/File #a #b.txt", ["a", "b"]),
@@ -48,6 +49,8 @@ import Testing
 
         ("/Users/jbmorley/Pictures #assets/icon.png", ["assets"]),
         ("/Users/jbmorley/Pictures #assets/icon #design.png", ["assets", "design"]),
+
+        ("/Users/jbmorley/Pictures/icon #.png", [])
     ])
     func testTagExtraction(details: (String, [String])) {
         #expect(Extractor.tags(for: URL(filePath: details.0)) == Set(details.1))
