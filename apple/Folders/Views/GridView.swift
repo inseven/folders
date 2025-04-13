@@ -43,7 +43,7 @@ struct GridView: NSViewRepresentable {
 class InnerGridView: NSView {
 
     let sceneModel: SceneModel
-    let storeView: StoreView
+    let storeView: StoreFilesView
     var previewPanel: QLPreviewPanel?
 
     enum Section {
@@ -66,7 +66,7 @@ class InnerGridView: NSView {
 
     init(sceneModel: SceneModel, store: Store, filter: any Filter) {
         self.sceneModel = sceneModel
-        self.storeView = StoreView(store: store, filter: filter, sort: .displayNameDescending)
+        self.storeView = StoreFilesView(store: store, filter: filter, sort: .displayNameDescending)
 
         scrollView = NSScrollView()
         scrollView.translatesAutoresizingMaskIntoConstraints = false
@@ -173,9 +173,9 @@ extension InnerGridView: QLPreviewPanelDataSource, QLPreviewPanelDelegate {
 
 }
 
-extension InnerGridView: StoreViewDelegate {
+extension InnerGridView: StoreFilesViewDelegate {
 
-    func storeView(_ storeView: StoreView, didUpdateFiles files: [Details]) {
+    func storeFilesView(_ storeFilesView: StoreFilesView, didUpdateFiles files: [Details]) {
         var snapshot = Snapshot()
         snapshot.appendSections([.none])
         snapshot.appendItems(files.map({ $0.identifier }), toSection: Section.none)
@@ -183,7 +183,7 @@ extension InnerGridView: StoreViewDelegate {
     }
 
     // TODO: Insert details.
-    func storeView(_ storeView: StoreView, didInsertFile file: Details, atIndex index: Int, files: [Details]) {
+    func storeFilesView(_ storeFilesView: StoreFilesView, didInsertFile file: Details, atIndex index: Int, files: [Details]) {
         // TODO: Insert in the correct place.
         // TODO: We may need to rate-limit these updates.
         var snapshot = dataSource.snapshot()
@@ -205,7 +205,7 @@ extension InnerGridView: StoreViewDelegate {
         dataSource.apply(snapshot, animatingDifferences: true)
     }
 
-    func storeView(_ storeView: StoreView, didUpdateFile file: Details, atIndex: Int, files: [Details]) {
+    func storeFilesView(_ storeFilesView: StoreFilesView, didUpdateFile file: Details, atIndex: Int, files: [Details]) {
         guard let indexPath = dataSource.indexPath(for: file.identifier),
               let cell = collectionView.item(at: indexPath) as? ShortcutItemView else {
             return
@@ -213,7 +213,9 @@ extension InnerGridView: StoreViewDelegate {
         cell.configure(url: file.url)
     }
 
-    func storeView(_ storeView: StoreView, didRemoveFileWithIdentifier identifier: Details.Identifier, atIndex: Int, files: [Details]) {
+    func storeFilesView(_ storeFilesView: StoreFilesView,
+                        didRemoveFileWithIdentifier identifier: Details.Identifier,
+                        atIndex: Int, files: [Details]) {
         var snapshot = dataSource.snapshot()
         snapshot.deleteItems([identifier])
         dataSource.apply(snapshot, animatingDifferences: true)

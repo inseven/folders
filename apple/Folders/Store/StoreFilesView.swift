@@ -25,30 +25,30 @@ import UniformTypeIdentifiers
 
 import Algorithms
 
-protocol StoreViewDelegate: NSObject {
-
-    func storeView(_ storeView: StoreView,
-                   didUpdateFiles files: [Details])
-    func storeView(_ storeView: StoreView,
-                   didInsertFile file: Details,
-                   atIndex index: Int,
-                   files: [Details])
-    func storeView(_ storeView: StoreView,
-                   didUpdateFile file: Details,
-                   atIndex index: Int,
-                   files: [Details])
-    func storeView(_ storeView: StoreView,
-                   didRemoveFileWithIdentifier identifier: Details.Identifier,
-                   atIndex index: Int,
-                   files: [Details])
-
+protocol StoreFilesViewDelegate: NSObject {
+    
+    func storeFilesView(_ storeFilesView: StoreFilesView,
+                        didUpdateFiles files: [Details])
+    func storeFilesView(_ storeFilesView: StoreFilesView,
+                        didInsertFile file: Details,
+                        atIndex index: Int,
+                        files: [Details])
+    func storeFilesView(_ storeFilesView: StoreFilesView,
+                        didUpdateFile file: Details,
+                        atIndex index: Int,
+                        files: [Details])
+    func storeFilesView(_ storeFilesView: StoreFilesView,
+                        didRemoveFileWithIdentifier identifier: Details.Identifier,
+                        atIndex index: Int,
+                        files: [Details])
+    
 }
 
 // TODO: Rename to reflect the fact that this is a view on the files
-class StoreView: NSObject, Store.Observer {
+class StoreFilesView: NSObject, Store.Observer {
 
     let store: Store
-    let workQueue = DispatchQueue(label: "StoreView.workQueue", qos: .userInteractive)
+    let workQueue = DispatchQueue(label: "StoreFilesView.workQueue", qos: .userInteractive)
     let filter: Filter
     let sort: Sort
     let threshold: Int
@@ -58,7 +58,7 @@ class StoreView: NSObject, Store.Observer {
     // TODO: We _could_ consider using a thread to guard against mutation to `files` instead of the queue.
     // TODO: It might be nice to have a targetQueue for the delegate to make the serialisation explicit.
 
-    weak var delegate: StoreViewDelegate? = nil
+    weak var delegate: StoreFilesViewDelegate? = nil
 
     init(store: Store, filter: Filter = TrueFilter(), sort: Sort = .displayNameAscending, threshold: Int = 10) {
         self.store = store
@@ -86,7 +86,7 @@ class StoreView: NSObject, Store.Observer {
 
                 let snapshot = self.files
                 DispatchQueue.main.async { [self] in
-                    self.delegate?.storeView(self, didUpdateFiles: snapshot)
+                    self.delegate?.storeFilesView(self, didUpdateFiles: snapshot)
                 }
             } catch {
                 // TODO: Provide a delegate model that actually returns errors.
@@ -129,7 +129,7 @@ class StoreView: NSObject, Store.Observer {
                     self.files.insert(file, at: index)
                     let snapshot = self.files
                     DispatchQueue.main.async {
-                        self.delegate?.storeView(self, didInsertFile: file, atIndex: index, files: snapshot)
+                        self.delegate?.storeFilesView(self, didInsertFile: file, atIndex: index, files: snapshot)
                     }
                 }
             } else {
@@ -144,7 +144,7 @@ class StoreView: NSObject, Store.Observer {
                 //       characteristics.
                 let snapshot = self.files
                 DispatchQueue.main.async {
-                    self.delegate?.storeView(self, didUpdateFiles: snapshot)
+                    self.delegate?.storeFilesView(self, didUpdateFiles: snapshot)
                 }
             }
         }
@@ -177,13 +177,13 @@ class StoreView: NSObject, Store.Observer {
                 let snapshot = self.files
                 for (file, index) in indexes {
                     DispatchQueue.main.async {
-                        self.delegate?.storeView(self, didUpdateFile: file, atIndex: index, files: snapshot)
+                        self.delegate?.storeFilesView(self, didUpdateFile: file, atIndex: index, files: snapshot)
                     }
                 }
             } else {
                 let snapshot = self.files
                 DispatchQueue.main.async {
-                    self.delegate?.storeView(self, didUpdateFiles: snapshot)
+                    self.delegate?.storeFilesView(self, didUpdateFiles: snapshot)
                 }
             }
         }
@@ -209,7 +209,7 @@ class StoreView: NSObject, Store.Observer {
                     self.files.remove(at: index)
                     let snapshot = self.files
                     DispatchQueue.main.async {
-                        self.delegate?.storeView(self, didRemoveFileWithIdentifier: identifier, atIndex: index, files: snapshot)
+                        self.delegate?.storeFilesView(self, didRemoveFileWithIdentifier: identifier, atIndex: index, files: snapshot)
                     }
                 }
             } else {
@@ -221,7 +221,7 @@ class StoreView: NSObject, Store.Observer {
                 }
                 let snapshot = self.files
                 DispatchQueue.main.async {
-                    self.delegate?.storeView(self, didUpdateFiles: snapshot)
+                    self.delegate?.storeFilesView(self, didUpdateFiles: snapshot)
                 }
             }
         }

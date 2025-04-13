@@ -31,7 +31,7 @@ class ApplicationModel: NSObject, ObservableObject {
 
     let store: Store
     var updaters: [StoreUpdater] = []
-    var directoriesView: StoreView
+    var directoriesView: StoreFilesView
     var tagsView: TagsView
 
     @Published var locations: [Details.Identifier]
@@ -81,7 +81,7 @@ class ApplicationModel: NSObject, ObservableObject {
             StoreUpdater(store: store, url: url)
         }
 
-        self.directoriesView = StoreView(store: store, filter: .conforms(to: .directory) || .conforms(to: .folder))
+        self.directoriesView = StoreFilesView(store: store, filter: .conforms(to: .directory) || .conforms(to: .folder))
         self.tagsView = TagsView(store: store)
 
         super.init()
@@ -191,7 +191,7 @@ class ApplicationModel: NSObject, ObservableObject {
 
 }
 
-extension ApplicationModel: StoreViewDelegate {
+extension ApplicationModel: StoreFilesViewDelegate {
 
     // TODO: Static?
     func sidebarItems(for files: [Details]) -> [Details.Identifier: SidebarItem] {
@@ -226,22 +226,24 @@ extension ApplicationModel: StoreViewDelegate {
         return items
     }
 
-    func storeView(_ storeView: StoreView, didUpdateFiles files: [Details]) {
+    func storeFilesView(_ storeFilesView: StoreFilesView, didUpdateFiles files: [Details]) {
         assert(Set(files.map({ $0.url })).count == files.count)
         self.lookup = sidebarItems(for: files)
     }
 
-    func storeView(_ storeView: StoreView, didInsertFile file: Details, atIndex: Int, files: [Details]) {
+    func storeFilesView(_ storeFilesView: StoreFilesView, didInsertFile file: Details, atIndex: Int, files: [Details]) {
         assert(Set(files.map({ $0.url })).count == files.count)
         self.lookup = sidebarItems(for: files)
     }
 
-    func storeView(_ storeView: StoreView, didUpdateFile file: Details, atIndex: Int, files: [Details]) {
+    func storeFilesView(_ storeFilesView: StoreFilesView, didUpdateFile file: Details, atIndex: Int, files: [Details]) {
         assert(Set(files.map({ $0.url })).count == files.count)
         self.lookup = sidebarItems(for: files)
     }
 
-    func storeView(_ storeView: StoreView, didRemoveFileWithIdentifier identifier: Details.Identifier, atIndex: Int, files: [Details]) {
+    func storeFilesView(_ storeFilesView: StoreFilesView,
+                        didRemoveFileWithIdentifier identifier: Details.Identifier,
+                        atIndex: Int, files: [Details]) {
         assert(Set(files.map({ $0.url })).count == files.count)
         self.lookup = sidebarItems(for: files)
     }

@@ -20,7 +20,7 @@
 		D83EA9A92DA871A4008DE7AE /* Extractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = D83EA9A82DA871A2008DE7AE /* Extractor.swift */; };
 		D83EA9AC2DA8925B008DE7AE /* TagsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D83EA9AB2DA89257008DE7AE /* TagsView.swift */; };
 		D8472A642B2517A50070DB64 /* ShortcutItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8472A632B2517A50070DB64 /* ShortcutItemView.swift */; };
-		D8472A662B2517DE0070DB64 /* StoreView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8472A652B2517DE0070DB64 /* StoreView.swift */; };
+		D8472A662B2517DE0070DB64 /* StoreFilesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8472A652B2517DE0070DB64 /* StoreFilesView.swift */; };
 		D8472A682B2518320070DB64 /* FixedItemSizeCollectionViewLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8472A672B2518320070DB64 /* FixedItemSizeCollectionViewLayout.swift */; };
 		D8472A6A2B2518600070DB64 /* NSWorkspace.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8472A692B2518600070DB64 /* NSWorkspace.swift */; };
 		D8472A6C2B2518900070DB64 /* NSCollectionViewDiffableDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8472A6B2B2518900070DB64 /* NSCollectionViewDiffableDataSource.swift */; };
@@ -105,7 +105,7 @@
 		D83EA9A82DA871A2008DE7AE /* Extractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extractor.swift; sourceTree = "<group>"; };
 		D83EA9AB2DA89257008DE7AE /* TagsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagsView.swift; sourceTree = "<group>"; };
 		D8472A632B2517A50070DB64 /* ShortcutItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShortcutItemView.swift; sourceTree = "<group>"; };
-		D8472A652B2517DE0070DB64 /* StoreView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreView.swift; sourceTree = "<group>"; };
+		D8472A652B2517DE0070DB64 /* StoreFilesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreFilesView.swift; sourceTree = "<group>"; };
 		D8472A672B2518320070DB64 /* FixedItemSizeCollectionViewLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FixedItemSizeCollectionViewLayout.swift; sourceTree = "<group>"; };
 		D8472A692B2518600070DB64 /* NSWorkspace.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSWorkspace.swift; sourceTree = "<group>"; };
 		D8472A6B2B2518900070DB64 /* NSCollectionViewDiffableDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSCollectionViewDiffableDataSource.swift; sourceTree = "<group>"; };
@@ -225,7 +225,7 @@
 				D82B95802B231AD000C8B6FB /* Store.swift */,
 				D8F6A6122B8D7CC00003B1A6 /* StoreOperation.swift */,
 				D8F6A6102B8D64BA0003B1A6 /* StorePublisher.swift */,
-				D8472A652B2517DE0070DB64 /* StoreView.swift */,
+				D8472A652B2517DE0070DB64 /* StoreFilesView.swift */,
 				D83EA9AB2DA89257008DE7AE /* TagsView.swift */,
 			);
 			path = Store;
@@ -562,7 +562,7 @@
 				D879E3452AD27C7B00A021E0 /* SidebarItem.swift in Sources */,
 				D85AC0D92BAE217F003CAE8F /* CollectionViewNavigationResult.swift in Sources */,
 				D825FFF02DA61C910050A0FD /* HelpCommands.swift in Sources */,
-				D8472A662B2517DE0070DB64 /* StoreView.swift in Sources */,
+				D8472A662B2517DE0070DB64 /* StoreFilesView.swift in Sources */,
 				D82B95812B231AD000C8B6FB /* Store.swift in Sources */,
 				D89622E02ACD3B9A006F7D2E /* FoldersError.swift in Sources */,
 				D82B957C2B23112C00C8B6FB /* GridView.swift in Sources */,
