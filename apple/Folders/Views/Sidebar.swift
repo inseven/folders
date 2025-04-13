@@ -56,15 +56,6 @@ struct Sidebar: View {
                 }
             }
         }
-        .toolbar {
-            ToolbarItem {
-                Button {
-                    sceneModel.add()
-                } label: {
-                    Label("Add", systemImage: "plus")
-                }
-            }
-        }
     }
 
 }
