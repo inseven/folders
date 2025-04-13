@@ -66,7 +66,7 @@ class Store {
     private var observers: [Observer] = []
 
     private let databaseURL: URL
-    private let syncQueue = DispatchQueue(label: "Store.syncQueue")
+    private let syncQueue = DispatchQueue(label: "Store.syncQueue")  // TODO: Check if this is necessary
     private let connection: Connection
     private let observerLock = NSRecursiveLock()
 
@@ -127,12 +127,11 @@ class Store {
         }
     }
 
-    // TODO: Rename this?
-    private func runBlocking<T>(perform: @escaping () throws -> T) throws -> T {
+    private func run<T>(perform: @escaping () throws -> T) throws -> T {
         dispatchPrecondition(condition: .notOnQueue(.main))
         dispatchPrecondition(condition: .notOnQueue(syncQueue))
         var result: Swift.Result<T, Error>? = nil
-        syncQueue.sync {  // TODO: Is the syncQueue necessary?
+        syncQueue.sync {
             result = Swift.Result<T, Error> {
                 return try perform()
             }
@@ -424,37 +423,37 @@ class Store {
 extension Store {
 
     func insert(files: any Collection<Details>) throws {
-        return try runBlocking {
+        return try run {
             try self.syncQueue_insert(files: files)
         }
     }
 
     func remove(owner: URL) throws {
-        try runBlocking {
+        try run {
             try self.syncQueue_remove(owner: owner)
         }
     }
 
     func files(filter: Filter, sort: Sort) throws -> [Details] {
-        return try runBlocking {
+        return try run {
             return try self.syncQueue_files(filter: filter, sort: sort)
         }
     }
 
     func tags() throws -> [String] {
-        return try runBlocking {
+        return try run {
             return try self.syncQueue_tags()
         }
     }
 
     func remove(identifiers: any Collection<Details.Identifier>) throws {
-        try runBlocking {
+        try run {
             try self.syncQueue_remove(identifiers: identifiers)
         }
     }
 
     func update(files: any Collection<Details>) throws {
-        try runBlocking {
+        try run {
             try self.syncQueue_update(files: files)
         }
     }
