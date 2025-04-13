@@ -70,7 +70,9 @@ struct FoldersApp: App {
                 Credit("Jason Morley", url: URL(string: "https://jbmorley.co.uk"))
             }
             Acknowledgements("Thanks") {
+                Credit("Joanne Wong")
                 Credit("Lukas Fittl")
+                Credit("Matt Sephton")
                 Credit("Pavlos Vinieratos")
                 Credit("Sarah Barbour")
             }
