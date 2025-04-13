@@ -31,11 +31,14 @@ struct StorePublisher: Publisher {
 
         var id = UUID()
 
-        fileprivate var store: Store
-        fileprivate var target: Target?
+        private let store: Store
+        private let filter: IdentifierFilter
 
-        init(store: Store) {
+        var target: Target?
+
+        init(store: Store, filter: IdentifierFilter) {
             self.store = store
+            self.filter = filter
             super.init()
             self.store.add(observer: self)
         }
@@ -48,12 +51,19 @@ struct StorePublisher: Publisher {
         }
 
         func store(_ store: Store, didInsertFiles files: [Details]) {
+            let files = files.filter { filter.matches(identifier: $0.identifier) }
+            guard !files.isEmpty else {
+                return
+            }
             _ = target?.receive(.add(files))
         }
 
-        // TODO: Update the events to match the granularity of the Store.Observer
         func store(_ store: Store, didUpdateFiles files: [Details]) {
-            _ = target?.receive(.add(files))
+            let files = files.filter { filter.matches(identifier: $0.identifier) }
+            guard !files.isEmpty else {
+                return
+            }
+            _ = target?.receive(.update(files))
         }
 
         func store(_ store: Store, didRemoveFilesWithIdentifiers identifiers: [Details.Identifier]) {
@@ -73,14 +83,16 @@ struct StorePublisher: Publisher {
     typealias Output = StoreOperation
     typealias Failure = Never
 
-    fileprivate var store: Store
+    private var store: Store
+    private var filter: IdentifierFilter
 
-    init(store: Store) {
+    init(store: Store, filter: IdentifierFilter) {
         self.store = store
+        self.filter = filter
     }
 
     func receive<S: Subscriber>(subscriber: S) where S.Input == Output, S.Failure == Failure {
-        let subscription = Subscription<S>(store: store)
+        let subscription = Subscription<S>(store: store, filter: filter)
         subscription.target = subscriber
         subscriber.receive(subscription: subscription)
     }
@@ -89,8 +101,8 @@ struct StorePublisher: Publisher {
 
 extension Store {
 
-    func publisher() -> StorePublisher {
-        return StorePublisher(store: self)
+    func publisher(filter: IdentifierFilter = TrueFilter()) -> StorePublisher {
+        return StorePublisher(store: self, filter: filter)
     }
 
 }

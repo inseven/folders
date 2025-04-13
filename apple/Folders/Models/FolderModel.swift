@@ -64,33 +64,12 @@ class FolderModel: ObservableObject {
             return
         }
 
-        // TODO: Convenience contructor for running filters.
         store
-            .publisher()  // TODO: Support passing filters into the publisher.
-            .compactMap { (operation: StoreOperation) -> StoreOperation? in
-                switch operation {
-                case .add(let files):
-                    let files = files.filter { $0.url == settingsURL }
-                    guard files.count > 0 else {
-                        return nil
-                    }
-                    return StoreOperation.add(files)
-                case .remove(let identifiers):
-                    let identifiers = identifiers.filter { $0.url == settingsURL }
-                    guard identifiers.count > 0 else {
-                        return nil
-                    }
-                    return StoreOperation.remove(identifiers)
-                case .addTags:
-                    return nil
-                case .removeTags:
-                    return nil
-                }
-            }
+            .publisher(filter: .url(settingsURL))
             .receive(on: DispatchQueue.main)
             .sink { operation in
                 switch operation {
-                case .add:
+                case .add, .update:
                     do {
                         self.settings = try FolderSettings(contentsOf: settingsURL)
                     } catch {

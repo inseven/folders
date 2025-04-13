@@ -25,6 +25,12 @@ import UniformTypeIdentifiers
 
 import SQLite
 
+protocol IdentifierFilter {
+
+    func matches(identifier: Details.Identifier) -> Bool
+
+}
+
 protocol Filter {
 
     var sql: (String, [Binding?]) { get }
@@ -86,7 +92,7 @@ extension Filter where Self == ParentFilter {
 
 }
 
-struct TrueFilter: Filter {
+struct TrueFilter: Filter, IdentifierFilter {
 
     var sql: (String, [Binding?]) {
         return ("true", [])
@@ -96,15 +102,23 @@ struct TrueFilter: Filter {
         return true
     }
 
+    func matches(identifier: Details.Identifier) -> Bool {
+        return true
+    }
+
 }
 
-struct FalseFilter: Filter {
+struct FalseFilter: Filter, IdentifierFilter {
 
     var sql: (String, [Binding?]) {
         return ("false", [])
     }
 
     func matches(details: Details) -> Bool {
+        return false
+    }
+
+    func matches(identifier: Details.Identifier) -> Bool {
         return false
     }
 
@@ -183,7 +197,7 @@ struct ParentFilter: Filter {
 
 }
 
-struct OwnerFilter: Filter {
+struct OwnerFilter: Filter, IdentifierFilter {
 
     let owner: String
 
@@ -199,12 +213,54 @@ struct OwnerFilter: Filter {
         return details.ownerURL.path == owner
     }
 
+    func matches(identifier: Details.Identifier) -> Bool {
+        return identifier.ownerURL.path == owner
+    }
+
 }
 
 extension Filter where Self == OwnerFilter {
 
     static func owner(_ owner: URL) -> OwnerFilter {
         return OwnerFilter(owner: owner.path)
+    }
+
+}
+
+struct PathFilter: Filter, IdentifierFilter {
+
+    let path: String
+
+    init(path: String) {
+        self.path = path
+    }
+
+    var sql: (String, [Binding?]) {
+        return ("path = ?", [path])
+    }
+
+    func matches(details: Details) -> Bool {
+        return details.url.path == path
+    }
+
+    func matches(identifier: Details.Identifier) -> Bool {
+        return identifier.url.path == path
+    }
+
+}
+
+extension Filter where Self == OwnerFilter {
+
+    static func url(_ url: URL) -> PathFilter {
+        return PathFilter(path: url.path)
+    }
+
+}
+
+extension IdentifierFilter where Self == OwnerFilter {
+
+    static func url(_ url: URL) -> PathFilter {
+        return PathFilter(path: url.path)
     }
 
 }
