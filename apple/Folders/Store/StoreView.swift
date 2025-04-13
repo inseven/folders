@@ -81,7 +81,7 @@ class StoreView: NSObject, Store.Observer {
                 // Get them out sorted.
                 let queryStart = Date()
                 let queryDuration = queryStart.distance(to: Date())
-                self.files = try self.store.filesBlocking(filter: self.filter, sort: self.sort)
+                self.files = try self.store.files(filter: self.filter, sort: self.sort)
                 print("Query took \(queryDuration.formatted()) seconds and returned \(self.files.count) files.")
 
                 let snapshot = self.files

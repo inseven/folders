@@ -41,25 +41,25 @@ class StoreUpdater {
             // Take an in-memory snapshot of everything within this owner and use it to track deletions.
             // We can do this safely (and outside of a transaction) as we can guarantee we're the only observer
             // modifying the files within this owner.
-            return try! self.store.filesBlocking(filter: .owner(self.url), sort: .displayNameAscending)
+            return try! self.store.files(filter: .owner(self.url), sort: .displayNameAscending)
                 .reduce(into: Set<Details>()) { partialResult, details in
                     partialResult.insert(details)
                 }
         } onFileCreation: { files in
             do {
-                try self.store.insertBlocking(files: files)
+                try self.store.insert(files: files)
             } catch {
                 print("Failed to perform creation update with error \(error).")
             }
         } onFileUpdate: { files in
             do {
-                try self.store.updateBlocking(files: files)
+                try self.store.update(files: files)
             } catch {
                 print("Failed to perform update update with error \(error).")
             }
         } onFileDeletion: { identifiers in
             do {
-                try self.store.removeBlocking(identifiers: identifiers)
+                try self.store.remove(identifiers: identifiers)
             } catch {
                 print("Failed to perform deletion update with error \(error).")
             }

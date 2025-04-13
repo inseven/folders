@@ -70,7 +70,7 @@ class TagsView: NSObject, Store.Observer {
                 // Get them out sorted.
                 let queryStart = Date()
                 let queryDuration = queryStart.distance(to: Date())
-                self.tags = try self.store.tagsBlocking()
+                self.tags = try self.store.tags()
                 print("Query took \(queryDuration.formatted()) seconds and returned \(self.tags.count) tags.")
 
                 let snapshot = self.tags
