@@ -29,27 +29,27 @@ class FolderModel: ObservableObject {
     @Published var error: Error?
 
     let store: Store
-    let identifiers: [Details.Identifier]
+    let identifiers: [SidebarItem.Kind]
+    let settingsURLs: [URL]
     var cancellables = Set<AnyCancellable>()
 
     var title: String {
-        return identifiers.map { $0.url.displayName }
+        return identifiers.map { $0.displayName }
             .sorted { $0.localizedCaseInsensitiveCompare($1) == .orderedAscending }
             .joined(separator: ", ")
     }
 
     init(store: Store, selection: Set<SidebarItem.ID>) {
         self.store = store
+        self.identifiers = Array(selection)
 
         // TODO: Support combining metadata when multiple sidebar items are selected
-        // This is responsible for selecting the identifiers which are then used to look up display information about
-        // the currently selected folder. It can only do sensible things when there's a single 'pure' folder selected.
-        self.identifiers = selection.compactMap { sidebarItem in
+        // This is responsible for selecting the settings urls which are then used to look up display information about
+        // the currently selected folders.
+        self.settingsURLs = selection.compactMap { sidebarItem in
             switch sidebarItem {
-            case .owner(let identifier):
-                return identifier
-            case .folder(let identifier):
-                return identifier
+            case .owner(let identifier), .folder(let identifier):
+                return identifier.url.appendingPathComponent("folders-settings.yaml")
             case .tag:
                 return nil
             }
@@ -60,8 +60,7 @@ class FolderModel: ObservableObject {
     func start() {
 
         // Only load folder settings if a single folder is selected.
-        guard identifiers.count == 1,
-              let settingsURL = identifiers.first?.url.appendingPathComponent("folders-settings.yaml") else {
+        guard let settingsURL = settingsURLs.first else {
             return
         }
 
