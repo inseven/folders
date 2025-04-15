@@ -72,6 +72,7 @@ struct FolderView: View {
         .onDisappear {
             folderModel.stop()
         }
+        .focusedSceneObject(folderModel)
     }
 
 }
