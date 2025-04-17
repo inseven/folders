@@ -22,7 +22,7 @@
 
 import SwiftUI
 
-struct FolderToolbar: CustomizableToolbarContent {
+struct SelectionToolbar: CustomizableToolbarContent {
 
     @FocusedObject var selectionModel: SelectionModel?
 
