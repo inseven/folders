@@ -22,20 +22,22 @@
 
 import SwiftUI
 
-struct SelectionToolbar: CustomizableToolbarContent {
+struct SelectionLinksMenu: View {
 
-    @FocusedObject var selectionModel: SelectionModel?
+    @ObservedObject var selectionModel: SelectionModel
 
-    var body: some CustomizableToolbarContent {
-        ToolbarItem(id: "links") {
-            Menu {
-                if let selectionModel {
-                    SelectionLinksMenu(selectionModel: selectionModel)
+    var body: some View {
+        if !selectionModel.settings.isEmpty {
+            ForEach(selectionModel.settingsURLs) { settingsURL in
+                if let folderSettings = selectionModel.settings[settingsURL] {
+                    FolderLinks(folderSettings: folderSettings)
+                    if selectionModel.settingsURLs.last != settingsURL  {
+                        Divider()
+                    }
                 }
-            } label: {
-                Image(systemName: "link")
             }
-            .disabled(selectionModel == nil)
+        } else {
+            Text("No links")
         }
     }
 

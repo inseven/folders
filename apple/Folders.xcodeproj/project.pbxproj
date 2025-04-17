@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		D814EA012B7EB620008BF46C /* Sort.swift in Sources */ = {isa = PBXBuildFile; fileRef = D814EA002B7EB620008BF46C /* Sort.swift */; };
+		D822E6182DB0C87300FA9CD7 /* SelectionLinksMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = D822E6172DB0C86F00FA9CD7 /* SelectionLinksMenu.swift */; };
 		D825FFF02DA61C910050A0FD /* HelpCommands.swift in Sources */ = {isa = PBXBuildFile; fileRef = D825FFEF2DA61C8F0050A0FD /* HelpCommands.swift */; };
 		D82B957C2B23112C00C8B6FB /* GridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D82B957B2B23112C00C8B6FB /* GridView.swift */; };
 		D82B957F2B231A7900C8B6FB /* SQLite in Frameworks */ = {isa = PBXBuildFile; productRef = D82B957E2B231A7900C8B6FB /* SQLite */; };
@@ -97,6 +98,7 @@
 
 /* Begin PBXFileReference section */
 		D814EA002B7EB620008BF46C /* Sort.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sort.swift; sourceTree = "<group>"; };
+		D822E6172DB0C86F00FA9CD7 /* SelectionLinksMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectionLinksMenu.swift; sourceTree = "<group>"; };
 		D825FFEF2DA61C8F0050A0FD /* HelpCommands.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelpCommands.swift; sourceTree = "<group>"; };
 		D82B957B2B23112C00C8B6FB /* GridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GridView.swift; sourceTree = "<group>"; };
 		D82B95802B231AD000C8B6FB /* Store.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Store.swift; sourceTree = "<group>"; };
@@ -343,6 +345,7 @@
 				D82B957B2B23112C00C8B6FB /* GridView.swift */,
 				D8472A6D2B2518D00070DB64 /* InteractiveCollectionView.swift */,
 				D89622E32ACD4266006F7D2E /* LibraryView.swift */,
+				D822E6172DB0C86F00FA9CD7 /* SelectionLinksMenu.swift */,
 				D8472A632B2517A50070DB64 /* ShortcutItemView.swift */,
 				D89622E12ACD4200006F7D2E /* Sidebar.swift */,
 			);
@@ -570,6 +573,7 @@
 				D8F6A6112B8D64BA0003B1A6 /* StoreFilesPublisher.swift in Sources */,
 				D8F6A60D2B8D46720003B1A6 /* FolderSettings.swift in Sources */,
 				D8A82E3D2BADF38000DD32DA /* IndexPathSequence.swift in Sources */,
+				D822E6182DB0C87300FA9CD7 /* SelectionLinksMenu.swift in Sources */,
 				D8472A6E2B2518D00070DB64 /* InteractiveCollectionView.swift in Sources */,
 				D83312E92B77132B00B994B3 /* Details.swift in Sources */,
 				D83312E32B76FE4E00B994B3 /* Filter.swift in Sources */,
