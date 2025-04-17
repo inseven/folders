@@ -22,6 +22,27 @@
 
 import SwiftUI
 
+struct Arse: View {
+
+    @ObservedObject var selectionModel: SelectionModel
+
+    var body: some View {
+        if !selectionModel.settings.isEmpty {
+            ForEach(selectionModel.settingsURLs) { settingsURL in
+                if let folderSettings = selectionModel.settings[settingsURL] {
+                    FolderLinks(folderSettings: folderSettings)
+                    if selectionModel.settingsURLs.last != settingsURL  {
+                        Divider()
+                    }
+                }
+            }
+        } else {
+            Text("No links")
+        }
+    }
+
+}
+
 struct SelectionToolbar: CustomizableToolbarContent {
 
     @FocusedObject var selectionModel: SelectionModel?
@@ -29,17 +50,8 @@ struct SelectionToolbar: CustomizableToolbarContent {
     var body: some CustomizableToolbarContent {
         ToolbarItem(id: "links") {
             Menu {
-                if let selectionModel, !selectionModel.settings.isEmpty {
-                    ForEach(selectionModel.settingsURLs) { settingsURL in
-                        if let folderSettings = selectionModel.settings[settingsURL] {
-                            FolderLinks(folderSettings: folderSettings)
-                            if selectionModel.settingsURLs.last != settingsURL  {
-                                Divider()
-                            }
-                        }
-                    }
-                } else {
-                    Text("No links")
+                if let selectionModel {
+                    Arse(selectionModel: selectionModel)
                 }
             } label: {
                 Image(systemName: "link")

@@ -23,71 +23,69 @@
 import Combine
 import Foundation
 
-// TODO: I think this should use `StoreFilesView` to get an initial value
-struct StorePublisher: Publisher {
+struct StoreFilesPublisher: Publisher {
 
     class Subscription<Target: Subscriber>: NSObject,
                                             Combine.Subscription,
-                                            Store.Observer where Target.Input == StoreOperation {
+                                            StoreFilesViewDelegate where Target.Input == [Details] {
 
         var id = UUID()
 
-        private let store: Store
-        private let filter: IdentifierFilter
+        private let storeFilesView: StoreFilesView
 
         var target: Target?
 
-        init(store: Store, filter: IdentifierFilter) {
-            self.store = store
-            self.filter = filter
+        init(store: Store, filter: Filter) {
+            self.storeFilesView = StoreFilesView(store: store, filter: filter)
             super.init()
-            self.store.add(observer: self)
+            self.storeFilesView.delegate = self
+            self.storeFilesView.start()
         }
 
         func request(_ demand: Subscribers.Demand) {}
 
         func cancel() {
+            self.storeFilesView.stop()
             target = nil
-            self.store.remove(observer: self)
+            self.storeFilesView.delegate = nil
         }
 
-        func store(_ store: Store, didInsertFiles files: [Details]) {
-            let files = files.filter { filter.matches(identifier: $0.identifier) }
-            guard !files.isEmpty else {
-                return
-            }
-            _ = target?.receive(.add(files))
+        func storeFilesView(_ storeFilesView: StoreFilesView,
+                            didInsertFile file: Details,
+                            atIndex index: Int,
+                            files: [Details]) {
+            _ = target?.receive(files)
         }
 
-        func store(_ store: Store, didUpdateFiles files: [Details]) {
-            let files = files.filter { filter.matches(identifier: $0.identifier) }
-            guard !files.isEmpty else {
-                return
-            }
-            _ = target?.receive(.update(files))
+        func storeFilesView(_ storeFilesView: StoreFilesView,
+                            didUpdateFiles files: [Details]) {
+            _ = target?.receive(files)
         }
 
-        func store(_ store: Store, didRemoveFilesWithIdentifiers identifiers: [Details.Identifier]) {
-            _ = target?.receive(.remove(identifiers))
+
+        func storeFilesView(_ storeFilesView: StoreFilesView,
+                            didUpdateFile file: Details,
+                            atIndex index: Int,
+                            files: [Details]) {
+            _ = target?.receive(files)
         }
 
-        func store(_ store: Store, didInsertTags tags: [String]) {
-            _ = target?.receive(.addTags(tags))
-        }
-
-        func store(_ store: Store, didRemoveTags tags: [String]) {
-            _ = target?.receive(.removeTags(tags))
+        func storeFilesView(_ storeFilesView: StoreFilesView,
+                            didRemoveFileWithIdentifier identifier: Details.Identifier,
+                            atIndex index: Int,
+                            files: [Details]) {
+            _ = target?.receive(files)
         }
 
     }
 
-    typealias Output = StoreOperation
+    typealias Output = [Details]
     typealias Failure = Never
 
     private var store: Store
-    private var filter: IdentifierFilter
+    private var filter: Filter
 
-    init(store: Store, filter: IdentifierFilter) {
+    init(store: Store, filter: Filter) {
         self.store = store
         self.filter = filter
     }
@@ -102,8 +100,8 @@ struct StorePublisher: Publisher {
 
 extension Store {
 
-    func publisher(filter: IdentifierFilter = TrueFilter()) -> StorePublisher {
-        return StorePublisher(store: self, filter: filter)
+    func publisher(filter: Filter = TrueFilter()) -> StoreFilesPublisher {
+        return StoreFilesPublisher(store: self, filter: filter)
     }
 
 }

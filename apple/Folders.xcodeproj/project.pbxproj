@@ -71,8 +71,7 @@
 		D8F6A60B2B8D41F90003B1A6 /* yams-license in Resources */ = {isa = PBXBuildFile; fileRef = D8F6A60A2B8D41F90003B1A6 /* yams-license */; };
 		D8F6A60D2B8D46720003B1A6 /* FolderSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F6A60C2B8D46720003B1A6 /* FolderSettings.swift */; };
 		D8F6A60F2B8D52200003B1A6 /* Date.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F6A60E2B8D52200003B1A6 /* Date.swift */; };
-		D8F6A6112B8D64BA0003B1A6 /* StorePublisher.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F6A6102B8D64BA0003B1A6 /* StorePublisher.swift */; };
-		D8F6A6132B8D7CC00003B1A6 /* StoreOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F6A6122B8D7CC00003B1A6 /* StoreOperation.swift */; };
+		D8F6A6112B8D64BA0003B1A6 /* StoreFilesPublisher.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F6A6102B8D64BA0003B1A6 /* StoreFilesPublisher.swift */; };
 		D8F6A6152B8D84840003B1A6 /* StoreUpdater.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F6A6142B8D84840003B1A6 /* StoreUpdater.swift */; };
 		D8FE1FDE2B8E7D7A006FE439 /* DirectoryScannerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8FE1FDD2B8E7D7A006FE439 /* DirectoryScannerTests.swift */; };
 		D8FE1FE12B8E7D98006FE439 /* XCTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8FE1FE02B8E7D98006FE439 /* XCTestCase.swift */; };
@@ -159,8 +158,7 @@
 		D8F6A60A2B8D41F90003B1A6 /* yams-license */ = {isa = PBXFileReference; lastKnownFileType = text; path = "yams-license"; sourceTree = "<group>"; };
 		D8F6A60C2B8D46720003B1A6 /* FolderSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolderSettings.swift; sourceTree = "<group>"; };
 		D8F6A60E2B8D52200003B1A6 /* Date.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Date.swift; sourceTree = "<group>"; };
-		D8F6A6102B8D64BA0003B1A6 /* StorePublisher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorePublisher.swift; sourceTree = "<group>"; };
-		D8F6A6122B8D7CC00003B1A6 /* StoreOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreOperation.swift; sourceTree = "<group>"; };
+		D8F6A6102B8D64BA0003B1A6 /* StoreFilesPublisher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreFilesPublisher.swift; sourceTree = "<group>"; };
 		D8F6A6142B8D84840003B1A6 /* StoreUpdater.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreUpdater.swift; sourceTree = "<group>"; };
 		D8FE1FDD2B8E7D7A006FE439 /* DirectoryScannerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DirectoryScannerTests.swift; sourceTree = "<group>"; };
 		D8FE1FE02B8E7D98006FE439 /* XCTestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XCTestCase.swift; sourceTree = "<group>"; };
@@ -229,8 +227,7 @@
 				D83312E22B76FE4E00B994B3 /* Filter.swift */,
 				D814EA002B7EB620008BF46C /* Sort.swift */,
 				D82B95802B231AD000C8B6FB /* Store.swift */,
-				D8F6A6122B8D7CC00003B1A6 /* StoreOperation.swift */,
-				D8F6A6102B8D64BA0003B1A6 /* StorePublisher.swift */,
+				D8F6A6102B8D64BA0003B1A6 /* StoreFilesPublisher.swift */,
 				D8472A652B2517DE0070DB64 /* StoreFilesView.swift */,
 				D83EA9AB2DA89257008DE7AE /* TagsView.swift */,
 			);
@@ -358,10 +355,10 @@
 				D89622DA2ACD394A006F7D2E /* ApplicationModel.swift */,
 				D88F05902DA5F225009EAB64 /* CheckForUpdatesViewModel.swift */,
 				D83312E82B77132B00B994B3 /* Details.swift */,
-				D870EC9D2B7EC47B00704688 /* SelectionModel.swift */,
 				D8F6A60C2B8D46720003B1A6 /* FolderSettings.swift */,
 				D8DDBCC32B2A0F8E003EAF4E /* PreviewItem.swift */,
 				D89622E52ACD42F2006F7D2E /* SceneModel.swift */,
+				D870EC9D2B7EC47B00704688 /* SelectionModel.swift */,
 				D89622DD2ACD3B82006F7D2E /* Settings.swift */,
 				D879E3442AD27C7B00A021E0 /* SidebarItem.swift */,
 			);
@@ -552,7 +549,6 @@
 				D89622E42ACD4266006F7D2E /* LibraryView.swift in Sources */,
 				D8DDBCC42B2A0F8E003EAF4E /* PreviewItem.swift in Sources */,
 				D8F6A60F2B8D52200003B1A6 /* Date.swift in Sources */,
-				D8F6A6132B8D7CC00003B1A6 /* StoreOperation.swift in Sources */,
 				D85C07B12B7EBC3A00C8BAA6 /* FolderView.swift in Sources */,
 				D8D6B6C62DAEFCD10002A6FC /* SceneToolbar.swift in Sources */,
 				D814EA012B7EB620008BF46C /* Sort.swift in Sources */,
@@ -571,7 +567,7 @@
 				D870EC9E2B7EC47B00704688 /* SelectionModel.swift in Sources */,
 				D8472A682B2518320070DB64 /* FixedItemSizeCollectionViewLayout.swift in Sources */,
 				D83EA9AC2DA8925B008DE7AE /* TagsView.swift in Sources */,
-				D8F6A6112B8D64BA0003B1A6 /* StorePublisher.swift in Sources */,
+				D8F6A6112B8D64BA0003B1A6 /* StoreFilesPublisher.swift in Sources */,
 				D8F6A60D2B8D46720003B1A6 /* FolderSettings.swift in Sources */,
 				D8A82E3D2BADF38000DD32DA /* IndexPathSequence.swift in Sources */,
 				D8472A6E2B2518D00070DB64 /* InteractiveCollectionView.swift in Sources */,

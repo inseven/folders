@@ -44,7 +44,7 @@ class SelectionModel: ObservableObject {
         self.identifiers = Array(selection)
 
         // Get the relevant settings URLs for the current selection.
-        self.settingsURLs = Array(selection)
+        self.settingsURLs = self.identifiers
             .sorted()
             .compactMap { sidebarItem in
                 switch sidebarItem {
@@ -57,46 +57,31 @@ class SelectionModel: ObservableObject {
     }
 
     func start() {
-
-        // Observe the changes for all relevant settings files.
-        Publishers.MergeMany(settingsURLs.map { settingsURL in
-            return store
-                .publisher(filter: .url(settingsURL))
-        })
-        .receive(on: DispatchQueue.main)
-        .sink { operation in
-            switch operation {
-            case .add(let files), .update(let files):
-                let file = files.first!
+        let filter = AnyFilter(oring: settingsURLs.map { URLFilter.url($0) })
+        store.publisher(filter: filter)
+            .receive(on: DispatchQueue.global(qos: .utility))
+            .map { files -> Result<[URL: FolderSettings], Error> in
                 do {
-                    self.settings[file.url] = try FolderSettings(contentsOf: file.url)
+                    let settings = try files.map { file in
+                        return (file.url, try FolderSettings(contentsOf: file.url))
+                    }.reduce(into: [URL:FolderSettings]()) { partialResult, folderSettings in
+                        partialResult[folderSettings.0] = folderSettings.1
+                    }
+                    return .success(settings)
                 } catch {
+                    return .failure(error)
+                }
+            }
+            .receive(on: DispatchQueue.main)
+            .sink { result in
+                switch result {
+                case .success(let settings):
+                    self.settings = settings
+                case .failure(let error):
                     self.error = error
                 }
-            case .remove(let identifiers):
-                let identifier = identifiers.first!
-                self.settings.removeValue(forKey: identifier.url)
-            case .addTags:
-                break
-            case .removeTags:
-                break
             }
-        }
-        .store(in: &cancellables)
-
-        // Load the contents of the settings file.
-        // TODO: Update the store publisher to include the initial state (just like `StoreFilesView`).
-        do {
-            // TODO: Don't fail to load all files if just one is malformed.
-            for settingsURL in settingsURLs {
-                guard FileManager.default.fileExists(atPath: settingsURL.path) else {
-                    continue
-                }
-                self.settings[settingsURL] = try FolderSettings(contentsOf: settingsURL)
-            }
-        } catch {
-            self.error = error
-        }
+            .store(in: &cancellables)
     }
 
     func stop() {
