@@ -37,6 +37,10 @@ extension UTType {
         return UTType(filenameExtension: "mkv")!
     }
 
+    static var mov: Self {
+        return UTType(filenameExtension: "mov")!
+    }
+
     static var pbm: Self {
         return UTType(filenameExtension: "pbm")!
     }

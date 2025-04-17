@@ -134,12 +134,17 @@ class TagsView: NSObject, Store.Observer {
                     }
                 }
             } else {
-                // TODO: There's an optimisation here if the list is empty.
-                for tag in tags {
-                    let index = self.tags.partitioningIndex {
-                        return tag.localizedCaseInsensitiveCompare($0) == .orderedAscending
+                if self.tags.isEmpty {
+                    // If the list of tags is empty (e.g., in the case of an initial load), we can sort the tags and
+                    // simply set the new value.
+                    self.tags = tags.sorted { $0.localizedCaseInsensitiveCompare($1) == .orderedAscending }
+                } else {
+                    for tag in tags {
+                        let index = self.tags.partitioningIndex {
+                            return tag.localizedCaseInsensitiveCompare($0) == .orderedAscending
+                        }
+                        self.tags.insert(tag, at: index)
                     }
-                    self.tags.insert(tag, at: index)
                 }
                 let snapshot = self.tags
                 DispatchQueue.main.async {

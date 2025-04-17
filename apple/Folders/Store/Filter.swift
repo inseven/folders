@@ -334,11 +334,13 @@ func defaultTypesFilter() -> AnyFilter {
                      || .conforms(to: .mp3)
                      || .conforms(to: .tap)
                      || .conforms(to: .mkv)
+                     || .conforms(to: .mov)
                      || .conforms(to: .bmp)
                      || .conforms(to: .webP)
                      || .conforms(to: .ico)
                      || .conforms(to: .avi)
                      || .conforms(to: .pbm)
+                     || .conforms(to: .svg)
                      || .conforms(to: .tiff))
 }
 

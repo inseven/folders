@@ -94,7 +94,9 @@ class ApplicationModel: NSObject, ObservableObject {
             updater.start()
         }
 
+#if !DEBUG
         updaterController.startUpdater()
+#endif
 
     }
 
