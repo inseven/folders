@@ -133,15 +133,19 @@ class StoreFilesView: NSObject, Store.Observer {
                     }
                 }
             } else {
-                // TODO: There's an optimisation here if the list is empty.
-                for file in files {
-                    let index = self.files.partitioningIndex {
-                        return self.sort.compare(file, $0)
+                if self.files.isEmpty {
+                    // If the list of files is empty (e.g., in the case of an initial load), we can sort the files and
+                    // simply set the new value.
+                    self.files = files.sorted(by: self.sort.compare)
+                } else {
+                    // Insert the files using a binary search.
+                    for file in files {
+                        let index = self.files.partitioningIndex {
+                            return self.sort.compare(file, $0)
+                        }
+                        self.files.insert(file, at: index)
                     }
-                    self.files.insert(file, at: index)
                 }
-                // TODO: We might as well cascade these changes down to the table view to allow it decide on performance
-                //       characteristics.
                 let snapshot = self.files
                 DispatchQueue.main.async {
                     self.delegate?.storeFilesView(self, didUpdateFiles: snapshot)
