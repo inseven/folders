@@ -22,33 +22,23 @@
 
 import SwiftUI
 
-struct FolderView: View {
+struct SelectionLinksMenu: View {
 
-    @EnvironmentObject var applicationModel: ApplicationModel
-    @EnvironmentObject var sceneModel: SceneModel
-
-    @Environment(\.openURL) var openURL
-
-    @StateObject var selectionModel: SelectionModel
-
-    let filter: Filter
-
-    init(applicationModel: ApplicationModel, filter: Filter = TrueFilter(), selection: Set<SidebarItem.ID>) {
-        _selectionModel = StateObject(wrappedValue: SelectionModel(store: applicationModel.store, selection: selection))
-        self.filter = filter
-    }
+    @ObservedObject var selectionModel: SelectionModel
 
     var body: some View {
-        GridView(sceneModel: sceneModel, store: applicationModel.store, filter: filter)
-            .navigationTitle(selectionModel.title)
-            .presents($selectionModel.error)
-            .onAppear {
-                selectionModel.start()
+        if !selectionModel.settings.isEmpty {
+            ForEach(selectionModel.settingsURLs) { settingsURL in
+                if let folderSettings = selectionModel.settings[settingsURL] {
+                    FolderLinks(folderSettings: folderSettings)
+                    if selectionModel.settingsURLs.last != settingsURL  {
+                        Divider()
+                    }
+                }
             }
-            .onDisappear {
-                selectionModel.stop()
-            }
-            .focusedSceneObject(selectionModel)
+        } else {
+            Text("No links")
+        }
     }
 
 }

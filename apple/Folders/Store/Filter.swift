@@ -25,12 +25,6 @@ import UniformTypeIdentifiers
 
 import SQLite
 
-protocol IdentifierFilter {
-
-    func matches(identifier: Details.Identifier) -> Bool
-
-}
-
 protocol Filter {
 
     var sql: (String, [Binding?]) { get }
@@ -92,7 +86,7 @@ extension Filter where Self == ParentFilter {
 
 }
 
-struct TrueFilter: Filter, IdentifierFilter {
+struct TrueFilter: Filter {
 
     var sql: (String, [Binding?]) {
         return ("true", [])
@@ -102,23 +96,15 @@ struct TrueFilter: Filter, IdentifierFilter {
         return true
     }
 
-    func matches(identifier: Details.Identifier) -> Bool {
-        return true
-    }
-
 }
 
-struct FalseFilter: Filter, IdentifierFilter {
+struct FalseFilter: Filter {
 
     var sql: (String, [Binding?]) {
         return ("false", [])
     }
 
     func matches(details: Details) -> Bool {
-        return false
-    }
-
-    func matches(identifier: Details.Identifier) -> Bool {
         return false
     }
 
@@ -197,7 +183,7 @@ struct ParentFilter: Filter {
 
 }
 
-struct OwnerFilter: Filter, IdentifierFilter {
+struct OwnerFilter: Filter {
 
     let owner: String
 
@@ -213,10 +199,6 @@ struct OwnerFilter: Filter, IdentifierFilter {
         return details.ownerURL.path == owner
     }
 
-    func matches(identifier: Details.Identifier) -> Bool {
-        return identifier.ownerURL.path == owner
-    }
-
 }
 
 extension Filter where Self == OwnerFilter {
@@ -227,7 +209,7 @@ extension Filter where Self == OwnerFilter {
 
 }
 
-struct PathFilter: Filter, IdentifierFilter {
+struct URLFilter: Filter {
 
     let path: String
 
@@ -243,24 +225,12 @@ struct PathFilter: Filter, IdentifierFilter {
         return details.url.path == path
     }
 
-    func matches(identifier: Details.Identifier) -> Bool {
-        return identifier.url.path == path
-    }
-
 }
 
-extension Filter where Self == OwnerFilter {
+extension Filter where Self == URLFilter {
 
-    static func url(_ url: URL) -> PathFilter {
-        return PathFilter(path: url.path)
-    }
-
-}
-
-extension IdentifierFilter where Self == OwnerFilter {
-
-    static func url(_ url: URL) -> PathFilter {
-        return PathFilter(path: url.path)
+    static func url(_ url: URL) -> URLFilter {
+        return URLFilter(path: url.path)
     }
 
 }

@@ -22,33 +22,19 @@
 
 import SwiftUI
 
-struct FolderView: View {
+struct SceneToolbar: CustomizableToolbarContent {
 
-    @EnvironmentObject var applicationModel: ApplicationModel
     @EnvironmentObject var sceneModel: SceneModel
 
-    @Environment(\.openURL) var openURL
-
-    @StateObject var selectionModel: SelectionModel
-
-    let filter: Filter
-
-    init(applicationModel: ApplicationModel, filter: Filter = TrueFilter(), selection: Set<SidebarItem.ID>) {
-        _selectionModel = StateObject(wrappedValue: SelectionModel(store: applicationModel.store, selection: selection))
-        self.filter = filter
-    }
-
-    var body: some View {
-        GridView(sceneModel: sceneModel, store: applicationModel.store, filter: filter)
-            .navigationTitle(selectionModel.title)
-            .presents($selectionModel.error)
-            .onAppear {
-                selectionModel.start()
+    public var body: some CustomizableToolbarContent {
+        ToolbarItem(id: "add-folder") {
+            Button {
+                sceneModel.add()
+            } label: {
+                Label("Add", systemImage: "plus")
             }
-            .onDisappear {
-                selectionModel.stop()
-            }
-            .focusedSceneObject(selectionModel)
+            .help("Add folder")
+        }
     }
 
 }

@@ -22,33 +22,21 @@
 
 import SwiftUI
 
-struct FolderView: View {
+struct SelectionToolbar: CustomizableToolbarContent {
 
-    @EnvironmentObject var applicationModel: ApplicationModel
-    @EnvironmentObject var sceneModel: SceneModel
+    @FocusedObject var selectionModel: SelectionModel?
 
-    @Environment(\.openURL) var openURL
-
-    @StateObject var selectionModel: SelectionModel
-
-    let filter: Filter
-
-    init(applicationModel: ApplicationModel, filter: Filter = TrueFilter(), selection: Set<SidebarItem.ID>) {
-        _selectionModel = StateObject(wrappedValue: SelectionModel(store: applicationModel.store, selection: selection))
-        self.filter = filter
-    }
-
-    var body: some View {
-        GridView(sceneModel: sceneModel, store: applicationModel.store, filter: filter)
-            .navigationTitle(selectionModel.title)
-            .presents($selectionModel.error)
-            .onAppear {
-                selectionModel.start()
+    var body: some CustomizableToolbarContent {
+        ToolbarItem(id: "links") {
+            Menu {
+                if let selectionModel {
+                    SelectionLinksMenu(selectionModel: selectionModel)
+                }
+            } label: {
+                Image(systemName: "link")
             }
-            .onDisappear {
-                selectionModel.stop()
-            }
-            .focusedSceneObject(selectionModel)
+            .disabled(selectionModel == nil)
+        }
     }
 
 }

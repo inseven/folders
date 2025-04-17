@@ -20,12 +20,26 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-import Foundation
+import SwiftUI
 
-enum StoreOperation {
-    case add([Details])
-    case update([Details])
-    case remove([Details.Identifier])
-    case addTags([String])
-    case removeTags([String])
+struct FolderLinks: View {
+
+    @Environment(\.openURL) private var openURL
+
+    private let folderSettings: FolderSettings
+
+    init(folderSettings: FolderSettings) {
+        self.folderSettings = folderSettings
+    }
+
+    var body: some View {
+        ForEach(folderSettings.links) { link in
+            Button {
+                openURL(link.url)
+            } label: {
+                Text(link.title ?? link.url.absoluteString)
+            }
+        }
+    }
+
 }

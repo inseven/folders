@@ -68,14 +68,8 @@ struct LibraryView: View {
             }
         }
         .toolbar {
-            ToolbarItem {
-                Button {
-                    sceneModel.add()
-                } label: {
-                    Label("Add", systemImage: "plus")
-                }
-                .help("Add folder")
-            }
+            SelectionToolbar()
+            SceneToolbar()
         }
         .environmentObject(sceneModel)
     }
