@@ -340,6 +340,7 @@ func defaultTypesFilter() -> AnyFilter {
                      || .conforms(to: .ico)
                      || .conforms(to: .avi)
                      || .conforms(to: .pbm)
+                     || .conforms(to: .svg)
                      || .conforms(to: .tiff))
 }
 
