@@ -24,7 +24,7 @@ import SwiftUI
 
 struct FolderToolbar: CustomizableToolbarContent {
 
-    @FocusedObject var folderModel: FolderModel?
+    @FocusedObject var folderModel: SelectionModel?
 
     var body: some CustomizableToolbarContent {
         ToolbarItem(id: "links") {

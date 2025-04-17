@@ -29,12 +29,12 @@ struct FolderView: View {
 
     @Environment(\.openURL) var openURL
 
-    @StateObject var folderModel: FolderModel
+    @StateObject var folderModel: SelectionModel
 
     let filter: Filter
 
     init(applicationModel: ApplicationModel, filter: Filter = TrueFilter(), selection: Set<SidebarItem.ID>) {
-        _folderModel = StateObject(wrappedValue: FolderModel(store: applicationModel.store, selection: selection))
+        _folderModel = StateObject(wrappedValue: SelectionModel(store: applicationModel.store, selection: selection))
         self.filter = filter
     }
 

@@ -23,7 +23,7 @@
 import Combine
 import SwiftUI
 
-class FolderModel: ObservableObject {
+class SelectionModel: ObservableObject {
 
     @Published var settings: FolderSettings?
     @Published var error: Error?
@@ -54,7 +54,6 @@ class FolderModel: ObservableObject {
                 return nil
             }
         }
-
     }
 
     func start() {

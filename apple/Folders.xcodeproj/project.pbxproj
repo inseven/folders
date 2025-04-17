@@ -29,7 +29,7 @@
 		D85AC0D92BAE217F003CAE8F /* CollectionViewNavigationResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = D85AC0D82BAE217F003CAE8F /* CollectionViewNavigationResult.swift */; };
 		D85C07B12B7EBC3A00C8BAA6 /* FolderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D85C07B02B7EBC3A00C8BAA6 /* FolderView.swift */; };
 		D85D9F522C9A868F00178F10 /* Expression.swift in Sources */ = {isa = PBXBuildFile; fileRef = D85D9F512C9A868D00178F10 /* Expression.swift */; };
-		D870EC9E2B7EC47B00704688 /* FolderModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D870EC9D2B7EC47B00704688 /* FolderModel.swift */; };
+		D870EC9E2B7EC47B00704688 /* SelectionModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D870EC9D2B7EC47B00704688 /* SelectionModel.swift */; };
 		D870ECA12B7ED5D700704688 /* Algorithms in Frameworks */ = {isa = PBXBuildFile; productRef = D870ECA02B7ED5D700704688 /* Algorithms */; };
 		D870ECA42B7EDD8A00704688 /* Diligence in Frameworks */ = {isa = PBXBuildFile; productRef = D870ECA32B7EDD8A00704688 /* Diligence */; };
 		D870ECA72B7EDDD100704688 /* folders-license in Resources */ = {isa = PBXBuildFile; fileRef = D870ECA62B7EDDD100704688 /* folders-license */; };
@@ -118,7 +118,7 @@
 		D85C07B02B7EBC3A00C8BAA6 /* FolderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolderView.swift; sourceTree = "<group>"; };
 		D85D9F512C9A868D00178F10 /* Expression.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Expression.swift; sourceTree = "<group>"; };
 		D861A32F2B8EC22900A79214 /* Folders.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = Folders.xctestplan; sourceTree = "<group>"; };
-		D870EC9D2B7EC47B00704688 /* FolderModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolderModel.swift; sourceTree = "<group>"; };
+		D870EC9D2B7EC47B00704688 /* SelectionModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectionModel.swift; sourceTree = "<group>"; };
 		D870ECA62B7EDDD100704688 /* folders-license */ = {isa = PBXFileReference; lastKnownFileType = text; path = "folders-license"; sourceTree = "<group>"; };
 		D87653B02AC9F01600E8B65D /* Folders.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Folders.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D87653B32AC9F01600E8B65D /* FoldersApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoldersApp.swift; sourceTree = "<group>"; };
@@ -358,7 +358,7 @@
 				D89622DA2ACD394A006F7D2E /* ApplicationModel.swift */,
 				D88F05902DA5F225009EAB64 /* CheckForUpdatesViewModel.swift */,
 				D83312E82B77132B00B994B3 /* Details.swift */,
-				D870EC9D2B7EC47B00704688 /* FolderModel.swift */,
+				D870EC9D2B7EC47B00704688 /* SelectionModel.swift */,
 				D8F6A60C2B8D46720003B1A6 /* FolderSettings.swift */,
 				D8DDBCC32B2A0F8E003EAF4E /* PreviewItem.swift */,
 				D89622E52ACD42F2006F7D2E /* SceneModel.swift */,
@@ -568,7 +568,7 @@
 				D8DDBCC62B2A1317003EAF4E /* FileManager.swift in Sources */,
 				D89622DB2ACD394A006F7D2E /* ApplicationModel.swift in Sources */,
 				D89622E22ACD4200006F7D2E /* Sidebar.swift in Sources */,
-				D870EC9E2B7EC47B00704688 /* FolderModel.swift in Sources */,
+				D870EC9E2B7EC47B00704688 /* SelectionModel.swift in Sources */,
 				D8472A682B2518320070DB64 /* FixedItemSizeCollectionViewLayout.swift in Sources */,
 				D83EA9AC2DA8925B008DE7AE /* TagsView.swift in Sources */,
 				D8F6A6112B8D64BA0003B1A6 /* StorePublisher.swift in Sources */,
