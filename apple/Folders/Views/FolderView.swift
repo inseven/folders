@@ -29,26 +29,26 @@ struct FolderView: View {
 
     @Environment(\.openURL) var openURL
 
-    @StateObject var folderModel: SelectionModel
+    @StateObject var selectionModel: SelectionModel
 
     let filter: Filter
 
     init(applicationModel: ApplicationModel, filter: Filter = TrueFilter(), selection: Set<SidebarItem.ID>) {
-        _folderModel = StateObject(wrappedValue: SelectionModel(store: applicationModel.store, selection: selection))
+        _selectionModel = StateObject(wrappedValue: SelectionModel(store: applicationModel.store, selection: selection))
         self.filter = filter
     }
 
     var body: some View {
         GridView(sceneModel: sceneModel, store: applicationModel.store, filter: filter)
-            .navigationTitle(folderModel.title)
-            .presents($folderModel.error)
+            .navigationTitle(selectionModel.title)
+            .presents($selectionModel.error)
             .onAppear {
-                folderModel.start()
+                selectionModel.start()
             }
             .onDisappear {
-                folderModel.stop()
+                selectionModel.stop()
             }
-            .focusedSceneObject(folderModel)
+            .focusedSceneObject(selectionModel)
     }
 
 }
