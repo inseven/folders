@@ -26,9 +26,30 @@ import Yams
 
 struct FolderSettings: Codable {
 
-    struct Link: Codable {
+    struct Link: Codable, Identifiable {
+
+        enum CodingKeys: CodingKey {
+            case url
+            case title
+        }
+
+        let id: UUID
         let url: URL
         let title: String?
+
+        init(from decoder: any Decoder) throws {
+            let container: KeyedDecodingContainer<FolderSettings.Link.CodingKeys> = try decoder.container(keyedBy: FolderSettings.Link.CodingKeys.self)
+            self.id = UUID()
+            self.url = try container.decode(URL.self, forKey: FolderSettings.Link.CodingKeys.url)
+            self.title = try container.decodeIfPresent(String.self, forKey: FolderSettings.Link.CodingKeys.title)
+        }
+
+        func encode(to encoder: any Encoder) throws {
+            var container = encoder.container(keyedBy: FolderSettings.Link.CodingKeys.self)
+            try container.encode(self.url, forKey: FolderSettings.Link.CodingKeys.url)
+            try container.encodeIfPresent(self.title, forKey: FolderSettings.Link.CodingKeys.title)
+        }
+
     }
 
     let links: [Link]

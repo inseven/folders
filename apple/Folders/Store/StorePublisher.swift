@@ -23,6 +23,7 @@
 import Combine
 import Foundation
 
+// TODO: I think this should use `StoreFilesView` to get an initial value
 struct StorePublisher: Publisher {
 
     class Subscription<Target: Subscriber>: NSObject,

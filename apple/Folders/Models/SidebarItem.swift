@@ -93,3 +93,13 @@ extension Array where Element == SidebarItem {
     }
 
 }
+
+extension Array where Element == SidebarItem.Kind {
+
+    func sorted() -> [SidebarItem.Kind] {
+        return sorted { lhs, rhs in
+            return lhs.displayName.localizedStandardCompare(rhs.displayName) == .orderedAscending
+        }
+    }
+
+}

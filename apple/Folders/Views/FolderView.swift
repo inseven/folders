@@ -39,40 +39,16 @@ struct FolderView: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            GridView(sceneModel: sceneModel, store: applicationModel.store, filter: filter)
-            if let links = folderModel.settings?.links {
-                Divider()
-                HStack {
-                    ForEach(links, id: \.title) { link in
-                        Button {
-                            openURL(link.url)
-                        } label: {
-                            Text(link.title ?? link.url.absoluteString)
-                        }
-                        .buttonStyle(.link)
-                        .onHover { hover in
-                            if hover {
-                                NSCursor.pointingHand.push()
-                            } else {
-                                NSCursor.pop()
-                            }
-                        }
-                    }
-                }
-                .padding(8)
-                .background(.thinMaterial)
+        GridView(sceneModel: sceneModel, store: applicationModel.store, filter: filter)
+            .navigationTitle(folderModel.title)
+            .presents($folderModel.error)
+            .onAppear {
+                folderModel.start()
             }
-        }
-        .navigationTitle(folderModel.title)
-        .presents($folderModel.error)
-        .onAppear {
-            folderModel.start()
-        }
-        .onDisappear {
-            folderModel.stop()
-        }
-        .focusedSceneObject(folderModel)
+            .onDisappear {
+                folderModel.stop()
+            }
+            .focusedSceneObject(folderModel)
     }
 
 }

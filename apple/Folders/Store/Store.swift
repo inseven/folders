@@ -390,8 +390,6 @@ class Store {
                 \(sort.sql)
             """
 
-        print(selectQuery)
-
         return try connection.prepareRowIterator(selectQuery, bindings: filter.sql.1)
             .map { row in
                 let type = UTType(row[Schema.type])!

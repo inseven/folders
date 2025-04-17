@@ -25,8 +25,8 @@ import SwiftUI
 
 class SelectionModel: ObservableObject {
 
-    @Published var settings: FolderSettings?
-    @Published var error: Error?
+    @Published var settings: [URL: FolderSettings] = [:]
+    @Published var error: Error?  // TODO: List of errors?
 
     let store: Store
     let identifiers: [SidebarItem.Kind]
@@ -43,55 +43,57 @@ class SelectionModel: ObservableObject {
         self.store = store
         self.identifiers = Array(selection)
 
-        // TODO: Support combining metadata when multiple sidebar items are selected
-        // This is responsible for selecting the settings urls which are then used to look up display information about
-        // the currently selected folders.
-        self.settingsURLs = selection.compactMap { sidebarItem in
-            switch sidebarItem {
-            case .owner(let identifier), .folder(let identifier):
-                return identifier.url.appendingPathComponent("folders-settings.yaml")
-            case .tag:
-                return nil
+        // Get the relevant settings URLs for the current selection.
+        self.settingsURLs = Array(selection)
+            .sorted()
+            .compactMap { sidebarItem in
+                switch sidebarItem {
+                case .owner(let identifier), .folder(let identifier):
+                    return identifier.url.appendingPathComponent("folders-settings.yaml")
+                case .tag:
+                    return nil
+                }
             }
-        }
     }
 
     func start() {
 
-        // Only load folder settings if a single folder is selected.
-        guard let settingsURL = settingsURLs.first else {
-            return
-        }
-
-        store
-            .publisher(filter: .url(settingsURL))
-            .receive(on: DispatchQueue.main)
-            .sink { operation in
-                switch operation {
-                case .add, .update:
-                    do {
-                        self.settings = try FolderSettings(contentsOf: settingsURL)
-                    } catch {
-                        self.error = error
-                    }
-                case .remove:
-                    self.settings = nil
-                case .addTags:
-                    break
-                case .removeTags:
-                    break
+        // Observe the changes for all relevant settings files.
+        Publishers.MergeMany(settingsURLs.map { settingsURL in
+            return store
+                .publisher(filter: .url(settingsURL))
+        })
+        .receive(on: DispatchQueue.main)
+        .sink { operation in
+            switch operation {
+            case .add(let files), .update(let files):
+                let file = files.first!
+                do {
+                    self.settings[file.url] = try FolderSettings(contentsOf: file.url)
+                } catch {
+                    self.error = error
                 }
+            case .remove(let identifiers):
+                let identifier = identifiers.first!
+                self.settings.removeValue(forKey: identifier.url)
+            case .addTags:
+                break
+            case .removeTags:
+                break
             }
-            .store(in: &cancellables)
+        }
+        .store(in: &cancellables)
 
         // Load the contents of the settings file.
-        // TODO: It would be great if we didn't have to do this initial load.
-        // TODO: Perhaps we should show the error for loading files inline rather than modally to make it easier to recover from.
-        guard FileManager.default.fileExists(atPath: settingsURL.path) else {
-            return
-        }
+        // TODO: Update the store publisher to include the initial state (just like `StoreFilesView`).
         do {
-            self.settings = try FolderSettings(contentsOf: settingsURL)
+            // TODO: Don't fail to load all files if just one is malformed.
+            for settingsURL in settingsURLs {
+                guard FileManager.default.fileExists(atPath: settingsURL.path) else {
+                    continue
+                }
+                self.settings[settingsURL] = try FolderSettings(contentsOf: settingsURL)
+            }
         } catch {
             self.error = error
         }

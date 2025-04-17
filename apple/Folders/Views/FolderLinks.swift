@@ -33,7 +33,7 @@ struct FolderLinks: View {
     }
 
     var body: some View {
-        ForEach(folderSettings.links, id: \.url) { link in
+        ForEach(folderSettings.links) { link in
             Button {
                 openURL(link.url)
             } label: {
