@@ -5,10 +5,10 @@
 	path = scripts/build-tools
 	url = https://github.com/jbmorley/build-tools.git
 [submodule "diligence"]
-	path = apple/diligence
+	path = apple/dependencies/diligence
 	url = git@github.com:inseven/diligence.git
 [submodule "interact"]
-	path = apple/interact
+	path = apple/dependencies/interact
 	url = git@github.com:inseven/interact.git
 [submodule "scripts/Sparkle"]
 	path = scripts/Sparkle
