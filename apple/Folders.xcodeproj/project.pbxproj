@@ -927,11 +927,11 @@
 /* Begin XCLocalSwiftPackageReference section */
 		D870ECA22B7EDD8A00704688 /* XCLocalSwiftPackageReference "diligence" */ = {
 			isa = XCLocalSwiftPackageReference;
-			relativePath = diligence;
+			relativePath = dependencies/diligence;
 		};
 		D870ECA82B7EDE0700704688 /* XCLocalSwiftPackageReference "interact" */ = {
 			isa = XCLocalSwiftPackageReference;
-			relativePath = interact;
+			relativePath = dependencies/interact;
 		};
 /* End XCLocalSwiftPackageReference section */
 

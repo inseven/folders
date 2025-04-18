@@ -32,4 +32,4 @@ export PYTHONPATH=$PYTHONUSERBASE
 
 export PATH=$PATH:"$SCRIPTS_DIRECTORY/changes"
 export PATH=$PATH:"$SCRIPTS_DIRECTORY/build-tools"
-export PATH=$PATH:"$ROOT_DIRECTORY/apple/diligence/scripts"
+export PATH=$PATH:"$ROOT_DIRECTORY/apple/dependencies/diligence/scripts"
