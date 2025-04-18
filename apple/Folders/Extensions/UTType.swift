@@ -33,6 +33,10 @@ extension UTType {
         return UTType(filenameExtension: "cbz")!
     }
 
+    static var m4v: Self {
+        return UTType(filenameExtension: "m4v")!
+    }
+
     static var mkv: Self {
         return UTType(filenameExtension: "mkv")!
     }
