@@ -40,8 +40,8 @@ struct LibraryView: View {
                 return identifierFilter(identifier: identifier) && defaultTypesFilter()
             case .folder(let identifier):
                 return identifierFilter(identifier: identifier) && defaultTypesFilter()
-            case .tag(let name):
-                return AnyFilter(.tag(name) && defaultTypesFilter())
+            case .tag(let tag):
+                return AnyFilter(.tag(tag) && defaultTypesFilter())
             }
         })
     }

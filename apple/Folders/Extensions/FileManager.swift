@@ -30,10 +30,12 @@ extension FileManager {
         precondition(directoryURL.hasDirectoryPath)
         precondition(ownerURL?.hasDirectoryPath ?? true)
         let date = Date()
+        // TODO: Am I using this?
         let resourceKeys = Set<URLResourceKey>([.nameKey,
                                                 .isDirectoryKey,
                                                 .contentTypeKey,
-                                                .contentModificationDateKey])
+                                                .contentModificationDateKey,
+                                                .tagNamesKey])
         let directoryEnumerator = enumerator(at: directoryURL,
                                              includingPropertiesForKeys: Array(resourceKeys),
                                              options: [.skipsHiddenFiles])!
@@ -46,12 +48,14 @@ extension FileManager {
                 print("Failed to determine content type for \(fileURL).")
                 continue
             }
+
+            let finderTags = Set(((try fileURL.tagNames) ?? []).map { Tag(source: .finder, name: $0) })
             files.append(Details(uuid: UUID(),
                                  ownerURL: ownerURL ?? directoryURL,
                                  url: fileURL,
                                  contentType: contentType,
                                  contentModificationDate: contentModificationDate.millisecondsSinceReferenceDate,
-                                 tags: Extractor.tags(for: fileURL)))
+                                 tags: Extractor.tags(for: fileURL).union(finderTags)))
         }
 
         let duration = date.distance(to: Date())
@@ -73,12 +77,15 @@ extension FileManager {
             throw FoldersError.general("Unable to get content modification date for file '\(url.path)'.")
         }
 
+        // TODO: Common implementation.
+        let finderTags = Set(((try url.tagNames) ?? []).map { Tag(source: .finder, name: $0) })
+
         return Details(uuid: UUID(),
                        ownerURL: owner,
                        url: url,
                        contentType: isDirectory ? .directory : contentType,
                        contentModificationDate: contentModificationDate.millisecondsSinceReferenceDate,
-                       tags: Extractor.tags(for: url))
+                       tags: Extractor.tags(for: url).union(finderTags))
     }
 
 }

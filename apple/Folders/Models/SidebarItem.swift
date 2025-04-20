@@ -37,7 +37,7 @@ class SidebarItem: Hashable, Identifiable, Equatable {
     enum Kind: Hashable {
         case owner(Details.Identifier)
         case folder(Details.Identifier)
-        case tag(String)
+        case tag(Tag)
     }
 
     public var id: Kind {
@@ -66,8 +66,8 @@ extension SidebarItem.Kind {
             return id.url.displayName
         case .folder(let id):
             return id.url.displayName
-        case .tag(let name):
-            return name
+        case .tag(let tag):
+            return tag.name
         }
     }
 

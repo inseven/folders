@@ -273,7 +273,7 @@ class Store {
                                                                     Schema.modificationDate <- file.contentModificationDate))
 
                 // Create and link the tags if they're non-nil.
-                if let tags = file.tags?.map({ Tag(source: .filename, name: $0) }) {
+                if let tags = file.tags {
                     for tag in tags {
                         var isNew: Bool = false
                         let tagId = try syncQueue_fetchOrInsertTag(tag: tag, isNew: &isNew)
@@ -307,25 +307,60 @@ class Store {
 
     // TODO: Support updating tags.
     // TODO: Check where this is actually used.
+    // TODO: Should this fail if we try to update something that doesn't exist?
     func syncQueue_update(files: any Collection<Details>) throws {
         dispatchPrecondition(condition: .onQueue(syncQueue))
         try connection.transaction {
             var updates = [Details]()
+            var tagInsertions: [Tag] = []
+            // TODO: Tag deletions.
+
             for file in files {
                 let row = Schema.files.filter(Schema.uuid == file.uuid)
+                let fileId = try connection.pluck(row)!.get(Schema.id)  // TODO: Error if the row doesn't exist.
                 let count = try connection.run(row.update(Schema.owner <- file.ownerURL.path,
                                                           Schema.path <- file.url.path,
                                                           Schema.name <- file.url.displayName,
                                                           Schema.type <- file.contentType.identifier,
                                                           Schema.modificationDate <- file.contentModificationDate))
+
+                // Delete the existing tags.
+                try connection.run(Schema.filesToTags
+                    .filter(Schema.fileId == fileId)
+                    .delete())
+
+                // Create and link the tags if they're non-nil.
+                if let tags = file.tags {
+                    for tag in tags {
+                        var isNew: Bool = false
+                        let tagId = try syncQueue_fetchOrInsertTag(tag: tag, isNew: &isNew)
+                        try connection.run(Schema.filesToTags.insert(or: .replace,
+                                                                     Schema.fileId <- fileId,
+                                                                     Schema.tagId <- tagId))
+                        if isNew {
+                            tagInsertions.append(tag)
+                        }
+                    }
+                }
                 if count > 0 {
                     updates.append(file)
                 }
             }
+
+            let tagRemovals = try self.syncQueue_pruneTags()
+
             observerLock.withLock {
                 for observer in observers {
                     DispatchQueue.global(qos: .default).async {
-                        observer.store(self, didUpdateFiles: updates)
+                        if !updates.isEmpty {
+                            observer.store(self, didUpdateFiles: updates)
+                        }
+                        if !tagRemovals.isEmpty {
+                            observer.store(self, didRemoveTags: tagRemovals)
+                        }
+                        if !tagInsertions.isEmpty {
+                            observer.store(self, didInsertTags: tagInsertions)
+                        }
                     }
                 }
             }

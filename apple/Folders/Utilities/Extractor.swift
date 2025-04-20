@@ -24,7 +24,7 @@ import Foundation
 
 struct Extractor {
 
-    static func tags(for url: URL) -> Set<String> {
+    static func tags(for url: URL) -> Set<Tag> {
         let hashtags = (url.path.deletingPathExtension as NSString)
             .pathComponents
             .map({ component in
@@ -34,6 +34,7 @@ struct Extractor {
                     .map { String($0.dropFirst()) }
             })
             .flatMap { $0 }
+            .map { Tag(source: .filename, name: $0) }
         return Set(hashtags)
     }
 
