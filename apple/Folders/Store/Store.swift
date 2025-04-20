@@ -25,20 +25,17 @@ import UniformTypeIdentifiers
 
 import SQLite
 
-// TODO: Am I conflating the store with its threading architecture here? Should the queue management happen externally?
-// TODO: Are all the operations actually blocking??? I think they might be. Which definitley makes things easier.
-// TODO: Prepared queries for performance?
+// TODO: Explore whether prepared queries improve performance.
 class Store {
 
-    // TODO: File Observer and tag observer?
     protocol Observer: NSObject {
 
         func store(_ store: Store, didInsertFiles files: [Details])
         func store(_ store: Store, didUpdateFiles files: [Details])
         func store(_ store: Store, didRemoveFilesWithIdentifiers identifiers: [Details.Identifier])
 
-        func store(_ store: Store, didInsertTags tags: [String])
-        func store(_ store: Store, didRemoveTags tags: [String])
+        func store(_ store: Store, didInsertTags tags: [Tag])
+        func store(_ store: Store, didRemoveTags tags: [Tag])
 
     }
 
@@ -58,10 +55,11 @@ class Store {
         static let name = Expression<String>("name")
         static let type = Expression<String>("type")
         static let modificationDate = Expression<Int>("modification_date")
+        static let source = Expression<Tag.Source>("source")
     }
 
     // TODO: This represents an external management of the database an should probably be moved out.
-    static let majorVersion = 49
+    static let majorVersion = 53
 
     private var observers: [Observer] = []
 
@@ -88,7 +86,9 @@ class Store {
             print("create the tags table...")
             try connection.run(Schema.tags.create(ifNotExists: true) { t in
                 t.column(Schema.id, primaryKey: true)
+                t.column(Schema.source)
                 t.column(Schema.name, unique: true)
+                t.unique(Schema.source, Schema.name)
             })
             print("create the files_to_tags table...")
             try connection.run(Schema.filesToTags.create(ifNotExists: true) { t in
@@ -164,41 +164,49 @@ class Store {
         }
     }
 
-    // TODO: Cleaner return type.
     // N.B. This function does not make any effort to notify observers to allow batching of insertion notifications.
     //      One possible way to improve on this and make it a little less likely that callers forget to notify our
     //      observers of new tags would be to make it take an array of items to insert. Or perhaps we could
     //      use the transaction archtiecture to track and batch notifications and then automatically dispatch them at
     //      the close of a transaction.
     // TODO: Cache tag identifiers to avoid unnecessary database queries when inserting tags.
-    private func syncQueue_fetchOrInsertTag(name: String) throws -> (Int64, Bool) {
+    private func syncQueue_fetchOrInsertTag(tag: Tag, isNew: inout Bool) throws -> Int64 {
         dispatchPrecondition(condition: .onQueue(syncQueue))
-        if let id = try? syncQueue_tag(name: name) {
-            return (id, false)
+        if let id = try? syncQueue_tag(tag: tag) {
+            isNew = false
+            return id
         }
         let id = try connection.run(Schema.tags.insert(
-            Schema.name <- name
+            Schema.source <- tag.source,
+            Schema.name <- tag.name
         ))
-        return (id, true)
+        isNew = true
+        return id
     }
 
-    private func syncQueue_tag(name: String) throws -> Int64 {
+    private func syncQueue_tag(tag: Tag) throws -> Int64 {
         dispatchPrecondition(condition: .onQueue(syncQueue))
-        let results = try connection.prepare(Schema.tags.filter(Schema.name == name).limit(1)).map { row in
+        let results = try connection.prepare(
+            Schema.tags
+                .filter(Schema.source == tag.source)
+                .filter(Schema.name == tag.name)
+                .limit(1)
+        ).map { row in
             try row.get(Schema.id)
         }
         guard let result = results.first else {
-            throw FoldersError.unknownTag(name)
+            throw FoldersError.unknownTag(tag)
         }
         return result
     }
 
-    private func syncQueue_pruneTags() throws -> [String] {
+    private func syncQueue_pruneTags() throws -> [Tag] {
         dispatchPrecondition(condition: .onQueue(syncQueue))
 
         // Look up the set of tags we're about to delete so we can return them to the caller.
         let deletions = try self.connection.prepare("""
             SELECT
+                source,
                 name
             FROM
                 tags
@@ -209,8 +217,9 @@ class Store {
                     FROM
                         files_to_tags
                 )            
-        """).map { row in
-            return row[0] as! String
+        """).map { row -> Tag in
+            return Tag(source: Tag.Source(rawValue: Int(row[0] as! Int64))!,
+                       name: row[1] as! String)
         }
 
         guard !deletions.isEmpty else {
@@ -244,7 +253,7 @@ class Store {
         try connection.transaction {
 
             var insertions: [Details] = []
-            var tagInsertions: [String] = []
+            var tagInsertions: [Tag] = []
             for file in files {  // TODO: Consistent naming.
 
                 // Check to see if the URL exists already.
@@ -264,9 +273,10 @@ class Store {
                                                                     Schema.modificationDate <- file.contentModificationDate))
 
                 // Create and link the tags if they're non-nil.
-                if let tags = file.tags {
+                if let tags = file.tags?.map({ Tag(source: .filename, name: $0) }) {
                     for tag in tags {
-                        let (tagId, isNew) = try syncQueue_fetchOrInsertTag(name: tag)
+                        var isNew: Bool = false
+                        let tagId = try syncQueue_fetchOrInsertTag(tag: tag, isNew: &isNew)
                         try connection.run(Schema.filesToTags.insert(or: .replace,
                                                                      Schema.fileId <- fileId,
                                                                      Schema.tagId <- tagId))
@@ -407,12 +417,14 @@ class Store {
             }
     }
 
-    fileprivate func syncQueue_tags() throws -> [String] {
+    fileprivate func syncQueue_tags() throws -> [Tag] {
         dispatchPrecondition(condition: .onQueue(syncQueue))
-        return try connection.prepareRowIterator(Schema.tags.select(Schema.name)
-            .order(Store.Schema.name.asc))
+        return try connection.prepareRowIterator(
+            Schema.tags
+                .select(Schema.source, Schema.name)
+                .order(Store.Schema.name.asc))
         .map { row in
-            row[Schema.name]
+            Tag(source: row[Schema.source], name: row[Schema.name])
         }
     }
 
@@ -438,7 +450,7 @@ extension Store {
         }
     }
 
-    func tags() throws -> [String] {
+    func tags() throws -> [Tag] {
         return try run {
             return try self.syncQueue_tags()
         }

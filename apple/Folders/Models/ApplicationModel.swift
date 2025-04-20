@@ -37,7 +37,7 @@ class ApplicationModel: NSObject, ObservableObject {
     @Published var locations: [Details.Identifier]
     @Published var lookup: [Details.Identifier: SidebarItem] = [:]
     @Published var dynamicSidebarItems: [SidebarItem] = []
-    @Published var tags: [String] = []
+    @Published var tags: [Tag] = []
 
     var cancellables = Set<AnyCancellable>()
     let updaterController = SPUStandardUpdaterController(startingUpdater: false,
@@ -254,17 +254,17 @@ extension ApplicationModel: StoreFilesViewDelegate {
 
 extension ApplicationModel: TagsViewDelegate {
 
-    func tagsView(_ tagsView: TagsView, didUpdateTags tags: [String]) {
+    func tagsView(_ tagsView: TagsView, didUpdateTags tags: [Tag]) {
         dispatchPrecondition(condition: .onQueue(.main))
         self.tags = tags
     }
     
-    func tagsView(_ tagsView: TagsView, didInsertTag tag: String, atIndex index: Int, tags: [String]) {
+    func tagsView(_ tagsView: TagsView, didInsertTag tag: Tag, atIndex index: Int, tags: [Tag]) {
         dispatchPrecondition(condition: .onQueue(.main))
         self.tags = tags
     }
     
-    func tagsView(_ tagsView: TagsView, didRemoveTag tag: String, atIndex index: Int, tags: [String]) {
+    func tagsView(_ tagsView: TagsView, didRemoveTag tag: Tag, atIndex index: Int, tags: [Tag]) {
         dispatchPrecondition(condition: .onQueue(.main))
         self.tags = tags
     }

@@ -231,11 +231,11 @@ class StoreFilesView: NSObject, Store.Observer {
         }
     }
 
-    func store(_ store: Store, didInsertTags tags: [String]) {
+    func store(_ store: Store, didInsertTags tags: [Tag]) {
         // Do nothing.
     }
 
-    func store(_ store: Store, didRemoveTags tags: [String]) {
+    func store(_ store: Store, didRemoveTags tags: [Tag]) {
         // Do nothing.
     }
 

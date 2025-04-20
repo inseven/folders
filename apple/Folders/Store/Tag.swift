@@ -22,11 +22,39 @@
 
 import Foundation
 
-enum FoldersError: Error {
+import SQLite
 
-    case general(String)
-    case unknownSchemaVersion(Int32)
-    case unknownTag(Tag)
-    case unknownTagSource(Int64)
+struct Tag: Hashable {
+
+    enum Source: Int {
+        case filename = 0
+        case finder = 1
+    }
+
+    init(source: Source, name: String) {
+        self.source = source
+        self.name = name
+    }
+
+    let source: Source
+    let name: String
+
+}
+
+extension Tag.Source: Value {
+
+    typealias Datatype = Int64
+    static var declaredDatatype: String = "INTEGER"
+
+    static func fromDatatypeValue(_ datatypeValue: Int64) throws -> Tag.Source {
+        guard let value = Self(rawValue: Int(datatypeValue)) else {
+            throw FoldersError.unknownTagSource(datatypeValue)
+        }
+        return value
+    }
+
+    var datatypeValue: Int64 {
+        return Int64(self.rawValue)
+    }
 
 }
