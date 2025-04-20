@@ -20,43 +20,23 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-import Foundation
+import SwiftUI
 
-import SQLite
+struct ColorIndicator: View {
 
-struct Tag: Hashable {
-
-    enum Source: Int {
-        case filename = 0
-        case finder = 1
+    struct LayoutMetrics {
+        static let size = 12.0
     }
 
-    init(source: Source, name: String, colorIndex: Int = 0) {
-        self.source = source
-        self.name = name
-        self.colorIndex = colorIndex
-    }
+    let color: Color?
 
-    let source: Source
-    let name: String
-    let colorIndex: Int
-
-}
-
-extension Tag.Source: Value {
-
-    typealias Datatype = Int64
-    static var declaredDatatype: String = "INTEGER"
-
-    static func fromDatatypeValue(_ datatypeValue: Int64) throws -> Tag.Source {
-        guard let value = Self(rawValue: Int(datatypeValue)) else {
-            throw FoldersError.unknownTagSource(datatypeValue)
-        }
-        return value
-    }
-
-    var datatypeValue: Int64 {
-        return Int64(self.rawValue)
+    var body: some View {
+        Circle()
+            .fill(color ?? .clear)
+            .overlay(Circle()
+                .stroke(color ?? .secondary, lineWidth: 1)
+                .brightness(-0.1))
+            .frame(width: LayoutMetrics.size, height: LayoutMetrics.size)
     }
 
 }
