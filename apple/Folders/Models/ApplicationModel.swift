@@ -81,7 +81,7 @@ class ApplicationModel: NSObject, ObservableObject {
             StoreUpdater(store: store, url: url)
         }
 
-        self.directoriesView = StoreFilesView(store: store, filter: .conforms(to: .directory) || .conforms(to: .folder))
+        self.directoriesView = StoreFilesView(store: store, filter: .conforms(to: [.directory, .folder]))
         self.tagsView = TagsView(store: store)
 
         super.init()

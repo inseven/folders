@@ -66,14 +66,6 @@ extension AnyFilter {
 
 }
 
-extension Filter where Self == TypeFilter {
-
-    static func conforms(to type: UTType) -> TypeFilter {
-        return TypeFilter.conformsTo(type)
-    }
-
-}
-
 extension Filter where Self == ParentFilter {
 
     static func parent(_ url: URL) -> ParentFilter {
@@ -159,9 +151,32 @@ func ||<A: Filter, B: Filter>(lhs: A, rhs: B) -> OrFilter<A, B> {
     return OrFilter(lhs, rhs)
 }
 
-enum TypeFilter {
+struct TypeFilter: Filter {
 
-    case conformsTo(UTType)
+    let types: Set<UTType>
+
+    init(types: Set<UTType>) {
+        self.types = types
+    }
+
+    var sql: (String, [(any Binding)?]) {
+        let matches = types
+            .map { _ in "type = ?" }
+            .joined(separator: " OR ")
+        return (matches, types.map({ $0.identifier }))
+    }
+
+    func matches(details: Details) -> Bool {
+        return types.contains(details.contentType)
+    }
+
+}
+
+extension Filter where Self == TypeFilter {
+
+    static func conforms(to types: Set<UTType>) -> TypeFilter {
+        return TypeFilter(types: types)
+    }
 
 }
 
@@ -273,46 +288,30 @@ extension Filter where Self == TagFilter {
 
 }
 
-extension TypeFilter: Filter {
-
-    var sql: (String, [Binding?]) {
-        switch self {
-        case .conformsTo(let contentType):
-            return ("type = ?", [contentType.identifier])
-        }
-    }
-
-    func matches(details: Details) -> Bool {
-        switch self {
-        case .conformsTo(let contentType):
-            return details.contentType == contentType
-        }
-    }
-
-}
-
-func defaultTypesFilter() -> AnyFilter {
-    return AnyFilter(.conforms(to: .pdf)
-                     || .conforms(to: .jpeg)
-                     || .conforms(to: .gif)
-                     || .conforms(to: .png)
-                     || .conforms(to: .video)
-                     || .conforms(to: .mpeg4Movie)
-                     || .conforms(to: .cbr)
-                     || .conforms(to: .cbz)
-                     || .conforms(to: .stl)
-                     || .conforms(to: .mp3)
-                     || .conforms(to: .tap)
-                     || .conforms(to: .mkv)
-                     || .conforms(to: .mov)
-                     || .conforms(to: .bmp)
-                     || .conforms(to: .webP)
-                     || .conforms(to: .ico)
-                     || .conforms(to: .avi)
-                     || .conforms(to: .pbm)
-                     || .conforms(to: .m4v)
-                     || .conforms(to: .svg)
-                     || .conforms(to: .tiff))
+func defaultTypesFilter() -> TypeFilter {
+    return TypeFilter(types: [
+        .avi,
+        .bmp,
+        .cbr,
+        .cbz,
+        .gif,
+        .ico,
+        .jpeg,
+        .m4v,
+        .mkv,
+        .mov,
+        .mp3,
+        .mpeg4Movie,
+        .pbm,
+        .pdf,
+        .png,
+        .stl,
+        .svg,
+        .tap,
+        .tiff,
+        .video,
+        .webP,
+    ])
 }
 
 func defaultFilter(owner ownerURL: URL, parent parentURL: URL) -> Filter {
