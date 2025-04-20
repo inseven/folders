@@ -492,8 +492,8 @@
 				D82B957D2B231A7900C8B6FB /* XCRemoteSwiftPackageReference "SQLite.swift" */,
 				D82B95822B23DC2B00C8B6FB /* XCRemoteSwiftPackageReference "FSEventsWrapper" */,
 				D870EC9F2B7ED5D700704688 /* XCRemoteSwiftPackageReference "swift-algorithms" */,
-				D870ECA22B7EDD8A00704688 /* XCLocalSwiftPackageReference "diligence" */,
-				D870ECA82B7EDE0700704688 /* XCLocalSwiftPackageReference "interact" */,
+				D870ECA22B7EDD8A00704688 /* XCLocalSwiftPackageReference "dependencies/diligence" */,
+				D870ECA82B7EDE0700704688 /* XCLocalSwiftPackageReference "dependencies/interact" */,
 				D8F6A6072B8D3D7E0003B1A6 /* XCRemoteSwiftPackageReference "Yams" */,
 				D88CD7652DA5AC1B00287F6A /* XCRemoteSwiftPackageReference "Sparkle" */,
 			);
@@ -929,11 +929,11 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		D870ECA22B7EDD8A00704688 /* XCLocalSwiftPackageReference "diligence" */ = {
+		D870ECA22B7EDD8A00704688 /* XCLocalSwiftPackageReference "dependencies/diligence" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = dependencies/diligence;
 		};
-		D870ECA82B7EDE0700704688 /* XCLocalSwiftPackageReference "interact" */ = {
+		D870ECA82B7EDE0700704688 /* XCLocalSwiftPackageReference "dependencies/interact" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = dependencies/interact;
 		};
