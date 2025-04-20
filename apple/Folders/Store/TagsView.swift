@@ -29,15 +29,15 @@ import Algorithms
 protocol TagsViewDelegate: NSObject {
 
     func tagsView(_ tagsView: TagsView,
-                  didUpdateTags tags: [String])
+                  didUpdateTags tags: [Tag])
     func tagsView(_ tagsView: TagsView,
-                  didInsertTag tag: String,
+                  didInsertTag tag: Tag,
                   atIndex index: Int,
-                  tags: [String])
+                  tags: [Tag])
     func tagsView(_ tagsView: TagsView,
-                  didRemoveTag tag: String,
+                  didRemoveTag tag: Tag,
                   atIndex index: Int,
-                  tags: [String])
+                  tags: [Tag])
 
 }
 
@@ -47,7 +47,7 @@ class TagsView: NSObject, Store.Observer {
     let workQueue = DispatchQueue(label: "StoreView.workQueue", qos: .userInteractive)
     let threshold: Int
     private var isRunning: Bool = false  // Synchronized on workQueue
-    private var tags: [String] = []  // Synchronized on workQueue
+    private var tags: [Tag] = []  // Synchronized on workQueue
 
     weak var delegate: TagsViewDelegate? = nil
 
@@ -101,7 +101,7 @@ class TagsView: NSObject, Store.Observer {
         // Do nothing.
     }
 
-    func store(_ store: Store, didInsertTags tags: [String]) {
+    func store(_ store: Store, didInsertTags tags: [Tag]) {
         dispatchPrecondition(condition: .notOnQueue(.main))
         workQueue.async {
             guard self.isRunning else {
@@ -125,7 +125,7 @@ class TagsView: NSObject, Store.Observer {
             if tags.count < self.threshold {
                 for tag in tags {
                     let index = self.tags.partitioningIndex {
-                        return tag.localizedCaseInsensitiveCompare($0) == .orderedAscending
+                        return tag.name.localizedCaseInsensitiveCompare($0.name) == .orderedAscending
                     }
                     self.tags.insert(tag, at: index)
                     let snapshot = self.tags
@@ -137,11 +137,11 @@ class TagsView: NSObject, Store.Observer {
                 if self.tags.isEmpty {
                     // If the list of tags is empty (e.g., in the case of an initial load), we can sort the tags and
                     // simply set the new value.
-                    self.tags = tags.sorted { $0.localizedCaseInsensitiveCompare($1) == .orderedAscending }
+                    self.tags = tags.sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
                 } else {
                     for tag in tags {
                         let index = self.tags.partitioningIndex {
-                            return tag.localizedCaseInsensitiveCompare($0) == .orderedAscending
+                            return tag.name.localizedCaseInsensitiveCompare($0.name) == .orderedAscending
                         }
                         self.tags.insert(tag, at: index)
                     }
@@ -154,7 +154,7 @@ class TagsView: NSObject, Store.Observer {
         }
     }
 
-    func store(_ store: Store, didRemoveTags tags: [String]) {
+    func store(_ store: Store, didRemoveTags tags: [Tag]) {
         dispatchPrecondition(condition: .notOnQueue(.main))
         workQueue.async {
             guard self.isRunning else {
