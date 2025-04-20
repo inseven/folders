@@ -66,14 +66,6 @@ extension AnyFilter {
 
 }
 
-extension Filter where Self == TypeFilter {
-
-    static func conforms(to type: UTType) -> TypeFilter {
-        return TypeFilter.conformsTo(type)
-    }
-
-}
-
 extension Filter where Self == ParentFilter {
 
     static func parent(_ url: URL) -> ParentFilter {
@@ -159,12 +151,6 @@ func ||<A: Filter, B: Filter>(lhs: A, rhs: B) -> OrFilter<A, B> {
     return OrFilter(lhs, rhs)
 }
 
-enum TypeFilter {
-
-    case conformsTo(UTType)
-
-}
-
 struct MultiTypeFilter: Filter {
 
     let types: Set<UTType>
@@ -182,6 +168,14 @@ struct MultiTypeFilter: Filter {
 
     func matches(details: Details) -> Bool {
         return types.contains(details.contentType)
+    }
+
+}
+
+extension Filter where Self == MultiTypeFilter {
+
+    static func conforms(to types: Set<UTType>) -> MultiTypeFilter {
+        return MultiTypeFilter(types: types)
     }
 
 }
@@ -290,24 +284,6 @@ extension Filter where Self == TagFilter {
 
     static func tag(_ name: String) -> TagFilter {
         return TagFilter(name: name)
-    }
-
-}
-
-extension TypeFilter: Filter {
-
-    var sql: (String, [Binding?]) {
-        switch self {
-        case .conformsTo(let contentType):
-            return ("type = ?", [contentType.identifier])
-        }
-    }
-
-    func matches(details: Details) -> Bool {
-        switch self {
-        case .conformsTo(let contentType):
-            return details.contentType == contentType
-        }
     }
 
 }
