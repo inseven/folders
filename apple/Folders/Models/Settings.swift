@@ -58,7 +58,6 @@ class Settings: ObservableObject {
                 rootURLs = urls
             } catch {
                 print("Failed to load sites with error \(error).")
-                print(error)
             }
         }
     }
