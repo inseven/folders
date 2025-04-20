@@ -68,6 +68,7 @@
 		D8DDBCC62B2A1317003EAF4E /* FileManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8DDBCC52B2A1317003EAF4E /* FileManager.swift */; };
 		D8DDBCC82B2A1582003EAF4E /* DirectoryScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8DDBCC72B2A1582003EAF4E /* DirectoryScanner.swift */; };
 		D8E27EA92DB478160033737C /* Tag.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8E27EA82DB478140033737C /* Tag.swift */; };
+		D8E27EAB2DB488CE0033737C /* BoundStatement.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8E27EAA2DB488CB0033737C /* BoundStatement.swift */; };
 		D8F349B52B8150690037D66A /* UTType.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F349B42B8150690037D66A /* UTType.swift */; };
 		D8F6A6092B8D3D7E0003B1A6 /* Yams in Frameworks */ = {isa = PBXBuildFile; productRef = D8F6A6082B8D3D7E0003B1A6 /* Yams */; };
 		D8F6A60B2B8D41F90003B1A6 /* yams-license in Resources */ = {isa = PBXBuildFile; fileRef = D8F6A60A2B8D41F90003B1A6 /* yams-license */; };
@@ -157,6 +158,7 @@
 		D8DDBCC52B2A1317003EAF4E /* FileManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileManager.swift; sourceTree = "<group>"; };
 		D8DDBCC72B2A1582003EAF4E /* DirectoryScanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DirectoryScanner.swift; sourceTree = "<group>"; };
 		D8E27EA82DB478140033737C /* Tag.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tag.swift; sourceTree = "<group>"; };
+		D8E27EAA2DB488CB0033737C /* BoundStatement.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoundStatement.swift; sourceTree = "<group>"; };
 		D8ED594E2B687FE800010FB3 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		D8F349B42B8150690037D66A /* UTType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UTType.swift; sourceTree = "<group>"; };
 		D8F6A60A2B8D41F90003B1A6 /* yams-license */ = {isa = PBXFileReference; lastKnownFileType = text; path = "yams-license"; sourceTree = "<group>"; };
@@ -227,6 +229,7 @@
 		D83EA9AA2DA88C64008DE7AE /* Store */ = {
 			isa = PBXGroup;
 			children = (
+				D8E27EAA2DB488CB0033737C /* BoundStatement.swift */,
 				D85D9F512C9A868D00178F10 /* Expression.swift */,
 				D83312E22B76FE4E00B994B3 /* Filter.swift */,
 				D814EA002B7EB620008BF46C /* Sort.swift */,
@@ -559,6 +562,7 @@
 				D8D6B6C62DAEFCD10002A6FC /* SceneToolbar.swift in Sources */,
 				D814EA012B7EB620008BF46C /* Sort.swift in Sources */,
 				D8DDBCC82B2A1582003EAF4E /* DirectoryScanner.swift in Sources */,
+				D8E27EAB2DB488CE0033737C /* BoundStatement.swift in Sources */,
 				D83EA9A92DA871A4008DE7AE /* Extractor.swift in Sources */,
 				D85AC0D72BAE2005003CAE8F /* NSCollectionView.swift in Sources */,
 				D8E27EA92DB478160033737C /* Tag.swift in Sources */,

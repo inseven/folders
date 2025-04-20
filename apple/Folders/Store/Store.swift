@@ -389,18 +389,20 @@ class Store {
     fileprivate func syncQueue_files(filter: Filter, sort: Sort) throws -> [Details] {
         dispatchPrecondition(condition: .onQueue(syncQueue))
 
+        let filterStatement = filter.statement
+
         let selectQuery = """
             SELECT
                 *
             FROM
                 files
             WHERE
-                \(filter.sql.0)
+                \(filterStatement.sql)
             ORDER BY
                 \(sort.sql)
             """
 
-        return try connection.prepareRowIterator(selectQuery, bindings: filter.sql.1)
+        return try connection.prepareRowIterator(selectQuery, bindings: filterStatement.bindings)
             .map { row in
                 let type = UTType(row[Schema.type])!
                 let ownerURL = URL(filePath: row[Schema.owner], directoryHint: .isDirectory)
