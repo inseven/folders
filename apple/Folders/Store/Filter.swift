@@ -165,6 +165,27 @@ enum TypeFilter {
 
 }
 
+struct MultiTypeFilter: Filter {
+
+    let types: Set<UTType>
+
+    init(types: Set<UTType>) {
+        self.types = types
+    }
+
+    var sql: (String, [(any Binding)?]) {
+        let matches = types
+            .map { _ in "type = ?" }
+            .joined(separator: " OR ")
+        return (matches, types.map({ $0.identifier }))
+    }
+
+    func matches(details: Details) -> Bool {
+        return types.contains(details.contentType)
+    }
+
+}
+
 struct ParentFilter: Filter {
 
     let parent: String
@@ -291,28 +312,30 @@ extension TypeFilter: Filter {
 
 }
 
-func defaultTypesFilter() -> AnyFilter {
-    return AnyFilter(.conforms(to: .pdf)
-                     || .conforms(to: .jpeg)
-                     || .conforms(to: .gif)
-                     || .conforms(to: .png)
-                     || .conforms(to: .video)
-                     || .conforms(to: .mpeg4Movie)
-                     || .conforms(to: .cbr)
-                     || .conforms(to: .cbz)
-                     || .conforms(to: .stl)
-                     || .conforms(to: .mp3)
-                     || .conforms(to: .tap)
-                     || .conforms(to: .mkv)
-                     || .conforms(to: .mov)
-                     || .conforms(to: .bmp)
-                     || .conforms(to: .webP)
-                     || .conforms(to: .ico)
-                     || .conforms(to: .avi)
-                     || .conforms(to: .pbm)
-                     || .conforms(to: .m4v)
-                     || .conforms(to: .svg)
-                     || .conforms(to: .tiff))
+func defaultTypesFilter() -> MultiTypeFilter {
+    return MultiTypeFilter(types: [
+        .avi,
+        .bmp,
+        .cbr,
+        .cbz,
+        .gif,
+        .ico,
+        .jpeg,
+        .m4v,
+        .mkv,
+        .mov,
+        .mp3,
+        .mpeg4Movie,
+        .pbm,
+        .pdf,
+        .png,
+        .stl,
+        .svg,
+        .tap,
+        .tiff,
+        .video,
+        .webP,
+    ])
 }
 
 func defaultFilter(owner ownerURL: URL, parent parentURL: URL) -> Filter {
