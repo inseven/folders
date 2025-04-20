@@ -151,7 +151,7 @@ func ||<A: Filter, B: Filter>(lhs: A, rhs: B) -> OrFilter<A, B> {
     return OrFilter(lhs, rhs)
 }
 
-struct MultiTypeFilter: Filter {
+struct TypeFilter: Filter {
 
     let types: Set<UTType>
 
@@ -172,10 +172,10 @@ struct MultiTypeFilter: Filter {
 
 }
 
-extension Filter where Self == MultiTypeFilter {
+extension Filter where Self == TypeFilter {
 
-    static func conforms(to types: Set<UTType>) -> MultiTypeFilter {
-        return MultiTypeFilter(types: types)
+    static func conforms(to types: Set<UTType>) -> TypeFilter {
+        return TypeFilter(types: types)
     }
 
 }
@@ -288,8 +288,8 @@ extension Filter where Self == TagFilter {
 
 }
 
-func defaultTypesFilter() -> MultiTypeFilter {
-    return MultiTypeFilter(types: [
+func defaultTypesFilter() -> TypeFilter {
+    return TypeFilter(types: [
         .avi,
         .bmp,
         .cbr,
