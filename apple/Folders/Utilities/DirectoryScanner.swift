@@ -78,7 +78,7 @@ class DirectoryScanner {
                         return
                     }
 
-                    print("File created at path '\(path)'")
+//                    print("File created at path '\(path)'")
 
                     onFileCreation([details])
                     self.identifiers[details.identifier] = details
@@ -96,7 +96,7 @@ class DirectoryScanner {
                         // that this rename actually represents a content modification operation; our file has been
                         // atomically replaced by a new file containing new content.
                         if let old = self.identifiers[details.identifier] {
-                            print("File updated by rename '\(url)'")
+//                            print("File updated by rename '\(url)'")
                             let update = old.setting(contentModificationDate: details.contentModificationDate,
                                                      tags: details.tags)
                             self.identifiers[details.identifier] = update
@@ -104,7 +104,7 @@ class DirectoryScanner {
                             return
                             // TODO: We should ensure we delete all our children if we're a directory.
                         } else {
-                            print("File added by rename '\(url)'")
+//                            print("File added by rename '\(url)'")
                         }
 
                         // We don't get notified about files contained within a directory, so we walk those explicitly.
@@ -120,7 +120,7 @@ class DirectoryScanner {
                         }
 
                     } else {
-                        print("File removed by rename '\(url)'")
+//                        print("File removed by rename '\(url)'")
 
                         // If it's a directory, then we need to work out what files are being removed.
                         let identifier = Details.Identifier(ownerURL: ownerURL, url: url)
@@ -139,7 +139,7 @@ class DirectoryScanner {
                 case .itemRemoved(path: let path, itemType: let itemType, eventId: _, fromUs: _):
 
                     let url = URL(filePath: path, itemType: itemType)
-                    print("File removed '\(url)'")
+//                    print("File removed '\(url)'")
                     let identifier = Details.Identifier(ownerURL: ownerURL, url: url)
                     onFileDeletion([identifier])
                     self.identifiers.removeValue(forKey: identifier)

@@ -87,7 +87,8 @@ struct Details: Hashable {
         return (ownerURL == details.ownerURL &&
                 url == details.url &&
                 contentType == details.contentType &&
-                contentModificationDate == details.contentModificationDate)
+                contentModificationDate == details.contentModificationDate &&
+                tags == details.tags)
     }
 
 }
