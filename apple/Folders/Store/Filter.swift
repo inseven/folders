@@ -312,6 +312,7 @@ func defaultTypesFilter() -> TypeFilter {
         .tap,
         .tiff,
         .video,
+        .webArchive,
         .webP,
     ])
 }
