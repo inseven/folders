@@ -52,6 +52,8 @@ struct FoldersApp: App {
                 .environmentObject(applicationModel)
         }
         .commands {
+            SidebarCommands()
+            ToolbarCommands()
             CommandGroup(before: .appSettings) {
                 CheckForUpdatesView(updater: applicationModel.updaterController.updater)
             }
