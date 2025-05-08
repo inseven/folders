@@ -1,5 +1,5 @@
 {
-  "originHash" : "d3b950d75a068b07a18d4b6fa20aed7591ae75424c3c5a92c21134a5091dc5ec",
+  "originHash" : "0cf65045bb379fb21fb1d4e76023c988a9178f8ccf257194c980fba523111acb",
   "pins" : [
     {
       "identity" : "fseventswrapper",
@@ -62,6 +62,15 @@
       "state" : {
         "revision" : "0a5bc04095a675662cf24757cc0640aa2204253b",
         "version" : "1.0.2"
+      }
+    },
+    {
+      "identity" : "swift-xattr",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/jozefizso/swift-xattr.git",
+      "state" : {
+        "revision" : "1cd1e6bc9aecdcce31c66e2d2d5561ecd7ead83a",
+        "version" : "3.0.1"
       }
     },
     {

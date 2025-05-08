@@ -97,7 +97,8 @@ class DirectoryScanner {
                         // atomically replaced by a new file containing new content.
                         if let old = self.identifiers[details.identifier] {
                             print("File updated by rename '\(url)'")
-                            let update = old.setting(contentModificationDate: details.contentModificationDate)
+                            let update = old.setting(contentModificationDate: details.contentModificationDate,
+                                                     tags: details.tags)
                             self.identifiers[details.identifier] = update
                             onFileUpdate([update])
                             return
@@ -143,7 +144,9 @@ class DirectoryScanner {
                     onFileDeletion([identifier])
                     self.identifiers.removeValue(forKey: identifier)
 
-                case .itemInodeMetadataModified(path: let path, itemType: let itemType, eventId: _, fromUs: _):
+                case .itemInodeMetadataModified(path: let path, itemType: let itemType, eventId: _, fromUs: _),
+                        .itemXattrModified(path: let path, itemType: let itemType, eventId: _, fromUs: _),
+                        .itemFinderInfoModified(path: let path, itemType: let itemType, eventId: _, fromUs: _):
 
                     // TODO: We need to handle directories carefully here.
 
@@ -154,7 +157,9 @@ class DirectoryScanner {
 
                     // Remove the file if it exists in our set.
                     if let old = self.identifiers[identifier] {
-                        let new = old.setting(contentModificationDate: details.contentModificationDate)
+                        let new = old
+                            .setting(contentModificationDate: details.contentModificationDate,
+                                     tags: details.tags)
                         onFileUpdate([new])
                         self.identifiers[identifier] = new
                         return
@@ -222,7 +227,8 @@ class DirectoryScanner {
             for file in current {
                 if let snapshot = snapshotIdentifiers[file.identifier] {
                     if !snapshot.equivalent(to: file) {  // Modified.
-                        let update = snapshot.setting(contentModificationDate: file.contentModificationDate)
+                        let update = snapshot.setting(contentModificationDate: file.contentModificationDate,
+                                                      tags: file.tags)
                         updates.append(update)
                         state[file.identifier] = update
                     } else {  // Unchanged.

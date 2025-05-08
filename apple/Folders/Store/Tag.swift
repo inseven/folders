@@ -31,13 +31,15 @@ struct Tag: Hashable {
         case finder = 1
     }
 
-    init(source: Source, name: String) {
+    init(source: Source, name: String, colorIndex: Int = 0) {
         self.source = source
         self.name = name
+        self.colorIndex = colorIndex
     }
 
     let source: Source
     let name: String
+    let colorIndex: Int
 
 }
 
