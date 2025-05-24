@@ -54,7 +54,7 @@ cd "${WEBSITE_DIRECTORY}"
 bundle install
 
 # Get the latest release URL.
-if ! DOWNLOAD_URL=$("$SCRIPTS_DIRECTORY/latest-release" inseven folders "Folders-*.zip"); then
+if ! DOWNLOAD_URL=$("build-tools latest-github-release" inseven folders "Folders-*.zip"); then
     echo >&2 failed
     exit 1
 fi
