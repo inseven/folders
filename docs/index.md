@@ -8,7 +8,7 @@ title: About
          width="128"
          height="128" />
     <div class="appname">Folders</div>
-    <div class="tagline">Local-first library management for your files</div>
+    <div class="tagline">Offline library management for your files</div>
     <div class="actions">
         <a class="button" href="{{ site.env.DOWNLOAD_URL }}">Download</a>
     </div>

@@ -2,7 +2,7 @@
 
 [![build](https://github.com/inseven/folders/actions/workflows/build.yaml/badge.svg)](https://github.com/inseven/folders/actions/workflows/build.yaml)
 
-Local-first library management for your files
+Offline library management for your files
 
 ![](screenshots/macos.png)
 
