@@ -27,21 +27,21 @@ set -u
 
 SCRIPTS_DIRECTORY="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 
-ROOT_DIRECTORY="${SCRIPTS_DIRECTORY}/.."
-WEBSITE_DIRECTORY="${ROOT_DIRECTORY}/docs"
-WEBSITE_SIMULATOR_DIRECTORY="${ROOT_DIRECTORY}/docs/simulator"
-SIMULATOR_WEB_DIRECTORY="${ROOT_DIRECTORY}/simulator/web"
+ROOT_DIRECTORY="$SCRIPTS_DIRECTORY/.."
+WEBSITE_DIRECTORY="$ROOT_DIRECTORY/docs"
+WEBSITE_SIMULATOR_DIRECTORY="$ROOT_DIRECTORY/docs/simulator"
+SIMULATOR_WEB_DIRECTORY="$ROOT_DIRECTORY/simulator/web"
 
-RELEASE_NOTES_TEMPLATE_PATH="${SCRIPTS_DIRECTORY}/release-notes.md"
-HISTORY_PATH="${SCRIPTS_DIRECTORY}/history.yaml"
-RELEASE_NOTES_DIRECTORY="${ROOT_DIRECTORY}/docs/release-notes"
-RELEASE_NOTES_PATH="${RELEASE_NOTES_DIRECTORY}/index.markdown"
+RELEASE_NOTES_TEMPLATE_PATH="$SCRIPTS_DIRECTORY/release-notes.md"
+HISTORY_PATH="$SCRIPTS_DIRECTORY/history.yaml"
+RELEASE_NOTES_DIRECTORY="$ROOT_DIRECTORY/docs/release-notes"
+RELEASE_NOTES_PATH="$RELEASE_NOTES_DIRECTORY/index.markdown"
 
-source "${SCRIPTS_DIRECTORY}/environment.sh"
+source "$SCRIPTS_DIRECTORY/environment.sh"
 
 cd "$ROOT_DIRECTORY"
-if [ -d "${RELEASE_NOTES_DIRECTORY}" ]; then
-    rm -r "${RELEASE_NOTES_DIRECTORY}"
+if [ -d "$RELEASE_NOTES_DIRECTORY" ]; then
+    rm -r "$RELEASE_NOTES_DIRECTORY"
 fi
 "$SCRIPTS_DIRECTORY/update-release-notes.sh"
 
@@ -54,7 +54,7 @@ cd "${WEBSITE_DIRECTORY}"
 bundle install
 
 # Get the latest release URL.
-if ! DOWNLOAD_URL=$("build-tools latest-github-release" inseven folders "Folders-*.zip"); then
+if ! DOWNLOAD_URL=$(build-tools latest-github-release inseven folders "Folders-*.zip"); then
     echo >&2 failed
     exit 1
 fi
