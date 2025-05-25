@@ -9,7 +9,7 @@
     <div class="appname">Folders</div>
     <div class="tagline">Offline library management for your files</div>
     <div class="actions">
-        <a class="button" href="{{ site.env.DOWNLOAD_URL }}">Download</a>
+        <a class="button no-rewrite" href="{{ site.env.DOWNLOAD_URL }}">Download</a>
     </div>
 </p>
 
