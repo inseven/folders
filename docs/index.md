@@ -1,5 +1,4 @@
 ---
-title: About
 ---
 
 <p class="header">
