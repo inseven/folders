@@ -6,8 +6,6 @@ title: License
 
 Folders is licensed under the MIT License (see [LICENSE](https://github.com/inseven/folders/blob/main/LICENSE)). It depends on the following separately licensed third-party libraries and components:
 
----
-
 - [Diligence](https://github.com/inseven/diligence), MIT License
 - [FSEventsWrapper](https://github.com/Frizlab/FSEventsWrapper), MIT License
 - [Interact](https://github.com/inseven/interact), MIT License
