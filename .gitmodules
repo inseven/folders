@@ -13,3 +13,6 @@
 [submodule "scripts/Sparkle"]
 	path = scripts/Sparkle
 	url = https://github.com/sparkle-project/Sparkle
+[submodule "apple/dependencies/glitter"]
+	path = apple/dependencies/glitter
+	url = https://github.com/inseven/glitter.git
