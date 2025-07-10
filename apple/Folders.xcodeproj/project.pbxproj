@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		D82B957F2B231A7900C8B6FB /* SQLite in Frameworks */ = {isa = PBXBuildFile; productRef = D82B957E2B231A7900C8B6FB /* SQLite */; };
 		D82B95842B23DC2B00C8B6FB /* FSEventsWrapper in Frameworks */ = {isa = PBXBuildFile; productRef = D82B95832B23DC2B00C8B6FB /* FSEventsWrapper */; };
+		D85B61962E1F4EDC00BC18FC /* Glitter in Frameworks */ = {isa = PBXBuildFile; productRef = D85B61952E1F4EDC00BC18FC /* Glitter */; };
 		D870ECA12B7ED5D700704688 /* Algorithms in Frameworks */ = {isa = PBXBuildFile; productRef = D870ECA02B7ED5D700704688 /* Algorithms */; };
 		D870ECA42B7EDD8A00704688 /* Diligence in Frameworks */ = {isa = PBXBuildFile; productRef = D870ECA32B7EDD8A00704688 /* Diligence */; };
 		D870ECAA2B7EDE0700704688 /* Interact in Frameworks */ = {isa = PBXBuildFile; productRef = D870ECA92B7EDE0700704688 /* Interact */; };
@@ -62,6 +63,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D85B61962E1F4EDC00BC18FC /* Glitter in Frameworks */,
 				D870ECA12B7ED5D700704688 /* Algorithms in Frameworks */,
 				D88CD7672DA5AC1B00287F6A /* Sparkle in Frameworks */,
 				D82B95842B23DC2B00C8B6FB /* FSEventsWrapper in Frameworks */,
@@ -139,6 +141,7 @@
 				D870ECA92B7EDE0700704688 /* Interact */,
 				D8F6A6082B8D3D7E0003B1A6 /* Yams */,
 				D88CD7662DA5AC1B00287F6A /* Sparkle */,
+				D85B61952E1F4EDC00BC18FC /* Glitter */,
 			);
 			productName = Folders;
 			productReference = D87653B02AC9F01600E8B65D /* Folders.app */;
@@ -227,6 +230,7 @@
 				D870ECA82B7EDE0700704688 /* XCLocalSwiftPackageReference "dependencies/interact" */,
 				D8F6A6072B8D3D7E0003B1A6 /* XCRemoteSwiftPackageReference "Yams" */,
 				D88CD7652DA5AC1B00287F6A /* XCRemoteSwiftPackageReference "Sparkle" */,
+				D85B61942E1F4EDC00BC18FC /* XCLocalSwiftPackageReference "dependencies/glitter" */,
 			);
 			productRefGroup = D87653B12AC9F01600E8B65D /* Products */;
 			projectDirPath = "";
@@ -597,6 +601,10 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
+		D85B61942E1F4EDC00BC18FC /* XCLocalSwiftPackageReference "dependencies/glitter" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = dependencies/glitter;
+		};
 		D870ECA22B7EDD8A00704688 /* XCLocalSwiftPackageReference "dependencies/diligence" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = dependencies/diligence;
@@ -668,6 +676,10 @@
 			isa = XCSwiftPackageProductDependency;
 			package = D82B95822B23DC2B00C8B6FB /* XCRemoteSwiftPackageReference "FSEventsWrapper" */;
 			productName = FSEventsWrapper;
+		};
+		D85B61952E1F4EDC00BC18FC /* Glitter */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Glitter;
 		};
 		D870ECA02B7ED5D700704688 /* Algorithms */ = {
 			isa = XCSwiftPackageProductDependency;
