@@ -23,17 +23,8 @@
 import SwiftUI
 
 import Diligence
+import Glitter
 import Interact
-
-fileprivate let sparkleLicense = License(id: "https://github.com/sparkle-project/Sparkle",
-                                         name: "Sparkle",
-                                         author: "Sparkle Project",
-                                         text: String(contentsOfResource: "sparkle-license")!,
-                                         attributes: [
-                                            .url(URL(string: "https://github.com/sparkle-project/Sparkle")!, title: "GitHub"),
-                                            .url(URL(string: "https://sparkle-project.org")!, title: "Website"),
-                                         ],
-                                         licenses: [])
 
 @main
 struct FoldersApp: App {
@@ -54,9 +45,7 @@ struct FoldersApp: App {
         .commands {
             SidebarCommands()
             ToolbarCommands()
-            CommandGroup(before: .appSettings) {
-                CheckForUpdatesView(updater: applicationModel.updaterController.updater)
-            }
+            UpdateCommands(updater: applicationModel.updaterController.updater)
             HelpCommands()
         }
 
@@ -79,7 +68,8 @@ struct FoldersApp: App {
                 Credit("Sarah Barbour")
             }
         } licenses: {
-            .interact
+            (.glitter)
+            (.interact)
             License("Folders",
                     author: "Jason Morley",
                     attributes: [
@@ -122,7 +112,6 @@ struct FoldersApp: App {
                         .init("GitHub", url: URL(string: "https://github.com/jpsim/Yams")!)
                     ],
                     filename: "yams-license")
-            (sparkleLicense)
         }
 
     }
