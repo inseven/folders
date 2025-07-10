@@ -44,8 +44,21 @@ h1, h2, h3 {
     margin: var(--vertical-spacing) 0 calc(2 * var(--vertical-spacing)) 0;
 }
 
+h1 {
+    text-align: center;
+    font-size: 3em;
+}
+
 p {
     margin: var(--vertical-spacing) 0 var(--vertical-spacing) 0;
+}
+
+p.center {
+    text-align: center;
+}
+
+ul {
+    margin-bottom: calc(2 * var(--vertical-spacing));
 }
 
 ul.navigation {
@@ -98,8 +111,8 @@ ul.navigation > li {
 .button, .button:hover {
     color: white;
     background-color: var(--primary-action-background-color);
-    border-radius: 0.5rem;
-    padding: 1rem;
+    border-radius: 100vh;
+    padding: 1rem 1.6rem;
     text-decoration: none;
     display: inline-block;
 }
@@ -136,11 +149,6 @@ footer nav ul {
 footer nav ul li {
     display: inline;
     margin-right: 0.4em;
-}
-
-h1 {
-    text-align: center;
-    font-size: 3em;
 }
 
 img.hero {

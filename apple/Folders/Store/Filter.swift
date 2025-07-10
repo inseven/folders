@@ -298,6 +298,7 @@ func defaultTypesFilter() -> TypeFilter {
         .cbr,
         .cbz,
         .gif,
+        .html,
         .ico,
         .jpeg,
         .m4v,
@@ -313,6 +314,7 @@ func defaultTypesFilter() -> TypeFilter {
         .tap,
         .tiff,
         .video,
+        .webArchive,
         .webP,
     ])
 }

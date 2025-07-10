@@ -1,5 +1,4 @@
 ---
-title: About
 ---
 
 <p class="header">
@@ -8,9 +7,9 @@ title: About
          width="128"
          height="128" />
     <div class="appname">Folders</div>
-    <div class="tagline">Local-first library management for your files</div>
+    <div class="tagline">{{ site.description }}</div>
     <div class="actions">
-        <a class="button" href="{{ site.env.DOWNLOAD_URL }}">Download</a>
+        <a class="button no-rewrite" href="{{ site.env.DOWNLOAD_URL }}">Download</a>
     </div>
 </p>
 

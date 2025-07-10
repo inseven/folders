@@ -3,5 +3,5 @@
 /build
 /docs/_site
 /docs/.jekyll-cache
-/docs/release-notes
+/docs/releases
 /gtk/target
