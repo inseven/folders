@@ -30,6 +30,7 @@ plugins:
   - jekyll-feed
   - jekyll-environment-variables
   - jekyll-toc
+  - jekyll-image-size
 destination: ../_site
 
 defaults:
