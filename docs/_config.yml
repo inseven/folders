@@ -1,16 +1,37 @@
+theme: theme
 title: Folders
+author: Jason Morley
 email: support@jbmorley.co.uk
-description: Offline library management for your files
+description: Offline Library Management for Your Files
 baseurl: ""
 url: "https://folders.jbmorley.co.uk"
+repository: https://github.com/inseven/thoughts
+copyright: 2023-2025 <a href="https://jbmorley.co.uk/about">Jason Morley</a>
 
-# Build settings
-theme: minima
+navigation:
+  - title: Folders
+    href: /
+  - title: Releases
+    href: /releases
+  - title: GitHub
+    href: https://github.com/inseven/folders
+  - title: Donate
+    href: https://jbmorley.co.uk/support/
+
+footer:
+  - title: Privacy Policy
+    href: /privacy-policy
+  - title: License
+    href: /license
+  - title: More Software
+    href: https://jbmorley.co.uk/software/
+
 plugins:
   - jekyll-feed
   - jekyll-environment-variables
+  - jekyll-toc
 destination: ../_site
 
 defaults:
   - values:
-      layout: "default"
+      layout: "page"
