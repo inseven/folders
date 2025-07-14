@@ -13,7 +13,7 @@
     </div>
 </p>
 
-<picture class="hero">
+<picture>
     <source srcset="/images/screenshot-default-dark@2x.png" media="(prefers-color-scheme: dark)">
     <img class="hero" src="/images/screenshot-default@2x.png" width="872" />
 </picture>
