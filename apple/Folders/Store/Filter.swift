@@ -252,12 +252,13 @@ extension Filter where Self == URLFilter {
 
 }
 
+// TODO: Do we need Tag like?
 struct TagFilter: Filter {
 
-    let name: String
+    let tag: Tag
 
-    init(name: String) {
-        self.name = name
+    init(tag: Tag) {
+        self.tag = tag
     }
 
     var statement: BoundStatement {
@@ -271,21 +272,21 @@ struct TagFilter: Filter {
             ON
                 files_to_tags.tag_id = tags.id
             WHERE
-                name = ?
+                source = ? AND name = ?
             """
-        return BoundStatement(sql: "files.id IN (\(tagSubselect))", bindings: [name])
+        return BoundStatement(sql: "files.id IN (\(tagSubselect))", bindings: [tag.source.rawValue, tag.name])
     }
 
     func matches(details: Details) -> Bool {
-        return details.tags?.contains(name) ?? false
+        return details.tags?.contains(tag) ?? false
     }
 
 }
 
 extension Filter where Self == TagFilter {
 
-    static func tag(_ name: String) -> TagFilter {
-        return TagFilter(name: name)
+    static func tag(_ tag: Tag) -> TagFilter {
+        return TagFilter(tag: tag)
     }
 
 }

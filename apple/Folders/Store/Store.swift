@@ -56,10 +56,11 @@ class Store {
         static let type = Expression<String>("type")
         static let modificationDate = Expression<Int>("modification_date")
         static let source = Expression<Tag.Source>("source")
+        static let colorIndex = Expression<Int64>("color_index")
     }
 
     // TODO: This represents an external management of the database an should probably be moved out.
-    static let majorVersion = 53
+    static let majorVersion = 54
 
     private var observers: [Observer] = []
 
@@ -87,8 +88,9 @@ class Store {
             try connection.run(Schema.tags.create(ifNotExists: true) { t in
                 t.column(Schema.id, primaryKey: true)
                 t.column(Schema.source)
-                t.column(Schema.name, unique: true)
-                t.unique(Schema.source, Schema.name)
+                t.column(Schema.name)
+                t.column(Schema.colorIndex)
+                t.unique(Schema.source, Schema.name, Schema.colorIndex)
             })
             print("create the files_to_tags table...")
             try connection.run(Schema.filesToTags.create(ifNotExists: true) { t in
@@ -178,7 +180,8 @@ class Store {
         }
         let id = try connection.run(Schema.tags.insert(
             Schema.source <- tag.source,
-            Schema.name <- tag.name
+            Schema.name <- tag.name,
+            Schema.colorIndex <- Int64(tag.colorIndex)
         ))
         isNew = true
         return id
@@ -188,8 +191,7 @@ class Store {
         dispatchPrecondition(condition: .onQueue(syncQueue))
         let results = try connection.prepare(
             Schema.tags
-                .filter(Schema.source == tag.source)
-                .filter(Schema.name == tag.name)
+                .filter(Schema.source == tag.source && Schema.name == tag.name && Schema.colorIndex == Int64(tag.colorIndex))
                 .limit(1)
         ).map { row in
             try row.get(Schema.id)
@@ -207,7 +209,8 @@ class Store {
         let deletions = try self.connection.prepare("""
             SELECT
                 source,
-                name
+                name,
+                color_index
             FROM
                 tags
             WHERE
@@ -219,7 +222,8 @@ class Store {
                 )            
         """).map { row -> Tag in
             return Tag(source: Tag.Source(rawValue: Int(row[0] as! Int64))!,
-                       name: row[1] as! String)
+                       name: row[1] as! String,
+                       colorIndex: Int(row[2] as! Int64))
         }
 
         guard !deletions.isEmpty else {
@@ -273,7 +277,7 @@ class Store {
                                                                     Schema.modificationDate <- file.contentModificationDate))
 
                 // Create and link the tags if they're non-nil.
-                if let tags = file.tags?.map({ Tag(source: .filename, name: $0) }) {
+                if let tags = file.tags {
                     for tag in tags {
                         var isNew: Bool = false
                         let tagId = try syncQueue_fetchOrInsertTag(tag: tag, isNew: &isNew)
@@ -307,25 +311,60 @@ class Store {
 
     // TODO: Support updating tags.
     // TODO: Check where this is actually used.
+    // TODO: Should this fail if we try to update something that doesn't exist?
     func syncQueue_update(files: any Collection<Details>) throws {
         dispatchPrecondition(condition: .onQueue(syncQueue))
         try connection.transaction {
             var updates = [Details]()
+            var tagInsertions: [Tag] = []
+            // TODO: Tag deletions.
+
             for file in files {
                 let row = Schema.files.filter(Schema.uuid == file.uuid)
+                let fileId = try connection.pluck(row)!.get(Schema.id)  // TODO: Error if the row doesn't exist.
                 let count = try connection.run(row.update(Schema.owner <- file.ownerURL.path,
                                                           Schema.path <- file.url.path,
                                                           Schema.name <- file.url.displayName,
                                                           Schema.type <- file.contentType.identifier,
                                                           Schema.modificationDate <- file.contentModificationDate))
+
+                // Delete the existing tags.
+                try connection.run(Schema.filesToTags
+                    .filter(Schema.fileId == fileId)
+                    .delete())
+
+                // Create and link the tags if they're non-nil.
+                if let tags = file.tags {
+                    for tag in tags {
+                        var isNew: Bool = false
+                        let tagId = try syncQueue_fetchOrInsertTag(tag: tag, isNew: &isNew)
+                        try connection.run(Schema.filesToTags.insert(or: .replace,
+                                                                     Schema.fileId <- fileId,
+                                                                     Schema.tagId <- tagId))
+                        if isNew {
+                            tagInsertions.append(tag)
+                        }
+                    }
+                }
                 if count > 0 {
                     updates.append(file)
                 }
             }
+
+            let tagRemovals = try self.syncQueue_pruneTags()
+
             observerLock.withLock {
                 for observer in observers {
                     DispatchQueue.global(qos: .default).async {
-                        observer.store(self, didUpdateFiles: updates)
+                        if !updates.isEmpty {
+                            observer.store(self, didUpdateFiles: updates)
+                        }
+                        if !tagRemovals.isEmpty {
+                            observer.store(self, didRemoveTags: tagRemovals)
+                        }
+                        if !tagInsertions.isEmpty {
+                            observer.store(self, didInsertTags: tagInsertions)
+                        }
                     }
                 }
             }
@@ -423,10 +462,10 @@ class Store {
         dispatchPrecondition(condition: .onQueue(syncQueue))
         return try connection.prepareRowIterator(
             Schema.tags
-                .select(Schema.source, Schema.name)
+                .select(Schema.source, Schema.name, Schema.colorIndex)
                 .order(Store.Schema.name.asc))
         .map { row in
-            Tag(source: row[Schema.source], name: row[Schema.name])
+            Tag(source: row[Schema.source], name: row[Schema.name], colorIndex: Int(row[Schema.colorIndex]))
         }
     }
 

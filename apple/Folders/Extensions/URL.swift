@@ -54,6 +54,12 @@ extension URL: @retroactive Identifiable {
         }
     }
 
+    var tagNames: [String]? {
+        get throws {
+            return try resourceValues(forKeys: [.tagNamesKey]).tagNames
+        }
+    }
+
     var pathIncludingTrailingSeparator: String {
         if self.hasDirectoryPath {
             return path + "/"
