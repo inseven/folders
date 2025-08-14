@@ -20,22 +20,23 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-import Foundation
+import SwiftUI
 
-struct Extractor {
+struct ColorIndicator: View {
 
-    static func tags(for url: URL) -> Set<Tag> {
-        let hashtags = (url.path.deletingPathExtension as NSString)
-            .pathComponents
-            .map({ component in
-                component
-                    .split(separator: " ")
-                    .filter { $0.starts(with: "#") && $0.count > 1 }
-                    .map { String($0.dropFirst()) }
-            })
-            .flatMap { $0 }
-            .map { Tag(source: .filename, name: $0) }
-        return Set(hashtags)
+    struct LayoutMetrics {
+        static let size = 12.0
+    }
+
+    let color: Color?
+
+    var body: some View {
+        Circle()
+            .fill(color ?? .clear)
+            .overlay(Circle()
+                .stroke(color ?? .secondary, lineWidth: 1)
+                .brightness(-0.1))
+            .frame(width: LayoutMetrics.size, height: LayoutMetrics.size)
     }
 
 }

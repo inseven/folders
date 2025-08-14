@@ -40,14 +40,14 @@ struct Details: Hashable {
     let uuid: UUID
     let url: URL
     let contentType: UTType
-    let tags: Set<String>?
+    let tags: Set<Tag>?
 
     // Even though modern Swift APIs expose the content modification date, round-tripping this into SQLite looses
     // precision causing us to incorrectly think files have changed. To make it much harder to make this mistake, we
     // instead store the contentModificationDate as an Int which represents milliseconds since the reference data.
     let contentModificationDate: Int
 
-    init(uuid: UUID, ownerURL: URL, url: URL, contentType: UTType, contentModificationDate: Int, tags: Set<String>?) {
+    init(uuid: UUID, ownerURL: URL, url: URL, contentType: UTType, contentModificationDate: Int, tags: Set<Tag>?) {
         self.uuid = uuid
         self.identifier = Identifier(ownerURL: ownerURL, url: url)
         self.ownerURL = ownerURL
@@ -74,7 +74,7 @@ struct Details: Hashable {
                        tags: tags)
     }
 
-    func setting(contentModificationDate: Int) -> Details {
+    func setting(contentModificationDate: Int, tags: Set<Tag>?) -> Details {
         return Details(uuid: uuid,
                        ownerURL: ownerURL,
                        url: url,
@@ -87,7 +87,8 @@ struct Details: Hashable {
         return (ownerURL == details.ownerURL &&
                 url == details.url &&
                 contentType == details.contentType &&
-                contentModificationDate == details.contentModificationDate)
+                contentModificationDate == details.contentModificationDate &&
+                tags == details.tags)
     }
 
 }

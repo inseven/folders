@@ -27,6 +27,20 @@ struct Sidebar: View {
     @ObservedObject var applicationModel: ApplicationModel
     @ObservedObject var sceneModel: SceneModel
 
+    func color(for tag: Tag) -> Color? {
+        let colors: [Color?] = [
+            nil,
+            .gray,
+            .green,
+            .purple,
+            .blue,
+            .yellow,
+            .red,
+            .orange,
+        ]
+        return colors[tag.colorIndex]
+    }
+
     var body: some View {
         List(selection: $sceneModel.selection) {
             Section("Library") {
@@ -49,10 +63,24 @@ struct Sidebar: View {
                         }
                 }
             }
-            Section("Tags") {
-                ForEach(applicationModel.tags, id: \.self) { tag in
-                    Label(tag.name, systemImage: "tag")
-                        .tag(SidebarItem.Kind.tag(tag.name))
+            if !applicationModel.finderTags.isEmpty {
+                Section("Finder Tags") {
+                    ForEach(applicationModel.finderTags, id: \.self) { tag in
+                        Label {
+                            Text(tag.name)
+                        } icon: {
+                            ColorIndicator(color: color(for: tag))
+                        }
+                        .tag(SidebarItem.Kind.tag(tag))
+                    }
+                }
+            }
+            if !applicationModel.tags.isEmpty {
+                Section("Tags") {
+                    ForEach(applicationModel.tags, id: \.self) { tag in
+                        Label(tag.name, systemImage: "tag")
+                            .tag(SidebarItem.Kind.tag(tag))
+                    }
                 }
             }
         }
