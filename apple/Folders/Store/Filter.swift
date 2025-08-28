@@ -298,6 +298,7 @@ func defaultTypesFilter() -> TypeFilter {
         .cbz,
         .gif,
         .html,
+        .icns,
         .ico,
         .jpeg,
         .m4v,
