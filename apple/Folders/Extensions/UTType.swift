@@ -57,4 +57,8 @@ extension UTType {
         return UTType(filenameExtension: "tap")!
     }
 
+    static var ttf: Self {
+        return UTType(filenameExtension: "ttf")!
+    }
+
 }
