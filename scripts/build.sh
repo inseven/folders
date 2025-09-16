@@ -186,11 +186,14 @@ if [ "$NOTARIZATION_RESPONSE" != "Accepted" ] ; then
     exit 1
 fi
 
+# Staple and validate the app.
+xcrun stapler staple "$BUILD_DIRECTORY/Folders.app"
+xcrun stapler validate "$BUILD_DIRECTORY/Folders.app"
+
 # So it turns out we also need to staple the app. Which Apple informs us cannot be applied to the zip file we use for notarization.
 # We therefore delete the zip file. Staple the .app. And zip it up. Again.
 rm "$RELEASE_ZIP_PATH"
 pushd "$BUILD_DIRECTORY"
-xcrun stapler staple "Folders.app"
 /usr/bin/ditto -c -k --keepParent "Folders.app" "$RELEASE_ZIP_BASENAME"
 rm -r "Folders.app"
 popd
