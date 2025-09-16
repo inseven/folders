@@ -157,13 +157,15 @@ RELEASE_ZIP_BASENAME="$RELEASE_BASENAME.zip"
 RELEASE_ZIP_PATH="$BUILD_DIRECTORY/$RELEASE_ZIP_BASENAME"
 pushd "$BUILD_DIRECTORY"
 /usr/bin/ditto -c -k --keepParent "Folders.app" "$RELEASE_ZIP_BASENAME"
-# rm -r "Folders.app"
 popd
 
 # Install the private key.
 mkdir -p ~/.appstoreconnect/private_keys/
 API_KEY_PATH=~/".appstoreconnect/private_keys/AuthKey_${APPLE_API_KEY_ID}.p8"
 echo -n "$APPLE_API_KEY_BASE64" | base64 --decode -o "$API_KEY_PATH"
+
+# Validate the app before going any further.
+codesign --verify --deep --strict --verbose=2 "$BUILD_DIRECTORY/Folders.app"
 
 # Notarize the app.
 xcrun notarytool submit "$RELEASE_ZIP_PATH" \
