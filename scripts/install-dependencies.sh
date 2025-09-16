@@ -31,7 +31,7 @@ CHANGES_DIRECTORY="$SCRIPTS_DIRECTORY/changes"
 BUILD_TOOLS_DIRECTORY="$SCRIPTS_DIRECTORY/build-tools"
 
 cd "$ROOT_DIRECTORY"
-mise installi
+mise install
 
 # Create directory for local tools.
 if [ -d "$ROOT_DIRECTORY/.local" ] ; then
