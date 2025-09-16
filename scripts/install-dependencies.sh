@@ -30,11 +30,16 @@ ROOT_DIRECTORY="$SCRIPTS_DIRECTORY/.."
 CHANGES_DIRECTORY="$SCRIPTS_DIRECTORY/changes"
 BUILD_TOOLS_DIRECTORY="$SCRIPTS_DIRECTORY/build-tools"
 
-source "$SCRIPTS_DIRECTORY/environment.sh"
+cd "$ROOT_DIRECTORY"
+mise installi
 
-if [ -d "$LOCAL_TOOLS_PATH" ] ; then
-    rm -r "$LOCAL_TOOLS_PATH"
+# Create directory for local tools.
+if [ -d "$ROOT_DIRECTORY/.local" ] ; then
+    rm -r "$ROOT_DIRECTORY/.local"
 fi
+
+# Unfortunately environment.sh is side-effecty as something needs to bootstrap our Python venv.
+source "$SCRIPTS_DIRECTORY/environment.sh"
 
 pip install --upgrade pip pipenv wheel certifi
 PIPENV_PIPFILE="$CHANGES_DIRECTORY/Pipfile" pipenv install
