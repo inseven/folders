@@ -36,6 +36,6 @@ if [ -d "$LOCAL_TOOLS_PATH" ] ; then
     rm -r "$LOCAL_TOOLS_PATH"
 fi
 
-python -m pip install --target "$PYTHONUSERBASE" --upgrade pipenv wheel
+pip install --upgrade pip pipenv wheel certifi
 PIPENV_PIPFILE="$CHANGES_DIRECTORY/Pipfile" pipenv install
 PIPENV_PIPFILE="$BUILD_TOOLS_DIRECTORY/Pipfile" pipenv install
