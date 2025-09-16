@@ -34,7 +34,6 @@ source "$LOCAL_TOOLS_PATH/python/bin/activate"
 export PIPENV_VENV_IN_PROJECT=1
 export PIPENV_IGNORE_VIRTUALENVS=1
 
-export PATH=$PATH:"$TOOLS_DIRECTORY"
 export PATH=$PATH:"$SCRIPTS_DIRECTORY/changes"
 export PATH=$PATH:"$SCRIPTS_DIRECTORY/build-tools"
 export PATH=$PATH:"$ROOT_DIRECTORY/apple/dependencies/diligence/scripts"
