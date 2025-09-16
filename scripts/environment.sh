@@ -25,11 +25,16 @@ ROOT_DIRECTORY="$SCRIPTS_DIRECTORY/.."
 
 export LOCAL_TOOLS_PATH="$ROOT_DIRECTORY/.local"
 
-export PYTHONUSERBASE="$LOCAL_TOOLS_PATH/python"
-mkdir -p "$PYTHONUSERBASE"
-export PATH="$PYTHONUSERBASE/bin":$PATH
-export PYTHONPATH=$PYTHONUSERBASE
+export BIN_DIRECTORY="$ROOT_DIRECTORY/.local/bin"
+export PATH=$BIN_DIRECTORY:$PATH
 
+python -m venv "$LOCAL_TOOLS_PATH/python"
+source "$LOCAL_TOOLS_PATH/python/bin/activate"
+
+export PIPENV_VENV_IN_PROJECT=1
+export PIPENV_IGNORE_VIRTUALENVS=1
+
+export PATH=$PATH:"$TOOLS_DIRECTORY"
 export PATH=$PATH:"$SCRIPTS_DIRECTORY/changes"
 export PATH=$PATH:"$SCRIPTS_DIRECTORY/build-tools"
 export PATH=$PATH:"$ROOT_DIRECTORY/apple/dependencies/diligence/scripts"
