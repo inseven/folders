@@ -20,16 +20,14 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-SCRIPTS_DIRECTORY="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
-ROOT_DIRECTORY="$SCRIPTS_DIRECTORY/.."
+ROOT_DIRECTORY="$( cd "$( dirname "$( dirname "${BASH_SOURCE[0]}" )" )" &> /dev/null && pwd )"
+SCRIPTS_DIRECTORY="$ROOT_DIRECTORY/scripts"
 
 export LOCAL_TOOLS_PATH="$ROOT_DIRECTORY/.local"
-mkdir -p "$LOCAL_TOOLS_PATH"
 
 export BIN_DIRECTORY="$ROOT_DIRECTORY/.local/bin"
 export PATH=$BIN_DIRECTORY:$PATH
 
-python -m venv "$LOCAL_TOOLS_PATH/python"
 source "$LOCAL_TOOLS_PATH/python/bin/activate"
 
 export PIPENV_VENV_IN_PROJECT=1

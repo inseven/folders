@@ -152,8 +152,8 @@ xcodebuild \
 
 # Apple recommends we use ditto to prepare zips for notarization.
 # https://developer.apple.com/documentation/security/notarizing_macos_software_before_distribution/customizing_the_notarization_workflow
-RELEASE_BASENAME="Folders-$VERSION_NUMBER-$BUILD_NUMBER"
-RELEASE_ZIP_BASENAME="$RELEASE_BASENAME.zip"
+RELEASE_NAME="Folders-$VERSION_NUMBER-$BUILD_NUMBER"
+RELEASE_ZIP_BASENAME="$RELEASE_NAME.zip"
 RELEASE_ZIP_PATH="$BUILD_DIRECTORY/$RELEASE_ZIP_BASENAME"
 pushd "$BUILD_DIRECTORY"
 /usr/bin/ditto -c -k --keepParent "Folders.app" "$RELEASE_ZIP_BASENAME"
@@ -189,7 +189,7 @@ if [ "$NOTARIZATION_RESPONSE" != "Accepted" ] ; then
 fi
 
 # Copy the notarized but unstapled app for later inspection.
-mv "$RELEASE_ZIP_PATH" "$BUILD_DIRECTORY/RELEASE_BASENAME-unstapled.zip"
+mv "$RELEASE_ZIP_PATH" "$BUILD_DIRECTORY/$RELEASE_NAME-unstapled.zip"
 
 # Staple and validate the app; this bakes the notarization into the app in case the device trying to run it can't do an
 # online check with Apple's servers for some reason.
@@ -204,7 +204,7 @@ codesign --verify --deep --strict --verbose=2 "$BUILD_DIRECTORY/Folders.app"
 # an app that can't be run. It's not clear if this is a Tahoe thing; a post-stapling thing; a thing thing?
 # Thankfully `zip --symlinks` seems to still work just fine.
 pushd "$BUILD_DIRECTORY"
-tar -zcf "$RELEASE_BASENAME.tar.gz" "Folders.app"
+tar -zcf "$RELEASE_NAME.tar.gz" "Folders.app"
 zip --symlinks -r "$RELEASE_ZIP_BASENAME" "Folders.app"
 rm -r "Folders.app"
 popd
@@ -220,7 +220,7 @@ echo -n "$SPARKLE_PRIVATE_KEY_BASE64" | base64 --decode -o "$SPARKLE_PRIVATE_KEY
 # Generate the appcast.
 cd "$ROOT_DIRECTORY"
 cp "$RELEASE_ZIP_PATH" "$ARCHIVES_DIRECTORY"
-changes notes --all --template "$RELEASE_NOTES_TEMPLATE_PATH" >> "$ARCHIVES_DIRECTORY/$RELEASE_BASENAME.html"
+changes notes --all --template "$RELEASE_NOTES_TEMPLATE_PATH" >> "$ARCHIVES_DIRECTORY/$RELEASE_NAME.html"
 "$GENERATE_APPCAST" --ed-key-file "$SPARKLE_PRIVATE_KEY_FILE" "$ARCHIVES_DIRECTORY"
 APPCAST_PATH="$ARCHIVES_DIRECTORY/appcast.xml"
 cp "$APPCAST_PATH" "$BUILD_DIRECTORY"
