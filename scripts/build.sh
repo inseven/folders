@@ -188,19 +188,24 @@ if [ "$NOTARIZATION_RESPONSE" != "Accepted" ] ; then
     exit 1
 fi
 
-# Staple and validate the app.
+# Copy the notarized but unstapled app for later inspection.
+mv "$RELEASE_ZIP_PATH" "$BUILD_DIRECTORY/RELEASE_BASENAME-unstapled.zip"
+
+# Staple and validate the app; this bakes the notarization into the app in case the device trying to run it can't do an
+# online check with Apple's servers for some reason.
 xcrun stapler staple "$BUILD_DIRECTORY/Folders.app"
 xcrun stapler validate "$BUILD_DIRECTORY/Folders.app"
 
-# Validate the app after we've stapled it.
+# Next up, we perform a belt-and-braces check that the app validates after stapling.
 codesign --verify --deep --strict --verbose=2 "$BUILD_DIRECTORY/Folders.app"
 
-# So it turns out we also need to staple the app. Which Apple informs us cannot be applied to the zip file we use for notarization.
-# We therefore delete the zip file. Staple the .app. And zip it up. Again.
-rm "$RELEASE_ZIP_PATH"
+# Compress the stapled app and package it for release.
+# Curiously, ditto, which Apple recommends for compressing apps no longer seems to work in this scenario and creates
+# an app that can't be run. It's not clear if this is a Tahoe thing; a post-stapling thing; a thing thing?
+# Thankfully `zip --symlinks` seems to still work just fine.
 pushd "$BUILD_DIRECTORY"
 tar -zcf "$RELEASE_BASENAME.tar.gz" "Folders.app"
-zip -y -r "$RELEASE_ZIP_BASENAME" "Folders.app"
+zip --symlinks -r "$RELEASE_ZIP_BASENAME" "Folders.app"
 rm -r "Folders.app"
 popd
 
