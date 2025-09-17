@@ -188,6 +188,9 @@ if [ "$NOTARIZATION_RESPONSE" != "Accepted" ] ; then
     exit 1
 fi
 
+# Remove the zip file used for notarization.
+rm "$RELEASE_ZIP_PATH"
+
 # Staple and validate the app; this bakes the notarization into the app in case the device trying to run it can't do an
 # online check with Apple's servers for some reason.
 xcrun stapler staple "$BUILD_DIRECTORY/Folders.app"
