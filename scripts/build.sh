@@ -192,12 +192,16 @@ fi
 xcrun stapler staple "$BUILD_DIRECTORY/Folders.app"
 xcrun stapler validate "$BUILD_DIRECTORY/Folders.app"
 
+# Validate the app after we've stapled it.
+codesign --verify --deep --strict --verbose=2 "$BUILD_DIRECTORY/Folders.app"
+
 # So it turns out we also need to staple the app. Which Apple informs us cannot be applied to the zip file we use for notarization.
 # We therefore delete the zip file. Staple the .app. And zip it up. Again.
 rm "$RELEASE_ZIP_PATH"
 pushd "$BUILD_DIRECTORY"
-/usr/bin/ditto -c -k --keepParent "Folders.app" "$RELEASE_ZIP_BASENAME"
-rm -r "Folders.app"
+zip "$RELEASE_ZIP_BASENAME" -r "Folders.app"
+# /usr/bin/ditto -c -k --keepParent "Folders.app" "$RELEASE_ZIP_BASENAME"
+# rm -r "Folders.app"
 popd
 
 # Build Sparkle.
