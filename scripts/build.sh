@@ -200,7 +200,7 @@ codesign --verify --deep --strict --verbose=2 "$BUILD_DIRECTORY/Folders.app"
 rm "$RELEASE_ZIP_PATH"
 pushd "$BUILD_DIRECTORY"
 tar -zcf "$RELEASE_BASENAME.tar.gz" "Folders.app"
-/usr/bin/ditto -c -k --keepParent "Folders.app" "$RELEASE_ZIP_BASENAME"
+zip -y -r "$RELEASE_ZIP_BASENAME" "Folders.app"
 rm -r "Folders.app"
 popd
 
