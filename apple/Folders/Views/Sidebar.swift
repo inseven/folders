@@ -24,12 +24,15 @@ import SwiftUI
 
 struct Sidebar: View {
 
+    @SceneStorage("expand-library") private var isLibrarySectionExpanded: Bool = true
+    @SceneStorage("expand-tags") private var isTagsSectionExpanded: Bool = false
+
     @ObservedObject var applicationModel: ApplicationModel
     @ObservedObject var sceneModel: SceneModel
 
     var body: some View {
         List(selection: $sceneModel.selection) {
-            Section("Library") {
+            Section("Library", isExpanded: $isLibrarySectionExpanded) {
                 OutlineGroup(applicationModel.dynamicSidebarItems, children: \.children) { item in
                     Label(item.kind.displayName, systemImage: item.kind.systemImage)
                         .contextMenu {
@@ -49,7 +52,7 @@ struct Sidebar: View {
                         }
                 }
             }
-            Section("Tags") {
+            Section("Tags", isExpanded: $isTagsSectionExpanded) {
                 ForEach(applicationModel.tags, id: \.self) { tag in
                     Label(tag.name, systemImage: "tag")
                         .tag(SidebarItem.Kind.tag(tag.name))
