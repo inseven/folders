@@ -24,14 +24,18 @@ import SwiftUI
 
 struct SelectionLinksMenu: View {
 
-    @ObservedObject var selectionModel: SelectionModel
+    @ObservedObject private var folderViewModel: FolderViewModel
+
+    init(folderViewModel: FolderViewModel) {
+        self.folderViewModel = folderViewModel
+    }
 
     var body: some View {
-        if !selectionModel.settings.isEmpty {
-            ForEach(selectionModel.settingsURLs) { settingsURL in
-                if let folderSettings = selectionModel.settings[settingsURL] {
+        if !folderViewModel.settings.isEmpty {
+            ForEach(folderViewModel.settingsURLs) { settingsURL in
+                if let folderSettings = folderViewModel.settings[settingsURL] {
                     FolderLinks(folderSettings: folderSettings)
-                    if selectionModel.settingsURLs.last != settingsURL  {
+                    if folderViewModel.settingsURLs.last != settingsURL  {
                         Divider()
                     }
                 }
