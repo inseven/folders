@@ -189,13 +189,13 @@ class InteractiveCollectionView: NSCollectionView {
 
     override func becomeFirstResponder() -> Bool {
         let result = super.becomeFirstResponder()
-        interactionDelegate?.collectionView(self, didUpdateFocus: true)  // TODO: Don't include the bool?
+        interactionDelegate?.collectionView(self, didUpdateFocus: true)
         return result
     }
 
     override func resignFirstResponder() -> Bool {
         let result = super.resignFirstResponder()
-        interactionDelegate?.collectionView(self, didUpdateFocus: false)  // TODO: Don't include the bool.
+        interactionDelegate?.collectionView(self, didUpdateFocus: false)
         return result
     }
 
