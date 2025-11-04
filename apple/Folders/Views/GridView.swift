@@ -280,7 +280,6 @@ extension InnerGridView: CollectionViewInteractionDelegate {
 
     func collectionView(_ customCollectionView: InteractiveCollectionView,
                         contextMenuForSelection selection: Set<IndexPath>) -> NSMenu? {
-        // TODO: Make this a utility.
         let selections = selection.compactMap { indexPath in
             dataSource.itemIdentifier(for: indexPath)
         }
@@ -290,13 +289,13 @@ extension InnerGridView: CollectionViewInteractionDelegate {
         let menu = NSMenu()
 
         let items = [
-            NSMenuItem(title: "Preview", action: #selector(preview(sender:)), keyEquivalent: ""),
+            NSMenuItem(title: "Quick Look", systemImage: "eye", action: #selector(preview(sender:)), keyEquivalent: ""),
             .separator(),
-            NSMenuItem(title: "Reveal in Finder", action: #selector(reveal(sender:)), keyEquivalent: ""),
+            NSMenuItem(title: "Show in Finder", systemImage: "finder", action: #selector(reveal(sender:)), keyEquivalent: ""),
             .separator(),
-            NSMenuItem(title: "Move to Trash", action: #selector(moveToTrash(sender:)), keyEquivalent: ""),
+            NSMenuItem(title: "Move to Trash", systemImage: "trash", action: #selector(moveToTrash(sender:)), keyEquivalent: ""),
             .separator(),
-            NSMenuItem(title: "Set Wallpaper", action: #selector(setWallpaper(sender:)), keyEquivalent: ""),
+            NSMenuItem(title: "Set Wallpaper", systemImage: "display", action: #selector(setWallpaper(sender:)), keyEquivalent: ""),
         ]
 
         for item in items {
@@ -328,4 +327,6 @@ extension InnerGridView: NSCollectionViewDelegate {
     }
 
 }
+
+
 
