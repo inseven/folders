@@ -32,7 +32,7 @@ struct Sidebar: View {
 
     var body: some View {
         List(selection: $sceneModel.selection) {
-            Section("Library", isExpanded: $isLibrarySectionExpanded) {
+            Section(isExpanded: $isLibrarySectionExpanded) {
                 OutlineGroup(applicationModel.dynamicSidebarItems, children: \.children) { item in
                     Label(item.kind.displayName, systemImage: item.kind.systemImage)
                         .contextMenu {
@@ -46,6 +46,12 @@ struct Sidebar: View {
                                 }
                             }
                         }
+                }
+            } header: {
+                SidebarActionHeader {
+                    Button("Add Folder...", systemImage: "folder.badge.plus") {
+                        sceneModel.add()
+                    }
                 }
             }
             Section("Tags", isExpanded: $isTagsSectionExpanded) {
