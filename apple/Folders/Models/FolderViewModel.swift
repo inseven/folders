@@ -51,7 +51,7 @@ class FolderViewModel: ObservableObject {
                 switch sidebarItem {
                 case .owner(let identifier), .folder(let identifier):
                     return identifier.url.appendingPathComponent("folders-settings.yaml")
-                case .tag:
+                case .tag, .images, .videos, .documents:
                     return nil
                 }
             }
