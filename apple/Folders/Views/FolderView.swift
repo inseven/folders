@@ -50,6 +50,7 @@ struct FolderView: View {
                 folderViewModel.stop()
             }
             .focusedSceneObject(folderViewModel)
+            .ignoresSafeArea()
     }
 
 }
