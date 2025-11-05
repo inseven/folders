@@ -37,11 +37,17 @@ struct LibraryView: View {
         AnyFilter(oring: sidebarItems.map { kind in
             switch kind {
             case .owner(let identifier):
-                return identifierFilter(identifier: identifier) && defaultTypesFilter()
+                return identifierFilter(identifier: identifier) && .default
             case .folder(let identifier):
-                return identifierFilter(identifier: identifier) && defaultTypesFilter()
+                return identifierFilter(identifier: identifier) && .default
             case .tag(let name):
-                return AnyFilter(.tag(name) && defaultTypesFilter())
+                return AnyFilter(.tag(name) && .default)
+            case .images:
+                return .images
+            case .videos:
+                return .videos
+            case .documents:
+                return .documents
             }
         })
     }

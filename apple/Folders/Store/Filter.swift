@@ -290,38 +290,75 @@ extension Filter where Self == TagFilter {
 
 }
 
-func defaultTypesFilter() -> TypeFilter {
-    return TypeFilter(types: [
-        .avi,
-        .bmp,
-        .cbr,
-        .cbz,
-        .gif,
-        .html,
-        .icns,
-        .ico,
-        .jpeg,
-        .m4v,
-        .mkv,
-        .mov,
-        .mp3,
-        .mpeg4Movie,
-        .pbm,
-        .pdf,
-        .png,
-        .stl,
-        .svg,
-        .tap,
-        .tiff,
-        .ttf,
-        .video,
-        .webArchive,
-        .webP,
-    ])
+extension Filter where Self == TypeFilter {
+
+    static var `default`: TypeFilter {
+        return TypeFilter(types: [
+            .avi,
+            .bmp,
+            .cbr,
+            .cbz,
+            .gif,
+            .html,
+            .icns,
+            .ico,
+            .jpeg,
+            .m4v,
+            .mkv,
+            .mov,
+            .mp3,
+            .mpeg4Movie,
+            .pbm,
+            .pdf,
+            .png,
+            .stl,
+            .svg,
+            .tap,
+            .tiff,
+            .ttf,
+            .video,
+            .webArchive,
+            .webP,
+        ])
+    }
+
+    static var images: TypeFilter {
+        return TypeFilter(types: [
+            .bmp,
+            .gif,
+            .jpeg,
+            .pbm,
+            .png,
+            .svg,
+            .tiff,
+            .webP,
+        ])
+    }
+
+    static var videos: TypeFilter {
+        return TypeFilter(types: [
+            .avi,
+            .m4v,
+            .mkv,
+            .mov,
+            .mpeg4Movie,
+            .video,
+        ])
+    }
+
+    static var documents: TypeFilter {
+        return TypeFilter(types: [
+            .cbr,
+            .cbz,
+            .pdf,
+        ])
+    }
+
 }
 
+
 func defaultFilter(owner ownerURL: URL, parent parentURL: URL) -> Filter {
-    return .owner(ownerURL) && .parent(parentURL) && defaultTypesFilter()
+    return .owner(ownerURL) && .parent(parentURL) && .default
 }
 
 func identifierFilter(identifier: Details.Identifier) -> AndFilter<OwnerFilter, ParentFilter> {
@@ -330,6 +367,6 @@ func identifierFilter(identifier: Details.Identifier) -> AndFilter<OwnerFilter, 
 
 func defaultFilter(identifiers: Set<Details.Identifier>) -> Filter {
     return AnyFilter(oring: (identifiers.map { identifier in
-        return identifierFilter(identifier: identifier) && defaultTypesFilter()
+        return identifierFilter(identifier: identifier) && .default
     }))
 }

@@ -38,6 +38,9 @@ class SidebarItem: Hashable, Identifiable, Equatable {
         case owner(Details.Identifier)
         case folder(Details.Identifier)
         case tag(String)
+        case images
+        case videos
+        case documents
     }
 
     public var id: Kind {
@@ -68,6 +71,12 @@ extension SidebarItem.Kind {
             return id.url.displayName
         case .tag(let name):
             return name
+        case .images:
+            return "Images"
+        case .videos:
+            return "Videos"
+        case .documents:
+            return "Documents"
         }
     }
 
@@ -79,6 +88,12 @@ extension SidebarItem.Kind {
             return "folder"
         case .tag:
             return "tag"
+        case .images:
+            return "photo"
+        case .videos:
+            return "video"
+        case .documents:
+            return "documents"
         }
     }
 
