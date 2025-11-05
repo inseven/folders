@@ -36,17 +36,13 @@ struct Sidebar: View {
                 OutlineGroup(applicationModel.dynamicSidebarItems, children: \.children) { item in
                     Label(item.kind.displayName, systemImage: item.kind.systemImage)
                         .contextMenu {
-                            Button {
+                            Button("Show in Finder", systemImage: "finder") {
                                 sceneModel.reveal(item)
-                            } label: {
-                                Text("Reveal in Finder")
                             }
                             if case .owner = item.kind {
                                 Divider()
-                                Button(role: .destructive) {
+                                Button("Remove", systemImage: "folder.badge.minus", role: .destructive) {
                                     sceneModel.remove(item)
-                                } label: {
-                                    Label("Remove", systemImage: "trash")
                                 }
                             }
                         }
