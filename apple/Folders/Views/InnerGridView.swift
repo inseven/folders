@@ -190,6 +190,18 @@ extension InnerGridView: QLPreviewPanelDataSource, QLPreviewPanelDelegate {
         return false
     }
 
+    // https://stackoverflow.com/questions/54467265/prevent-nscollectionview-lifting-an-item-during-drag#59893117
+    func collectionView(_ collectionView: NSCollectionView, draggingSession session: NSDraggingSession, willBeginAt screenPoint: NSPoint, forItemsAt indexPaths: Set<IndexPath>) {
+        for item in collectionView.visibleItems() {
+            guard let indexPath = collectionView.indexPath(for: item) else {
+                continue
+            }
+            if indexPaths.contains(indexPath) {
+                item.view.isHidden = false
+            }
+        }
+    }
+
 }
 
 extension InnerGridView: StoreFilesViewDelegate {
@@ -371,7 +383,7 @@ extension InnerGridView: NSCollectionViewDelegate {
         guard let identifier = dataSource.itemIdentifier(for: indexPath) else {
             return nil
         }
-        
+
         let fileType = UTType(filenameExtension: identifier.url.pathExtension)?.identifier ?? UTType.item.identifier
         let filePromiseProvider = NSFilePromiseProvider(fileType: fileType, delegate: self)
         filePromiseProvider.userInfo = identifier
