@@ -165,6 +165,14 @@ class InteractiveCollectionView: NSCollectionView {
                 delegate?.collectionView?(self, didSelectItemsAt: [indexPath])
                 cursor = indexPath
 
+                // Pass through mouse down events to allow for dragging operations.
+                super.mouseDown(with: event)
+
+            } else {
+
+                // Pass through mouse down events to allow for dragging operations.
+                super.mouseDown(with: event)
+
             }
 
             return
@@ -173,7 +181,6 @@ class InteractiveCollectionView: NSCollectionView {
         // The user is beginning a mouse-driven selection so we clear the current tracked selection; it will get fixed
         // up on subsequent keyboard events.
         self.cursor = nil
-
         super.mouseDown(with: event)
     }
 

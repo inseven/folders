@@ -24,6 +24,7 @@ import Combine
 import SwiftUI
 import QuickLookThumbnailing
 import QuickLookUI
+import UniformTypeIdentifiers
 
 class InnerGridView: NSView {
 
@@ -106,6 +107,9 @@ class InnerGridView: NSView {
 
         collectionView.isSelectable = true
         collectionView.allowsMultipleSelection = true
+        
+        // Enable drag and drop
+        collectionView.setDraggingSourceOperationMask([.move, .copy], forLocal: false)
 
         // Observe application activity notifications to allow us to update the selection color.
         let notificationCenter = NotificationCenter.default
@@ -184,6 +188,18 @@ extension InnerGridView: QLPreviewPanelDataSource, QLPreviewPanelDelegate {
             return true
         }
         return false
+    }
+
+    // https://stackoverflow.com/questions/54467265/prevent-nscollectionview-lifting-an-item-during-drag#59893117
+    func collectionView(_ collectionView: NSCollectionView, draggingSession session: NSDraggingSession, willBeginAt screenPoint: NSPoint, forItemsAt indexPaths: Set<IndexPath>) {
+        for item in collectionView.visibleItems() {
+            guard let indexPath = collectionView.indexPath(for: item) else {
+                continue
+            }
+            if indexPaths.contains(indexPath) {
+                item.view.isHidden = false
+            }
+        }
     }
 
 }
@@ -352,6 +368,72 @@ extension InnerGridView: NSCollectionViewDelegate {
             self.activeSelectionIndexPath = nil
         }
         selection.wrappedValue = dataSource.itemIdentifiers(for: collectionView.selectionIndexPaths)
+    }
+
+    // Drag and drop.
+
+    func collectionView(_ collectionView: NSCollectionView,
+                        canDragItemsAt indexPaths: Set<IndexPath>,
+                        with event: NSEvent) -> Bool {
+        return true
+    }
+    
+    func collectionView(_ collectionView: NSCollectionView,
+                        pasteboardWriterForItemAt indexPath: IndexPath) -> NSPasteboardWriting? {
+        guard let identifier = dataSource.itemIdentifier(for: indexPath) else {
+            return nil
+        }
+
+        let fileType = UTType(filenameExtension: identifier.url.pathExtension)?.identifier ?? UTType.item.identifier
+        let filePromiseProvider = NSFilePromiseProvider(fileType: fileType, delegate: self)
+        filePromiseProvider.userInfo = identifier
+        
+        return filePromiseProvider
+    }
+    
+    func collectionView(_ collectionView: NSCollectionView,
+                        draggingSession session: NSDraggingSession,
+                        sourceOperationMaskFor context: NSDraggingContext) -> NSDragOperation {
+        switch context {
+        case .outsideApplication:
+            if NSEvent.modifierFlags.contains(.option) {
+                return .copy
+            } else {
+                return .move
+            }
+        case .withinApplication:
+            if NSEvent.modifierFlags.contains(.option) {
+                return .copy
+            } else {
+                return .move
+            }
+        @unknown default:
+            return .move
+        }
+    }
+
+}
+
+extension InnerGridView: NSFilePromiseProviderDelegate {
+
+    func filePromiseProvider(_ filePromiseProvider: NSFilePromiseProvider, fileNameForType fileType: String) -> String {
+        guard let identifier = filePromiseProvider.userInfo as? Details.Identifier else {
+            return "Unknown File"
+        }
+        return identifier.url.lastPathComponent
+    }
+    
+    func filePromiseProvider(_ filePromiseProvider: NSFilePromiseProvider, writePromiseTo url: URL) async throws {
+
+        guard let identifier = filePromiseProvider.userInfo as? Details.Identifier else {
+            throw CocoaError(.fileReadNoSuchFile)
+        }
+
+        if NSEvent.modifierFlags.contains(.option) {
+            try FileManager.default.copyItem(at: identifier.url, to: url)
+        } else {
+            try FileManager.default.moveItem(at: identifier.url, to: url)
+        }
     }
 
 }
