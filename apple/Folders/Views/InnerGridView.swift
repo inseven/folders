@@ -52,8 +52,8 @@ class InnerGridView: NSView {
         }
     }
 
-    init(store: Store, filter: any Filter, selection: Binding<Set<Details.Identifier>>) {
-        self.storeView = StoreFilesView(store: store, filter: filter, sort: .displayNameDescending)
+    init(store: Store, filter: any Filter, sort: Sort, selection: Binding<Set<Details.Identifier>>) {
+        self.storeView = StoreFilesView(store: store, filter: filter, sort: sort)
 
         scrollView = NSScrollView()
         scrollView.translatesAutoresizingMaskIntoConstraints = false

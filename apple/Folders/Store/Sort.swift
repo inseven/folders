@@ -26,11 +26,42 @@ import SQLite
 
 protocol Sort {
 
-    func compare(_ lhs: Details, _ rhs: Details) -> Bool
+    var id: String { get }
     var sql: String { get }
+    func compare(_ lhs: Details, _ rhs: Details) -> Bool
+}
+
+struct AnySort: Sort, Hashable {
+
+    static func == (lhs: AnySort, rhs: AnySort) -> Bool {
+        return lhs.id == rhs.id
+    }
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
+
+    let id: String
+    let sql: String
+    let _compare: (Details, Details) -> Bool
+
+    init(_ sort: any Sort) {
+        self.id = sort.id
+        self.sql = sort.sql
+        self._compare = { lhs, rhs in
+            return sort.compare(lhs, rhs)
+        }
+    }
+
+    func compare(_ lhs: Details, _ rhs: Details) -> Bool {
+        return _compare(lhs, rhs)
+    }
+
 }
 
 struct DisplayNameAscending: Sort {
+
+    let id = "DisplayNameAscending"
 
     func compare(_ lhs: Details, _ rhs: Details) -> Bool {
         return lhs.url.displayName.localizedStandardCompare(rhs.url.displayName) == .orderedAscending
@@ -44,13 +75,15 @@ struct DisplayNameAscending: Sort {
 
 extension Sort where Self == DisplayNameAscending {
 
-    static var displayNameAscending: DisplayNameAscending {
+    static var displayNameAscending: Self {
         return DisplayNameAscending()
     }
 
 }
 
 struct DisplayNameDescending: Sort {
+
+    let id = "DisplayNameDescending"
 
     func compare(_ lhs: Details, _ rhs: Details) -> Bool {
         return lhs.url.displayName.localizedStandardCompare(rhs.url.displayName) == .orderedDescending
@@ -64,8 +97,52 @@ struct DisplayNameDescending: Sort {
 
 extension Sort where Self == DisplayNameDescending {
 
-    static var displayNameDescending: DisplayNameDescending {
+    static var displayNameDescending: Self {
         return DisplayNameDescending()
+    }
+
+}
+
+struct ModificationDateAscending: Sort {
+
+    let id = "ModificationDateAscending"
+
+    func compare(_ lhs: Details, _ rhs: Details) -> Bool {
+        return lhs.contentModificationDate < rhs.contentModificationDate
+    }
+
+    var sql: String {
+        return "modification_date ASC"
+    }
+
+}
+
+extension Sort where Self == ModificationDateAscending {
+
+    static var modificationDateAscending: Self {
+        return ModificationDateAscending()
+    }
+
+}
+
+struct ModificationDateDescending: Sort {
+
+    let id = "ModificationDateDescending"
+
+    func compare(_ lhs: Details, _ rhs: Details) -> Bool {
+        return lhs.contentModificationDate >= rhs.contentModificationDate
+    }
+
+    var sql: String {
+        return "modification_date DESC"
+    }
+
+}
+
+extension Sort where Self == ModificationDateDescending {
+
+    static var modificationDateDescending: Self {
+        return ModificationDateDescending()
     }
 
 }

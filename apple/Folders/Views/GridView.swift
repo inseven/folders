@@ -26,16 +26,18 @@ struct GridView: NSViewRepresentable {
 
     private let store: Store
     private let filter: Filter
+    private let sort: Sort
     private let selection: Binding<Set<Details.Identifier>>
 
-    init(store: Store, filter: Filter, selection: Binding<Set<Details.Identifier>>) {
+    init(store: Store, filter: Filter, sort: Sort, selection: Binding<Set<Details.Identifier>>) {
         self.store = store
         self.filter = filter
+        self.sort = sort
         self.selection = selection
     }
 
     func makeNSView(context: Context) -> InnerGridView {
-        return InnerGridView(store: store, filter: filter, selection: selection)
+        return InnerGridView(store: store, filter: filter, sort: sort, selection: selection)
     }
 
     func updateNSView(_ nsView: NSViewType, context: Context) {
