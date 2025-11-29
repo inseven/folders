@@ -34,12 +34,12 @@ protocol Filter {
 
 struct AnyFilter: Filter {
 
-    var statement: BoundStatement
+    let statement: BoundStatement
     let _matches: (Details) -> Bool
 
     init(_ filter: any Filter) {
         self.statement = filter.statement
-        _matches = { details in
+        self._matches = { details in
             filter.matches(details: details)
         }
     }

@@ -33,24 +33,30 @@ struct FolderView: View {
 
     let filter: Filter
 
-    init(applicationModel: ApplicationModel, filter: Filter = TrueFilter(), selection: Set<SidebarItem.ID>) {
+    init(applicationModel: ApplicationModel,
+         filter: Filter = TrueFilter(),
+         selection: Set<SidebarItem.ID>) {
         _folderViewModel = StateObject(wrappedValue: FolderViewModel(store: applicationModel.store,
                                                                      selection: selection))
         self.filter = filter
     }
 
     var body: some View {
-        GridView(store: applicationModel.store, filter: filter, selection: $folderViewModel.selection)
-            .navigationTitle(folderViewModel.title)
-            .presents($folderViewModel.error)
-            .onAppear {
-                folderViewModel.start()
-            }
-            .onDisappear {
-                folderViewModel.stop()
-            }
-            .focusedSceneObject(folderViewModel)
-            .ignoresSafeArea()
+        GridView(store: applicationModel.store,
+                 filter: filter,
+                 sort: folderViewModel.sort,
+                 selection: $folderViewModel.selection)
+        .id(String(describing: sceneModel.selection) + String(describing: folderViewModel.sort))
+        .navigationTitle(folderViewModel.title)
+        .presents($folderViewModel.error)
+        .onAppear {
+            folderViewModel.start()
+        }
+        .onDisappear {
+            folderViewModel.stop()
+        }
+        .focusedSceneObject(folderViewModel)
+        .ignoresSafeArea()
     }
 
 }
