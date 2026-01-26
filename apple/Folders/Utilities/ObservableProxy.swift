@@ -22,39 +22,12 @@
 
 import SwiftUI
 
-struct FolderView: View {
+class ObservableProxy<T: Observable>: ObservableObject {
 
-    @EnvironmentObject var applicationModel: ApplicationModel
-    @EnvironmentObject var sceneModel: SceneModel
+    let observable: T
 
-    @Environment(\.openURL) var openURL
-
-    @State var folderViewModel: FolderViewModel
-
-    let filter: Filter
-
-    init(applicationModel: ApplicationModel,
-         filter: Filter = TrueFilter(),
-         selection: Set<SidebarItem.ID>) {
-        _folderViewModel = State(wrappedValue: FolderViewModel(store: applicationModel.store, selection: selection))
-        self.filter = filter
-    }
-
-    var body: some View {
-        GridView(store: applicationModel.store,
-                 filter: filter,
-                 sort: folderViewModel.sort,
-                 selection: $folderViewModel.selection)
-        .id(String(describing: sceneModel.selection) + String(describing: folderViewModel.sort))
-        .presents($folderViewModel.error)
-        .onAppear {
-            folderViewModel.start()
-        }
-        .onDisappear {
-            folderViewModel.stop()
-        }
-        .focusedSceneObject(ObservableProxy(folderViewModel))
-        .ignoresSafeArea()
+    init(_ observable: T) {
+        self.observable = observable
     }
 
 }

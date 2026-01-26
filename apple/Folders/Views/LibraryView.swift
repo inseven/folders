@@ -28,6 +28,12 @@ struct LibraryView: View {
     @StateObject var sceneModel: SceneModel
     @State var size: CGFloat = 400
 
+    var title: String {
+        return sceneModel.selection.map { $0.displayName }
+            .sorted { $0.localizedCaseInsensitiveCompare($1) == .orderedAscending }
+            .joined(separator: ", ")
+    }
+
     init(applicationModel: ApplicationModel) {
         self.applicationModel = applicationModel
         _sceneModel = StateObject(wrappedValue: SceneModel(applicationModel: applicationModel))
@@ -76,6 +82,7 @@ struct LibraryView: View {
             SelectionToolbar()
             ViewToolbar()
         }
+        .navigationTitle(title)
         .environmentObject(sceneModel)
     }
 

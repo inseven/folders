@@ -23,23 +23,18 @@
 import Combine
 import SwiftUI
 
-class FolderViewModel: ObservableObject {
+@Observable
+class FolderViewModel {
 
-    @Published var settings: [URL: FolderSettings] = [:]
-    @Published var selection: Set<Details.Identifier> = []
-    @Published var error: Error?  // TODO: List of errors?
-    @Published var sort: AnySort = AnySort(.displayNameDescending)
+    var settings: [URL: FolderSettings] = [:]
+    var selection: Set<Details.Identifier> = []
+    var error: Error?  // TODO: List of errors?
+    var sort: AnySort = AnySort(.displayNameDescending)
 
     let store: Store
     let identifiers: [SidebarItem.Kind]
     let settingsURLs: [URL]
     var cancellables = Set<AnyCancellable>()
-
-    var title: String {
-        return identifiers.map { $0.displayName }
-            .sorted { $0.localizedCaseInsensitiveCompare($1) == .orderedAscending }
-            .joined(separator: ", ")
-    }
 
     init(store: Store, selection: Set<SidebarItem.ID>) {
         self.store = store
