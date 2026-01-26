@@ -24,6 +24,10 @@ import SwiftUI
 
 struct Sidebar: View {
 
+    @SceneStorage("expand-library") private var isLibrarySectionExpanded: Bool = true
+    @SceneStorage("expand-tags") private var isTagsSectionExpanded: Bool = false
+    @SceneStorage("expand-finder-tags") private var isFinderTagsSectionExpanded: Bool = false
+
     @ObservedObject var applicationModel: ApplicationModel
     @ObservedObject var sceneModel: SceneModel
 
@@ -43,7 +47,7 @@ struct Sidebar: View {
 
     var body: some View {
         List(selection: $sceneModel.selection) {
-            Section("Library") {
+            Section("Library", isExpanded: $isLibrarySectionExpanded) {
                 OutlineGroup(applicationModel.dynamicSidebarItems, children: \.children) { item in
                     Label(item.kind.displayName, systemImage: item.kind.systemImage)
                         .contextMenu {
@@ -64,7 +68,7 @@ struct Sidebar: View {
                 }
             }
             if !applicationModel.finderTags.isEmpty {
-                Section("Finder Tags") {
+                Section("Finder Tags", isExpanded: $isFinderTagsSectionExpanded) {
                     ForEach(applicationModel.finderTags, id: \.self) { tag in
                         Label {
                             Text(tag.name)
@@ -76,7 +80,7 @@ struct Sidebar: View {
                 }
             }
             if !applicationModel.tags.isEmpty {
-                Section("Tags") {
+            Section("Tags", isExpanded: $isTagsSectionExpanded) {
                     ForEach(applicationModel.tags, id: \.self) { tag in
                         Label(tag.name, systemImage: "tag")
                             .tag(SidebarItem.Kind.tag(tag))
