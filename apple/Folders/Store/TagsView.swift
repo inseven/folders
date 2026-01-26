@@ -43,6 +43,10 @@ protocol TagsViewDelegate: NSObject {
 
 class TagsView: NSObject, Store.Observer {
 
+    static func compare(lhs: Tag, rhs: Tag) -> Bool {
+        return lhs.name.localizedCaseInsensitiveCompare(rhs.name) == .orderedAscending
+    }
+
     let store: Store
     let workQueue = DispatchQueue(label: "StoreView.workQueue", qos: .userInteractive)
     let threshold: Int
@@ -52,7 +56,7 @@ class TagsView: NSObject, Store.Observer {
     weak var delegate: TagsViewDelegate? = nil
 
     // TODO: Enforce serialization of client callbacks.
-    init(store: Store, sort: Sort = .displayNameAscending, threshold: Int = 10) {
+    init(store: Store, threshold: Int = 10) {
         self.store = store
         self.threshold = threshold
         super.init()
@@ -70,7 +74,7 @@ class TagsView: NSObject, Store.Observer {
                 // Get them out sorted.
                 let queryStart = Date()
                 let queryDuration = queryStart.distance(to: Date())
-                self.tags = try self.store.tags()
+                self.tags = (try self.store.tags()).sorted(by: Self.compare)
                 print("Query took \(queryDuration.formatted()) seconds and returned \(self.tags.count) tags.")
 
                 let snapshot = self.tags
@@ -124,9 +128,7 @@ class TagsView: NSObject, Store.Observer {
 
             if tags.count < self.threshold {
                 for tag in tags {
-                    let index = self.tags.partitioningIndex {
-                        return tag.name.localizedCaseInsensitiveCompare($0.name) == .orderedAscending
-                    }
+                    let index = self.tags.partitioningIndex { Self.compare(lhs: tag, rhs: $0) }
                     self.tags.insert(tag, at: index)
                     let snapshot = self.tags
                     DispatchQueue.main.async {
@@ -137,12 +139,10 @@ class TagsView: NSObject, Store.Observer {
                 if self.tags.isEmpty {
                     // If the list of tags is empty (e.g., in the case of an initial load), we can sort the tags and
                     // simply set the new value.
-                    self.tags = tags.sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
+                    self.tags = tags.sorted(by: Self.compare)
                 } else {
                     for tag in tags {
-                        let index = self.tags.partitioningIndex {
-                            return tag.name.localizedCaseInsensitiveCompare($0.name) == .orderedAscending
-                        }
+                        let index = self.tags.partitioningIndex { Self.compare(lhs: tag, rhs: $0) }
                         self.tags.insert(tag, at: index)
                     }
                 }
