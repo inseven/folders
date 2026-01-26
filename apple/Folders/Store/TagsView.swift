@@ -89,8 +89,19 @@ class TagsView: NSObject, Store.Observer {
     }
 
     func stop() {
-        store.remove(observer: self)
-        // TODO: Clean up our existing state to allow for restarts.
+        dispatchPrecondition(condition: .notOnQueue(workQueue))
+        workQueue.sync {
+            precondition(self.isRunning == true)
+            self.isRunning = false
+
+            // Stop observing the database.
+            // The store is written in such a way that once we've we've successfully removed ourselves, we're guarnateed
+            // not to receive another callback, meaning we don't have to do anything clever here.
+            store.remove(observer: self)
+
+            // Reset our state.
+            self.tags = []
+        }
     }
 
     func store(_ store: Store, didInsertFiles files: [Details]) {
@@ -116,8 +127,6 @@ class TagsView: NSObject, Store.Observer {
             // This can occur because there's a period of time during which we are subscribed but have yet to fetch
             // the data in the database. In this scenario it's possible to receive additions that we then get back in
             // our database query.
-            // TODO: Using a flat array to store our files isn't very efficient for this kind of lookup.
-            // TODO: It's very slightly possible this could be an update?
             let tags = tags.filter { !self.tags.contains($0) }
             guard tags.count > 0 else {
                 return
