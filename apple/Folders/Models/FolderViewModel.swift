@@ -23,9 +23,10 @@
 import Combine
 import SwiftUI
 
-class SelectionModel: ObservableObject {
+class FolderViewModel: ObservableObject {
 
     @Published var settings: [URL: FolderSettings] = [:]
+    @Published var selection: Set<Details.Identifier> = []
     @Published var error: Error?  // TODO: List of errors?
 
     let store: Store
