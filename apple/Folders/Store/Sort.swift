@@ -64,7 +64,7 @@ struct DisplayNameAscending: Sort {
     let id = "DisplayNameAscending"
 
     func compare(_ lhs: Details, _ rhs: Details) -> Bool {
-        return lhs.url.displayName.localizedStandardCompare(rhs.url.displayName) == .orderedAscending
+        return lhs.url.displayName.localizedCaseInsensitiveCompare(rhs.url.displayName) == .orderedAscending
     }
 
     var sql: String {
@@ -86,7 +86,7 @@ struct DisplayNameDescending: Sort {
     let id = "DisplayNameDescending"
 
     func compare(_ lhs: Details, _ rhs: Details) -> Bool {
-        return lhs.url.displayName.localizedStandardCompare(rhs.url.displayName) == .orderedDescending
+        return lhs.url.displayName.localizedCaseInsensitiveCompare(rhs.url.displayName) == .orderedDescending
     }
 
     var sql: String {
