@@ -83,7 +83,7 @@ class ApplicationModel: NSObject, ObservableObject {
         }
 
         self.directoriesView = StoreFilesView(store: store, filter: .conforms(to: [.directory, .folder]))
-        self.tagsView = TagsView(store: store)
+        self.tagsView = TagsView(store: store, targetQueue: .main)
 
         super.init()
 

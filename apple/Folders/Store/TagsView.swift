@@ -25,7 +25,6 @@ import UniformTypeIdentifiers
 
 import Algorithms
 
-// TODO: Move into TagsView?
 protocol TagsViewDelegate: NSObject {
 
     func tagsView(_ tagsView: TagsView,
@@ -49,16 +48,17 @@ class TagsView: NSObject, Store.Observer {
 
     let store: Store
     let workQueue = DispatchQueue(label: "StoreView.workQueue", qos: .userInteractive)
+    let targetQueue: DispatchQueue
     let threshold: Int
     private var isRunning: Bool = false  // Synchronized on workQueue
     private var tags: [Tag] = []  // Synchronized on workQueue
 
     weak var delegate: TagsViewDelegate? = nil
 
-    // TODO: Enforce serialization of client callbacks.
-    init(store: Store, threshold: Int = 10) {
+    init(store: Store, threshold: Int = 10, targetQueue: DispatchQueue? = nil) {
         self.store = store
         self.threshold = threshold
+        self.targetQueue = DispatchQueue(label: "StoreView.targetQueue", qos: .userInteractive, target: targetQueue)
         super.init()
     }
 
@@ -78,7 +78,7 @@ class TagsView: NSObject, Store.Observer {
                 print("Query took \(queryDuration.formatted()) seconds and returned \(self.tags.count) tags.")
 
                 let snapshot = self.tags
-                DispatchQueue.main.async { [self] in
+                self.targetQueue.async { [self] in
                     self.delegate?.tagsView(self, didUpdateTags: snapshot)
                 }
             } catch {
@@ -89,8 +89,19 @@ class TagsView: NSObject, Store.Observer {
     }
 
     func stop() {
-        store.remove(observer: self)
-        // TODO: Clean up our existing state to allow for restarts.
+        dispatchPrecondition(condition: .notOnQueue(workQueue))
+        workQueue.sync {
+            precondition(self.isRunning == true)
+            self.isRunning = false
+
+            // Stop observing the database.
+            // The store is written in such a way that once we've we've successfully removed ourselves, we're guarnateed
+            // not to receive another callback, meaning we don't have to do anything clever here.
+            store.remove(observer: self)
+
+            // Reset our state.
+            self.tags = []
+        }
     }
 
     func store(_ store: Store, didInsertFiles files: [Details]) {
@@ -116,8 +127,6 @@ class TagsView: NSObject, Store.Observer {
             // This can occur because there's a period of time during which we are subscribed but have yet to fetch
             // the data in the database. In this scenario it's possible to receive additions that we then get back in
             // our database query.
-            // TODO: Using a flat array to store our files isn't very efficient for this kind of lookup.
-            // TODO: It's very slightly possible this could be an update?
             let tags = tags.filter { !self.tags.contains($0) }
             guard tags.count > 0 else {
                 return
@@ -131,7 +140,7 @@ class TagsView: NSObject, Store.Observer {
                     let index = self.tags.partitioningIndex { Self.compare(lhs: tag, rhs: $0) }
                     self.tags.insert(tag, at: index)
                     let snapshot = self.tags
-                    DispatchQueue.main.async {
+                    self.targetQueue.async {
                         self.delegate?.tagsView(self, didInsertTag: tag, atIndex: index, tags: snapshot)
                     }
                 }
@@ -147,7 +156,7 @@ class TagsView: NSObject, Store.Observer {
                     }
                 }
                 let snapshot = self.tags
-                DispatchQueue.main.async {
+                self.targetQueue.async {
                     self.delegate?.tagsView(self, didUpdateTags: snapshot)
                 }
             }
@@ -167,7 +176,7 @@ class TagsView: NSObject, Store.Observer {
                     }
                     self.tags.remove(at: index)
                     let snapshot = self.tags
-                    DispatchQueue.main.async {
+                    self.targetQueue.async {
                         self.delegate?.tagsView(self, didRemoveTag: tag, atIndex: index, tags: snapshot)
                     }
                 }
@@ -179,7 +188,7 @@ class TagsView: NSObject, Store.Observer {
                     self.tags.remove(at: index)
                 }
                 let snapshot = self.tags
-                DispatchQueue.main.async {
+                self.targetQueue.async {
                     self.delegate?.tagsView(self, didUpdateTags: snapshot)
                 }
             }
