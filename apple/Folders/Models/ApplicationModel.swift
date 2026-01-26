@@ -38,6 +38,7 @@ class ApplicationModel: NSObject, ObservableObject {
     @Published var lookup: [Details.Identifier: SidebarItem] = [:]
     @Published var dynamicSidebarItems: [SidebarItem] = []
     @Published var tags: [Tag] = []
+    @Published var error: Error? = nil  // TODO: Present this error to the user.
 
     var cancellables = Set<AnyCancellable>()
     let updaterController = SPUStandardUpdaterController(startingUpdater: false,
@@ -267,6 +268,12 @@ extension ApplicationModel: TagsViewDelegate {
     func tagsView(_ tagsView: TagsView, didRemoveTag tag: Tag, atIndex index: Int, tags: [Tag]) {
         dispatchPrecondition(condition: .onQueue(.main))
         self.tags = tags
+    }
+
+    func tagsView(_ tagsView: TagsView, didFailWithError error: any Error) {
+        dispatchPrecondition(condition: .onQueue(.main))
+        self.error = error
+        print("Tags view failed with error \(error).")
     }
 
 }

@@ -27,16 +27,10 @@ import Algorithms
 
 protocol TagsViewDelegate: NSObject {
 
-    func tagsView(_ tagsView: TagsView,
-                  didUpdateTags tags: [Tag])
-    func tagsView(_ tagsView: TagsView,
-                  didInsertTag tag: Tag,
-                  atIndex index: Int,
-                  tags: [Tag])
-    func tagsView(_ tagsView: TagsView,
-                  didRemoveTag tag: Tag,
-                  atIndex index: Int,
-                  tags: [Tag])
+    func tagsView(_ tagsView: TagsView, didUpdateTags tags: [Tag])
+    func tagsView(_ tagsView: TagsView, didInsertTag tag: Tag, atIndex index: Int, tags: [Tag])
+    func tagsView(_ tagsView: TagsView, didRemoveTag tag: Tag, atIndex index: Int, tags: [Tag])
+    func tagsView(_ tagsView: TagsView, didFailWithError error: Error)
 
 }
 
@@ -50,8 +44,10 @@ class TagsView: NSObject, Store.Observer {
     let workQueue = DispatchQueue(label: "StoreView.workQueue", qos: .userInteractive)
     let targetQueue: DispatchQueue
     let threshold: Int
-    private var isRunning: Bool = false  // Synchronized on workQueue
-    private var tags: [Tag] = []  // Synchronized on workQueue
+
+    // Synchronized on workQueue.
+    private var isRunning: Bool = false
+    private var tags: [Tag] = []
 
     weak var delegate: TagsViewDelegate? = nil
 
@@ -71,19 +67,29 @@ class TagsView: NSObject, Store.Observer {
                 // Start observing the database.
                 self.store.add(observer: self)
 
-                // Get them out sorted.
+                // Get the tags.
                 let queryStart = Date()
                 let queryDuration = queryStart.distance(to: Date())
                 self.tags = (try self.store.tags()).sorted(by: Self.compare)
                 print("Query took \(queryDuration.formatted()) seconds and returned \(self.tags.count) tags.")
 
                 let snapshot = self.tags
-                self.targetQueue.async { [self] in
+                self.targetQueue.async {
                     self.delegate?.tagsView(self, didUpdateTags: snapshot)
                 }
             } catch {
-                // TODO: Provide a delegate model that actually returns errors.
-                print("Failed to scan for files with error \(error).")
+
+                // Ensure we're not observing any more.
+                self.store.remove(observer: self)
+
+                // Reset our state.
+                self.isRunning = false
+                self.tags = []
+
+                // Let the delegate know we encountered an error.
+                self.targetQueue.async {
+                    self.delegate?.tagsView(self, didFailWithError: error)
+                }
             }
         }
     }
