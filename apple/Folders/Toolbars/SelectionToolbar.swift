@@ -24,43 +24,43 @@ import SwiftUI
 
 struct SelectionToolbar: CustomizableToolbarContent {
 
-    @FocusedObject var folderViewModel: FolderViewModel?
+    @FocusedObject var folderViewModelProxy: ObservableProxy<FolderViewModel>?
 
     var body: some CustomizableToolbarContent {
 
         ToolbarItem(id: "finder") {
             Button("Show in Finder", systemImage: "finder") {
-                guard let selection = folderViewModel?.selection else {
+                guard let selection = folderViewModelProxy?.observable.selection else {
                     return
                 }
                 let urls = selection.map { $0.url }
                 NSWorkspace.shared.activateFileViewerSelecting(urls)
             }
-            .disabled(folderViewModel?.selection.isEmpty ?? false)
+            .disabled(folderViewModelProxy?.observable.selection.isEmpty ?? false)
             .help("Show items in Finder")
         }
 
         ToolbarItem(id: "trash") {
             Button("Delete", systemImage: "trash") {
-                guard let selection = folderViewModel?.selection else {
+                guard let selection = folderViewModelProxy?.observable.selection else {
                     return
                 }
                 let urls = selection.map { $0.url }
                 NSWorkspace.shared.recycle(urls)
             }
-            .disabled(folderViewModel?.selection.isEmpty ?? false)
+            .disabled(folderViewModelProxy?.observable.selection.isEmpty ?? false)
             .help("Move the selected items to the Bin")
         }
 
         ToolbarItem(id: "links") {
             Menu {
-                if let folderViewModel {
-                    SelectionLinksMenu(folderViewModel: folderViewModel)
+                if let folderViewModelProxy {
+                    SelectionLinksMenu(folderViewModel: folderViewModelProxy.observable)
                 }
             } label: {
                 Image(systemName: "link")
             }
-            .disabled(folderViewModel == nil)
+            .disabled(folderViewModelProxy == nil)
         }
     }
 

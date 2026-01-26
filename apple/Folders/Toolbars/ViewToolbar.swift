@@ -26,9 +26,10 @@ struct ViewToolbar: CustomizableToolbarContent {
 
     struct SortPicker: View {
 
-        @ObservedObject var folderViewModel: FolderViewModel
+        var folderViewModel: FolderViewModel
 
         var body: some View {
+            @Bindable var folderViewModel = folderViewModel
             Picker(selection: $folderViewModel.sort) {
                 Text("Name (Ascending)")
                     .tag(AnySort(.displayNameAscending))
@@ -44,7 +45,7 @@ struct ViewToolbar: CustomizableToolbarContent {
 
     }
 
-    @FocusedObject var folderViewModel: FolderViewModel?
+    @FocusedObject var folderViewModel: ObservableProxy<FolderViewModel>?
 
     @State var descending: Bool = true
 
@@ -53,7 +54,7 @@ struct ViewToolbar: CustomizableToolbarContent {
         ToolbarItem(id: "sort") {
             Menu {
                 if let folderViewModel {
-                    SortPicker(folderViewModel: folderViewModel)
+                    SortPicker(folderViewModel: folderViewModel.observable)
                 }
             } label: {
                 Label("Sort By", systemImage: "arrow.up.arrow.down")

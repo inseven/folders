@@ -24,7 +24,7 @@ import SwiftUI
 
 struct SelectionLinksMenu: View {
 
-    @ObservedObject private var folderViewModel: FolderViewModel
+    var folderViewModel: FolderViewModel
 
     init(folderViewModel: FolderViewModel) {
         self.folderViewModel = folderViewModel
