@@ -6,7 +6,7 @@ description: Offline Library Management for Your Files
 baseurl: ""
 url: "https://folders.jbmorley.co.uk"
 repository: https://github.com/inseven/thoughts
-copyright: 2023-2025 <a href="https://jbmorley.co.uk/about">Jason Morley</a>
+copyright: 2023-2026 <a href="https://jbmorley.co.uk/about">Jason Morley</a>
 
 navigation:
   - title: Folders

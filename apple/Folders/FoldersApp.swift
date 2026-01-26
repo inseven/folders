@@ -1,6 +1,6 @@
 // MIT License
 //
-// Copyright (c) 2023-2025 Jason Morley
+// Copyright (c) 2023-2026 Jason Morley
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -51,7 +51,7 @@ struct FoldersApp: App {
 
         let subject = "Folders Support (\(Bundle.main.extendedVersion ?? "Unknown Version"))"
 
-        About(repository: "inseven/folders", copyright: "Copyright © 2023-2025 Jason Morley") {
+        About(repository: "inseven/folders", copyright: "Copyright © 2023-2026 Jason Morley") {
             Action("Website", url: URL(string: "https://folders.jbmorley.co.uk")!)
             Action("Privacy Policy", url: URL(string: "https://folders.jbmorley.co.uk/privacy-policy")!)
             Action("GitHub", url: URL(string: "https://github.com/inseven/folders")!)
