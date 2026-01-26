@@ -25,6 +25,7 @@ import SwiftUI
 struct Sidebar: View {
 
     @SceneStorage("expand-library") private var isLibrarySectionExpanded: Bool = true
+    @SceneStorage("expand-media-types") private var isMediaTypesSectionExpanded: Bool = false
     @SceneStorage("expand-tags") private var isTagsSectionExpanded: Bool = false
     @SceneStorage("expand-finder-tags") private var isFinderTagsSectionExpanded: Bool = false
 
@@ -68,6 +69,14 @@ struct Sidebar: View {
                         sceneModel.add()
                     }
                 }
+            }
+            Section("Media Types", isExpanded: $isMediaTypesSectionExpanded) {
+                Label("Images", systemImage: "photo")
+                    .tag(SidebarItem.Kind.images)
+                Label("Videos", systemImage: "video")
+                    .tag(SidebarItem.Kind.videos)
+                Label("Documents", systemImage: "document")
+                    .tag(SidebarItem.Kind.documents)
             }
             if !applicationModel.finderTags.isEmpty {
                 Section("Finder Tags", isExpanded: $isFinderTagsSectionExpanded) {

@@ -53,7 +53,7 @@ class SceneModel: ObservableObject {
             applicationModel.remove(id.url)
         case .folder(let id):
             applicationModel.remove(id.url)
-        case .tag:
+        case .tag, .images, .videos, .documents:
             break
         }
     }
@@ -64,7 +64,7 @@ class SceneModel: ObservableObject {
             NSWorkspace.shared.reveal(id.url)
         case .folder(let id):
             NSWorkspace.shared.reveal(id.url)
-        case .tag:
+        case .tag, .images, .videos, .documents:
             break
         }
     }
