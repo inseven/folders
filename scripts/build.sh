@@ -133,6 +133,7 @@ sudo xcode-select --switch "$MACOS_XCODE_PATH"
 xcodebuild \
     -project Folders.xcodeproj \
     -scheme "Folders" \
+    -testPlan "Folders" \
     -resultBundlePath "${BUILD_DIRECTORY}/Results" \
     clean build build-for-testing test
 xcodebuild \
