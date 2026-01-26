@@ -28,6 +28,7 @@ protocol CollectionViewInteractionDelegate: NSObject {
     func collectionView(_ collectionView: InteractiveCollectionView, contextMenuForSelection selection: Set<IndexPath>) -> NSMenu?
     func collectionView(_ collectionView: InteractiveCollectionView, didDoubleClickSelection selection: Set<IndexPath>)
     func collectionViewShowPreview(_ collectionView: InteractiveCollectionView)
+    func collectionView(_ collectionView: InteractiveCollectionView, didUpdateFocus isFirstResponder: Bool)
 
 }
 
@@ -184,6 +185,18 @@ class InteractiveCollectionView: NSCollectionView {
             interactionDelegate?.collectionView(self, didDoubleClickSelection: selectionIndexPaths)
             return
         }
+    }
+
+    override func becomeFirstResponder() -> Bool {
+        let result = super.becomeFirstResponder()
+        interactionDelegate?.collectionView(self, didUpdateFocus: true)
+        return result
+    }
+
+    override func resignFirstResponder() -> Bool {
+        let result = super.resignFirstResponder()
+        interactionDelegate?.collectionView(self, didUpdateFocus: false)
+        return result
     }
 
     override func keyDown(with event: NSEvent) {

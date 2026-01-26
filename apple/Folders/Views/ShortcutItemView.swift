@@ -26,10 +26,14 @@ import QuickLookThumbnailing
 class ShortcutItemView: NSCollectionViewItem {
 
     static let identifier = NSUserInterfaceItemIdentifier(rawValue: "CollectionViewItem")
-    var label: NSTextField? = nil
-    var preview: NSImageView? = nil
 
-    // TODO: Move this back into a model?
+    var url: URL? = nil
+    private var parentHasFocus: Bool = false
+    private var parentIsKey: Bool = false
+
+    private var label: NSTextField? = nil
+    private var preview: NSImageView? = nil
+
     var request: QLThumbnailGenerator.Request? = nil
 
     override var isSelected: Bool {
@@ -43,7 +47,12 @@ class ShortcutItemView: NSCollectionViewItem {
     }
 
     func updateState() {
-        view.layer?.backgroundColor = isSelected || highlightState == .forSelection ? NSColor.controlAccentColor.cgColor : nil
+        let selectionColor: NSColor? = if isSelected || highlightState != .none {
+            parentHasFocus && parentIsKey ? .selectedContentBackgroundColor : .unemphasizedSelectedContentBackgroundColor
+        } else {
+            nil
+        }
+        view.layer?.backgroundColor = selectionColor?.cgColor
     }
 
     override var highlightState: NSCollectionViewItem.HighlightState {
@@ -52,7 +61,17 @@ class ShortcutItemView: NSCollectionViewItem {
         }
     }
 
-    func configure(url: URL) {
+    func configure(url: URL, parentHasFocus: Bool, parentIsKey: Bool) {
+        if self.url != url {
+            self.url = url
+            configure(url: url)
+        }
+        self.parentHasFocus = parentHasFocus
+        self.parentIsKey = parentIsKey
+        updateState()
+    }
+
+    private func configure(url: URL) {
 
         if label == nil {
             let label = NSTextField(frame: .zero)
@@ -78,7 +97,7 @@ class ShortcutItemView: NSCollectionViewItem {
 
         cancel()
 
-        let size = CGSize(width: 300, height: 300)  // TODO: Detect view dimensions and scale.
+        let size = CGSize(width: 300, height: 300)
 
         // Load the image.
         let request = QLThumbnailGenerator.Request(fileAt: url,
@@ -113,6 +132,9 @@ class ShortcutItemView: NSCollectionViewItem {
 
     override func prepareForReuse() {
         cancel()
+        self.url = nil
+        self.parentHasFocus = false
+        self.parentIsKey = false
         self.preview?.image = nil
         super.prepareForReuse()
     }

@@ -20,6 +20,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+import Combine
 import SwiftUI
 import QuickLookThumbnailing
 import QuickLookUI
@@ -40,6 +41,8 @@ class InnerGridView: NSView {
     private let scrollView: NSScrollView
     private let collectionView: InteractiveCollectionView
     private var dataSource: DataSource! = nil
+    private var cancellables: Set<AnyCancellable> = []
+
     private let selection: Binding<Set<Details.Identifier>>
 
     var activeSelectionIndexPath: IndexPath? = nil {
@@ -80,7 +83,9 @@ class InnerGridView: NSView {
                                                      for: indexPath) as? ShortcutItemView else {
                 return ShortcutItemView()
             }
-            view.configure(url: item.url)
+            view.configure(url: item.url,
+                           parentHasFocus: collectionView.isFirstResponder,
+                           parentIsKey: collectionView.window?.isKeyWindow ?? false)
             return view
         }
 
@@ -102,10 +107,22 @@ class InnerGridView: NSView {
         collectionView.isSelectable = true
         collectionView.allowsMultipleSelection = true
 
+        // Observe application activity notifications to allow us to update the selection color.
+        let notificationCenter = NotificationCenter.default
+        notificationCenter
+            .publisher(for: NSApplication.didBecomeActiveNotification)
+            .combineLatest(notificationCenter
+                .publisher(for: NSApplication.didResignActiveNotification))
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                self?.updateVisibleItems()
+            }
+            .store(in: &cancellables)
+
         self.storeView.delegate = self
         self.storeView.start()
     }
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -128,6 +145,19 @@ class InnerGridView: NSView {
         self.previewPanel = nil
         panel.dataSource = nil
         panel.delegate = nil
+    }
+
+    func updateVisibleItems() {
+        for item in collectionView.visibleItems() {
+            guard let item = item as? ShortcutItemView,
+                  let url = item.url
+            else {
+                continue
+            }
+            item.configure(url: url,
+                           parentHasFocus: collectionView.isFirstResponder,
+                           parentIsKey: collectionView.window?.isKeyWindow ?? false)
+        }
     }
 
 }
@@ -195,7 +225,9 @@ extension InnerGridView: StoreFilesViewDelegate {
               let cell = collectionView.item(at: indexPath) as? ShortcutItemView else {
             return
         }
-        cell.configure(url: file.url)
+        cell.configure(url: file.url,
+                       parentHasFocus: collectionView.isFirstResponder,
+                       parentIsKey: collectionView.window?.isKeyWindow ?? false)
     }
 
     func storeFilesView(_ storeFilesView: StoreFilesView,
@@ -300,6 +332,10 @@ extension InnerGridView: CollectionViewInteractionDelegate {
 
     func collectionViewShowPreview(_ customCollectionView: InteractiveCollectionView) {
         showPreview()
+    }
+
+    func collectionView(_ collectionView: InteractiveCollectionView, didUpdateFocus isFirstResponder: Bool) {
+        updateVisibleItems()
     }
 
 }
