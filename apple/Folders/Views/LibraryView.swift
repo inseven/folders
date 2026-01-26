@@ -69,7 +69,6 @@ struct LibraryView: View {
         }
         .toolbar {
             SelectionToolbar()
-            SceneToolbar()
         }
         .environmentObject(sceneModel)
     }

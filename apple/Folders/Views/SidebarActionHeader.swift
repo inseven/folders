@@ -22,18 +22,30 @@
 
 import SwiftUI
 
-struct SceneToolbar: CustomizableToolbarContent {
+struct SidebarActionHeader<Content: View>: View {
 
-    @EnvironmentObject var sceneModel: SceneModel
+    @State private var isHovering = false
 
-    public var body: some CustomizableToolbarContent {
-        ToolbarItem(id: "add-folder") {
-            Button {
-                sceneModel.add()
-            } label: {
-                Label("Add", systemImage: "plus")
+    private let content: Content
+
+    init(@ViewBuilder content: () -> Content) {
+        self.content = content()
+    }
+
+    var body: some View {
+        HStack {
+            Text("Library")
+            Spacer()
+            if isHovering {
+                MenuButton(label: Image(systemName: "ellipsis.circle")) {
+                    content
+                }
+                .buttonStyle(.plain)
             }
-            .help("Add folder")
+        }
+        .onHover { isHovering in
+            self.isHovering = isHovering
+            
         }
     }
 
