@@ -107,6 +107,7 @@ jobs:
       run: |
         git submodule update --init --depth 1 scripts/build-tools
         git submodule update --init --depth 1 scripts/changes
+        git submodule update --init --depth 1 docs/_theme
 
     - name: Install the tool dependencies
       uses: jdx/mise-action@v2
@@ -115,6 +116,8 @@ jobs:
       run: scripts/install-dependencies.sh
 
     - name: Build website
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         scripts/build-website.sh
         chmod -v -R +rX "_site/"

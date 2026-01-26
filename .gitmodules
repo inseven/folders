@@ -16,3 +16,6 @@
 [submodule "apple/dependencies/glitter"]
 	path = apple/dependencies/glitter
 	url = https://github.com/inseven/glitter.git
+[submodule "showcase-theme"]
+	path = docs/_theme
+	url = https://github.com/jbmorley/showcase-theme.git
