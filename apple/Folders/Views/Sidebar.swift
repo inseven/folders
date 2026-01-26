@@ -63,13 +63,7 @@ struct Sidebar: View {
                             }
                         }
                 }
-            } header: {
-                SidebarActionHeader {
-                    Button("Add Folder...", systemImage: "folder.badge.plus") {
-                        sceneModel.add()
-                    }
-                }
-            }
+            } header: {}
             Section("Media Types", isExpanded: $isMediaTypesSectionExpanded) {
                 Label("Images", systemImage: "photo")
                     .tag(SidebarItem.Kind.images)
@@ -96,6 +90,13 @@ struct Sidebar: View {
                         Label(tag.name, systemImage: "tag")
                             .tag(SidebarItem.Kind.tag(tag))
                     }
+                }
+            }
+        }
+        .toolbar {
+            ToolbarItem {
+                Button("Add Folder...", systemImage: "folder.badge.plus") {
+                    sceneModel.add()
                 }
             }
         }
