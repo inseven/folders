@@ -152,18 +152,20 @@ xcodebuild \
 
 # Apple recommends we use ditto to prepare zips for notarization.
 # https://developer.apple.com/documentation/security/notarizing_macos_software_before_distribution/customizing_the_notarization_workflow
-RELEASE_BASENAME="Folders-$VERSION_NUMBER-$BUILD_NUMBER"
-RELEASE_ZIP_BASENAME="$RELEASE_BASENAME.zip"
+RELEASE_NAME="Folders-$VERSION_NUMBER-$BUILD_NUMBER"
+RELEASE_ZIP_BASENAME="$RELEASE_NAME.zip"
 RELEASE_ZIP_PATH="$BUILD_DIRECTORY/$RELEASE_ZIP_BASENAME"
 pushd "$BUILD_DIRECTORY"
 /usr/bin/ditto -c -k --keepParent "Folders.app" "$RELEASE_ZIP_BASENAME"
-rm -r "Folders.app"
 popd
 
 # Install the private key.
 mkdir -p ~/.appstoreconnect/private_keys/
 API_KEY_PATH=~/".appstoreconnect/private_keys/AuthKey_${APPLE_API_KEY_ID}.p8"
 echo -n "$APPLE_API_KEY_BASE64" | base64 --decode -o "$API_KEY_PATH"
+
+# Validate the app before going any further.
+codesign --verify --deep --strict --verbose=2 "$BUILD_DIRECTORY/Folders.app"
 
 # Notarize the app.
 xcrun notarytool submit "$RELEASE_ZIP_PATH" \
@@ -186,6 +188,26 @@ if [ "$NOTARIZATION_RESPONSE" != "Accepted" ] ; then
     exit 1
 fi
 
+# Remove the zip file used for notarization.
+rm "$RELEASE_ZIP_PATH"
+
+# Staple and validate the app; this bakes the notarization into the app in case the device trying to run it can't do an
+# online check with Apple's servers for some reason.
+xcrun stapler staple "$BUILD_DIRECTORY/Folders.app"
+xcrun stapler validate "$BUILD_DIRECTORY/Folders.app"
+
+# Next up, we perform a belt-and-braces check that the app validates after stapling.
+codesign --verify --deep --strict --verbose=2 "$BUILD_DIRECTORY/Folders.app"
+
+# Compress the stapled app and package it for release.
+# Curiously, ditto, which Apple recommends for compressing app bundles only seems to create valid zip files when using
+# Sequoia and subsequently notarizing the zip file. Since we need to recompress the stapled app package, we instead use
+# `zip --symlinks` which, thankfully, seems to work just fine.
+pushd "$BUILD_DIRECTORY"
+zip --symlinks -r "$RELEASE_ZIP_BASENAME" "Folders.app"
+rm -r "Folders.app"
+popd
+
 # Build Sparkle.
 cd "$SPARKLE_DIRECTORY"
 xcodebuild -project Sparkle.xcodeproj -scheme generate_appcast SYMROOT=`pwd`/.build
@@ -197,7 +219,7 @@ echo -n "$SPARKLE_PRIVATE_KEY_BASE64" | base64 --decode -o "$SPARKLE_PRIVATE_KEY
 # Generate the appcast.
 cd "$ROOT_DIRECTORY"
 cp "$RELEASE_ZIP_PATH" "$ARCHIVES_DIRECTORY"
-changes notes --all --template "$RELEASE_NOTES_TEMPLATE_PATH" >> "$ARCHIVES_DIRECTORY/$RELEASE_BASENAME.html"
+changes notes --all --template "$RELEASE_NOTES_TEMPLATE_PATH" >> "$ARCHIVES_DIRECTORY/$RELEASE_NAME.html"
 "$GENERATE_APPCAST" --ed-key-file "$SPARKLE_PRIVATE_KEY_FILE" "$ARCHIVES_DIRECTORY"
 APPCAST_PATH="$ARCHIVES_DIRECTORY/appcast.xml"
 cp "$APPCAST_PATH" "$BUILD_DIRECTORY"
