@@ -25,7 +25,6 @@ import UniformTypeIdentifiers
 
 import Algorithms
 
-// TODO: Move into TagsView?
 protocol TagsViewDelegate: NSObject {
 
     func tagsView(_ tagsView: TagsView,
@@ -49,16 +48,17 @@ class TagsView: NSObject, Store.Observer {
 
     let store: Store
     let workQueue = DispatchQueue(label: "StoreView.workQueue", qos: .userInteractive)
+    let targetQueue: DispatchQueue
     let threshold: Int
     private var isRunning: Bool = false  // Synchronized on workQueue
     private var tags: [Tag] = []  // Synchronized on workQueue
 
     weak var delegate: TagsViewDelegate? = nil
 
-    // TODO: Enforce serialization of client callbacks.
-    init(store: Store, threshold: Int = 10) {
+    init(store: Store, threshold: Int = 10, targetQueue: DispatchQueue? = nil) {
         self.store = store
         self.threshold = threshold
+        self.targetQueue = DispatchQueue(label: "StoreView.targetQueue", qos: .userInteractive, target: targetQueue)
         super.init()
     }
 
@@ -78,7 +78,7 @@ class TagsView: NSObject, Store.Observer {
                 print("Query took \(queryDuration.formatted()) seconds and returned \(self.tags.count) tags.")
 
                 let snapshot = self.tags
-                DispatchQueue.main.async { [self] in
+                self.targetQueue.async { [self] in
                     self.delegate?.tagsView(self, didUpdateTags: snapshot)
                 }
             } catch {
@@ -131,7 +131,7 @@ class TagsView: NSObject, Store.Observer {
                     let index = self.tags.partitioningIndex { Self.compare(lhs: tag, rhs: $0) }
                     self.tags.insert(tag, at: index)
                     let snapshot = self.tags
-                    DispatchQueue.main.async {
+                    self.targetQueue.async {
                         self.delegate?.tagsView(self, didInsertTag: tag, atIndex: index, tags: snapshot)
                     }
                 }
@@ -147,7 +147,7 @@ class TagsView: NSObject, Store.Observer {
                     }
                 }
                 let snapshot = self.tags
-                DispatchQueue.main.async {
+                self.targetQueue.async {
                     self.delegate?.tagsView(self, didUpdateTags: snapshot)
                 }
             }
@@ -167,7 +167,7 @@ class TagsView: NSObject, Store.Observer {
                     }
                     self.tags.remove(at: index)
                     let snapshot = self.tags
-                    DispatchQueue.main.async {
+                    self.targetQueue.async {
                         self.delegate?.tagsView(self, didRemoveTag: tag, atIndex: index, tags: snapshot)
                     }
                 }
@@ -179,7 +179,7 @@ class TagsView: NSObject, Store.Observer {
                     self.tags.remove(at: index)
                 }
                 let snapshot = self.tags
-                DispatchQueue.main.async {
+                self.targetQueue.async {
                     self.delegate?.tagsView(self, didUpdateTags: snapshot)
                 }
             }
