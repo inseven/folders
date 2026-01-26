@@ -72,6 +72,14 @@ struct Sidebar: View {
                 Label("Documents", systemImage: "document")
                     .tag(SidebarItem.Kind.documents)
             }
+            if !applicationModel.tags.isEmpty {
+            Section("Tags", isExpanded: $isTagsSectionExpanded) {
+                    ForEach(applicationModel.tags, id: \.self) { tag in
+                        Label(tag.name, systemImage: "tag")
+                            .tag(SidebarItem.Kind.tag(tag))
+                    }
+                }
+            }
             if !applicationModel.finderTags.isEmpty {
                 Section("Finder Tags", isExpanded: $isFinderTagsSectionExpanded) {
                     ForEach(applicationModel.finderTags, id: \.self) { tag in
@@ -81,14 +89,6 @@ struct Sidebar: View {
                             ColorIndicator(color: color(for: tag))
                         }
                         .tag(SidebarItem.Kind.tag(tag))
-                    }
-                }
-            }
-            if !applicationModel.tags.isEmpty {
-            Section("Tags", isExpanded: $isTagsSectionExpanded) {
-                    ForEach(applicationModel.tags, id: \.self) { tag in
-                        Label(tag.name, systemImage: "tag")
-                            .tag(SidebarItem.Kind.tag(tag))
                     }
                 }
             }
