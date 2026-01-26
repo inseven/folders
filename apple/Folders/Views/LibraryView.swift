@@ -60,7 +60,6 @@ struct LibraryView: View {
                 FolderView(applicationModel: applicationModel,
                            filter: filter(for: sceneModel.selection),
                            selection: sceneModel.selection)
-                .id(sceneModel.selection)
             } else {
                 ContentUnavailableView {
                     Label("No Folder Selected", systemImage: "folder")
@@ -75,6 +74,7 @@ struct LibraryView: View {
         }
         .toolbar {
             SelectionToolbar()
+            ViewToolbar()
         }
         .environmentObject(sceneModel)
     }

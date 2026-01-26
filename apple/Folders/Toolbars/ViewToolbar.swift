@@ -22,46 +22,44 @@
 
 import SwiftUI
 
-struct SelectionToolbar: CustomizableToolbarContent {
+struct ViewToolbar: CustomizableToolbarContent {
+
+    struct SortPicker: View {
+
+        @ObservedObject var folderViewModel: FolderViewModel
+
+        var body: some View {
+            Picker(selection: $folderViewModel.sort) {
+                Text("Name (Ascending)")
+                    .tag(AnySort(.displayNameAscending))
+                Text("Name (Descending)")
+                    .tag(AnySort(.displayNameDescending))
+                Text("Date Modified (Ascending)")
+                    .tag(AnySort(.modificationDateAscending))
+                Text("Date Modified (Descending)")
+                    .tag(AnySort(.modificationDateDescending))
+            }
+            .pickerStyle(.inline)
+        }
+
+    }
 
     @FocusedObject var folderViewModel: FolderViewModel?
 
+    @State var descending: Bool = true
+
     var body: some CustomizableToolbarContent {
 
-        ToolbarItem(id: "finder") {
-            Button("Show in Finder", systemImage: "finder") {
-                guard let selection = folderViewModel?.selection else {
-                    return
-                }
-                let urls = selection.map { $0.url }
-                NSWorkspace.shared.activateFileViewerSelecting(urls)
-            }
-            .disabled(folderViewModel?.selection.isEmpty ?? false)
-            .help("Show items in Finder")
-        }
-
-        ToolbarItem(id: "trash") {
-            Button("Delete", systemImage: "trash") {
-                guard let selection = folderViewModel?.selection else {
-                    return
-                }
-                let urls = selection.map { $0.url }
-                NSWorkspace.shared.recycle(urls)
-            }
-            .disabled(folderViewModel?.selection.isEmpty ?? false)
-            .help("Move the selected items to the Bin")
-        }
-
-        ToolbarItem(id: "links") {
+        ToolbarItem(id: "sort") {
             Menu {
                 if let folderViewModel {
-                    SelectionLinksMenu(folderViewModel: folderViewModel)
+                    SortPicker(folderViewModel: folderViewModel)
                 }
             } label: {
-                Image(systemName: "link")
+                Label("Sort By", systemImage: "arrow.up.arrow.down")
             }
-            .disabled(folderViewModel == nil)
         }
+
     }
 
 }

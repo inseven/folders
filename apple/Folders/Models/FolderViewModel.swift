@@ -28,6 +28,7 @@ class FolderViewModel: ObservableObject {
     @Published var settings: [URL: FolderSettings] = [:]
     @Published var selection: Set<Details.Identifier> = []
     @Published var error: Error?  // TODO: List of errors?
+    @Published var sort: AnySort = AnySort(.displayNameDescending)
 
     let store: Store
     let identifiers: [SidebarItem.Kind]
