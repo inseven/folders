@@ -23,6 +23,8 @@
 import Foundation
 import UniformTypeIdentifiers
 
+import XAttr
+
 extension FileManager {
 
     // Returns all the files contained within directoryURL, including the root.
@@ -33,7 +35,8 @@ extension FileManager {
         let resourceKeys = Set<URLResourceKey>([.nameKey,
                                                 .isDirectoryKey,
                                                 .contentTypeKey,
-                                                .contentModificationDateKey])
+                                                .contentModificationDateKey,
+                                                .tagNamesKey])
         let directoryEnumerator = enumerator(at: directoryURL,
                                              includingPropertiesForKeys: Array(resourceKeys),
                                              options: [.skipsHiddenFiles])!
@@ -46,12 +49,13 @@ extension FileManager {
                 print("Failed to determine content type for \(fileURL).")
                 continue
             }
+
             files.append(Details(uuid: UUID(),
                                  ownerURL: ownerURL ?? directoryURL,
                                  url: fileURL,
                                  contentType: contentType,
                                  contentModificationDate: contentModificationDate.millisecondsSinceReferenceDate,
-                                 tags: Extractor.tags(for: fileURL)))
+                                 tags: try fileURL.allTags))
         }
 
         let duration = date.distance(to: Date())
@@ -78,7 +82,37 @@ extension FileManager {
                        url: url,
                        contentType: isDirectory ? .directory : contentType,
                        contentModificationDate: contentModificationDate.millisecondsSinceReferenceDate,
-                       tags: Extractor.tags(for: url))
+                       tags: try url.allTags)
+    }
+
+}
+
+extension URL {
+
+    // TODO: Function that throws?
+    var finderTags: Set<Tag> {
+        get throws {
+            let tagsXattrName = "com.apple.metadata:_kMDItemUserTags"  // TODO: Static.
+            guard let tagsBinaryPropertyList = try? extendedAttributeValue(forName: tagsXattrName) else {  // TODO: Check if the key exists?
+                return []
+            }
+            let tags: [(String, Int)] = try PropertyListDecoder().decode([String].self, from: tagsBinaryPropertyList)
+                .map { tag in
+                    let details = tag.split(separator: "\n", maxSplits: 1)
+                    guard details.count > 1 else {
+                        return (String(details[0]), 0)
+                    }
+                    return (String(details[0]), Int(String(details[1]))!)  // TODO: Guard against this parsing incorrectly.
+                }
+
+            return Set(tags.map({ Tag(source: .finder, name: $0.0, colorIndex: $0.1) }))
+        }
+    }
+
+    var allTags: Set<Tag> {
+        get throws {
+            return Extractor.tags(for: self).union(try finderTags)
+        }
     }
 
 }

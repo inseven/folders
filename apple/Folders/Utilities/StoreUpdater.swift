@@ -52,6 +52,7 @@ class StoreUpdater {
                 print("Failed to perform creation update with error \(error).")
             }
         } onFileUpdate: { files in
+            // TODO: Well shit this doesn't work for tags. I guess that was going to bite me at some point.
             do {
                 try self.store.update(files: files)
             } catch {

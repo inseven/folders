@@ -53,7 +53,8 @@ import Testing
         ("/Users/jbmorley/Pictures/icon #.png", [])
     ])
     func testTagExtraction(details: (String, [String])) {
-        #expect(Extractor.tags(for: URL(filePath: details.0)) == Set(details.1))
+        let expectation = Set(details.1.map { Tag(source: .filename, name: $0) })
+        #expect(Extractor.tags(for: URL(filePath: details.0)) == expectation)
     }
 
 }
