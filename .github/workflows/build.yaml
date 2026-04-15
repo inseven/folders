@@ -46,13 +46,13 @@ jobs:
         scripts/build.sh
 
     - name: Archive binary
-      uses: actions/upload-artifact@v6
+      uses: actions/upload-artifact@v7
       with:
         path: build/build-*.zip
         if-no-files-found: error
 
     - name: Archive build direcctory
-      uses: actions/upload-artifact@v6
+      uses: actions/upload-artifact@v7
       if: always()
       with:
         name: build-directory
@@ -92,7 +92,7 @@ jobs:
         chmod -v -R +rX "_site/"
 
     - name: Upload Pages artifact
-      uses: actions/upload-pages-artifact@v4
+      uses: actions/upload-pages-artifact@v5
 
   website-deploy:
 
@@ -112,7 +112,7 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
 
   sparkle-update:
     needs: macos-build
