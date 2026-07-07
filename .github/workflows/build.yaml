@@ -15,6 +15,9 @@ jobs:
 
     runs-on: inseven-macos-26
 
+    outputs:
+      released: ${{ steps.build.outputs.released }}
+
     steps:
 
     - name: Checkout repository
@@ -27,6 +30,7 @@ jobs:
       run: scripts/install-dependencies.sh
 
     - name: Build and test
+      id: build
       env:
         APPLE_DEVELOPMENT_CERTIFICATE_BASE64: ${{ secrets.PERSONAL_APPLE_DEVELOPMENT_CERTIFICATE_BASE64 }}
         APPLE_DEVELOPMENT_CERTIFICATE_PASSWORD: ${{ secrets.PERSONAL_APPLE_DEVELOPMENT_CERTIFICATE_PASSWORD }}
@@ -116,7 +120,7 @@ jobs:
 
   sparkle-update:
     needs: macos-build
-    if: ${{ github.ref == 'refs/heads/main' }}
+    if: ${{ needs.macos-build.outputs.released == 'true' }}
 
     runs-on: ubuntu-latest
     steps:
