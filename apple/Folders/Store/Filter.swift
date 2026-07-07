@@ -298,6 +298,8 @@ extension Filter where Self == TypeFilter {
             .bmp,
             .cbr,
             .cbz,
+            .cr2,
+            .cr3,
             .gif,
             .html,
             .icns,
@@ -325,6 +327,8 @@ extension Filter where Self == TypeFilter {
     static var images: TypeFilter {
         return TypeFilter(types: [
             .bmp,
+            .cr2,
+            .cr3,
             .gif,
             .jpeg,
             .pbm,
