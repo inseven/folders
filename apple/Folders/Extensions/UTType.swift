@@ -33,6 +33,14 @@ extension UTType {
         return UTType(filenameExtension: "cbz")!
     }
 
+    static var cr2: Self {
+        return UTType(filenameExtension: "cr2")!
+    }
+
+    static var cr3: Self {
+        return UTType(filenameExtension: "cr3")!
+    }
+
     static var m4v: Self {
         return UTType(filenameExtension: "m4v")!
     }
