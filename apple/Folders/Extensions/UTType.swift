@@ -25,48 +25,26 @@ import UniformTypeIdentifiers
 
 extension UTType {
 
-    static var cbr: Self {
-        return UTType(filenameExtension: "cbr")!
-    }
+    static let cbr: Self = UTType(filenameExtension: "cbr")!
 
-    static var cbz: Self {
-        return UTType(filenameExtension: "cbz")!
-    }
+    static let cbz: Self = UTType(filenameExtension: "cbz")!
 
-    static var cr2: Self {
-        return UTType(filenameExtension: "cr2")!
-    }
+    static let cr2: Self = UTType(filenameExtension: "cr2")!
 
-    static var cr3: Self {
-        return UTType(filenameExtension: "cr3")!
-    }
+    static let cr3: Self = UTType(filenameExtension: "cr3")!
 
-    static var m4v: Self {
-        return UTType(filenameExtension: "m4v")!
-    }
+    static let m4v: Self = UTType(filenameExtension: "m4v")!
 
-    static var mkv: Self {
-        return UTType(filenameExtension: "mkv")!
-    }
+    static let mkv: Self = UTType(filenameExtension: "mkv")!
 
-    static var mov: Self {
-        return UTType(filenameExtension: "mov")!
-    }
+    static let mov: Self = UTType(filenameExtension: "mov")!
 
-    static var pbm: Self {
-        return UTType(filenameExtension: "pbm")!
-    }
+    static let pbm: Self = UTType(filenameExtension: "pbm")!
 
-    static var stl: Self {
-        return UTType(filenameExtension: "stl")!
-    }
+    static let stl: Self = UTType(filenameExtension: "stl")!
 
-    static var tap: Self {
-        return UTType(filenameExtension: "tap")!
-    }
+    static let tap: Self = UTType(filenameExtension: "tap")!
 
-    static var ttf: Self {
-        return UTType(filenameExtension: "ttf")!
-    }
+    static let ttf: Self = UTType(filenameExtension: "ttf")!
 
 }
