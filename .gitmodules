@@ -1,21 +1,26 @@
 [submodule "scripts/changes"]
 	path = scripts/changes
 	url = https://github.com/jbmorley/changes.git
+	branch = main
 [submodule "scripts/build-tools"]
 	path = scripts/build-tools
 	url = https://github.com/jbmorley/build-tools.git
+	branch = main
 [submodule "diligence"]
 	path = apple/dependencies/diligence
 	url = https://github.com/inseven/diligence.git
+	branch = main
 [submodule "interact"]
 	path = apple/dependencies/interact
 	url = https://github.com/inseven/interact.git
+	branch = main
 [submodule "scripts/Sparkle"]
 	path = scripts/Sparkle
 	url = https://github.com/sparkle-project/Sparkle
 [submodule "apple/dependencies/glitter"]
 	path = apple/dependencies/glitter
 	url = https://github.com/inseven/glitter.git
+	branch = main
 [submodule "showcase-theme"]
 	path = docs/_theme
 	url = https://github.com/jbmorley/showcase-theme.git
