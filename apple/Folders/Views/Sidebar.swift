@@ -27,9 +27,24 @@ struct Sidebar: View {
     @SceneStorage("expand-library") private var isLibrarySectionExpanded: Bool = true
     @SceneStorage("expand-media-types") private var isMediaTypesSectionExpanded: Bool = false
     @SceneStorage("expand-tags") private var isTagsSectionExpanded: Bool = false
+    @SceneStorage("expand-finder-tags") private var isFinderTagsSectionExpanded: Bool = false
 
     @ObservedObject var applicationModel: ApplicationModel
     @ObservedObject var sceneModel: SceneModel
+
+    func color(for tag: Tag) -> Color? {
+        let colors: [Color?] = [
+            nil,
+            .gray,
+            .green,
+            .purple,
+            .blue,
+            .yellow,
+            .red,
+            .orange,
+        ]
+        return colors[tag.colorIndex]
+    }
 
     var body: some View {
         List(selection: $sceneModel.selection) {
@@ -57,10 +72,24 @@ struct Sidebar: View {
                 Label("Documents", systemImage: "document")
                     .tag(SidebarItem.Kind.documents)
             }
+            if !applicationModel.tags.isEmpty {
             Section("Tags", isExpanded: $isTagsSectionExpanded) {
-                ForEach(applicationModel.tags, id: \.self) { tag in
-                    Label(tag.name, systemImage: "tag")
-                        .tag(SidebarItem.Kind.tag(tag.name))
+                    ForEach(applicationModel.tags, id: \.self) { tag in
+                        Label(tag.name, systemImage: "tag")
+                            .tag(SidebarItem.Kind.tag(tag))
+                    }
+                }
+            }
+            if !applicationModel.finderTags.isEmpty {
+                Section("Finder Tags", isExpanded: $isFinderTagsSectionExpanded) {
+                    ForEach(applicationModel.finderTags, id: \.self) { tag in
+                        Label {
+                            Text(tag.name)
+                        } icon: {
+                            ColorIndicator(color: color(for: tag))
+                        }
+                        .tag(SidebarItem.Kind.tag(tag))
+                    }
                 }
             }
         }

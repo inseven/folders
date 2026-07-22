@@ -36,7 +36,7 @@ final class DirectoryScannerTests: XCTestCase {
                 XCTAssertEqual(files.first?.contentType, .plainText)
                 expectation.fulfill()
             } onFileUpdate: { files in
-                XCTFail("Unexpected deletion event")
+                XCTFail("Unexpected update event")
             } onFileDeletion: { identifiers in
                 XCTFail("Unexpected deletion event")
             }

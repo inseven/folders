@@ -38,6 +38,7 @@ class ApplicationModel: NSObject, ObservableObject {
     @Published var lookup: [Details.Identifier: SidebarItem] = [:]
     @Published var dynamicSidebarItems: [SidebarItem] = []
     @Published var tags: [Tag] = []
+    @Published var finderTags: [Tag] = []
     @Published var error: Error? = nil  // TODO: Present this error to the user.
 
     var cancellables = Set<AnyCancellable>()
@@ -255,19 +256,24 @@ extension ApplicationModel: StoreFilesViewDelegate {
 
 extension ApplicationModel: TagsViewDelegate {
 
-    func tagsView(_ tagsView: TagsView, didUpdateTags tags: [Tag]) {
+    func updateTags(_ tags: [Tag]) {
         dispatchPrecondition(condition: .onQueue(.main))
         self.tags = tags
+            .filter { $0.source != .finder }
+        self.finderTags = tags
+            .filter { $0.source == .finder }
+    }
+
+    func tagsView(_ tagsView: TagsView, didUpdateTags tags: [Tag]) {
+        updateTags(tags)
     }
     
     func tagsView(_ tagsView: TagsView, didInsertTag tag: Tag, atIndex index: Int, tags: [Tag]) {
-        dispatchPrecondition(condition: .onQueue(.main))
-        self.tags = tags
+        updateTags(tags)
     }
     
     func tagsView(_ tagsView: TagsView, didRemoveTag tag: Tag, atIndex index: Int, tags: [Tag]) {
-        dispatchPrecondition(condition: .onQueue(.main))
-        self.tags = tags
+        updateTags(tags)
     }
 
     func tagsView(_ tagsView: TagsView, didFailWithError error: any Error) {
