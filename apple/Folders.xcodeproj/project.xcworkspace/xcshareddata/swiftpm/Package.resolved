@@ -1,5 +1,5 @@
 {
-  "originHash" : "d3b950d75a068b07a18d4b6fa20aed7591ae75424c3c5a92c21134a5091dc5ec",
+  "originHash" : "5f0c2137c5860870179b0fd774ce434705742ee5f9685bed5615ac4bc5285b82",
   "pins" : [
     {
       "identity" : "fseventswrapper",
@@ -15,8 +15,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/inseven/licensable",
       "state" : {
-        "revision" : "a8ad62c6fde5aca29a47459b0687e580eee203dd",
-        "version" : "0.0.13"
+        "revision" : "40c62a5e677037915287950350c34b8c66c0178f",
+        "version" : "0.1.1"
       }
     },
     {
