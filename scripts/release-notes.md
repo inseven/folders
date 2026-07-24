@@ -2,8 +2,6 @@
 title: Releases
 ---
 
-# Releases
-
 {% for release in releases -%}
 ## {% if release.is_released %}<a href="https://github.com/inseven/folders/releases/tag/{{ release.version }}">{{ release.version }}</a>{% else %}{{ release.version }} (Unreleased){% endif %}
 {% for section in release.sections -%}
