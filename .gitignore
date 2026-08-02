@@ -5,3 +5,4 @@
 /docs/.jekyll-cache
 /docs/releases
 /gtk/target
+/scripts/Pipfile.lock
