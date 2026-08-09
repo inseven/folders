@@ -21,16 +21,10 @@ Right now, this is simply a proof-of-concept reimplementation using Rust and GTK
 
 ### Dependencies
 
-Folders uses [mise-en-place](https://mise.jdx.dev) and the `.tool-versions` file to manage development tools dependencies. After [installing mise](https://mise.jdx.dev/installing-mise.html), you can install the necessary tooling as follows:
+Folders uses [mise-en-place](https://mise.jdx.dev) and the `mise.toml` file to manage development tools dependencies. After [installing mise](https://mise.jdx.dev/installing-mise.html), you can install the necessary tooling as follows:
 
 ```shell
 mise install
-```
-
-Some of the build script configure a local directory of dependencies in `.local`. You can install these in preparation for running full builds as follows:
-
-```shell
-scripts/install-dependencies.sh
 ```
 
 ### Documentation

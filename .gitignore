@@ -1,8 +1,7 @@
 /_site
-/.local
 /build
 /docs/_site
 /docs/.jekyll-cache
 /docs/releases
+/docs/vendor
 /gtk/target
-/scripts/Pipfile.lock
