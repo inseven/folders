@@ -53,12 +53,14 @@ extension XCTestCase {
         let fileManager = FileManager.default
         let directoryURL = fileManager.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)
         try fileManager.createDirectory(at: directoryURL, withIntermediateDirectories: true)
-        do {
-            try perform(directoryURL)
-        } catch {
-            try fileManager.removeItem(at: directoryURL)
-            throw error
+        defer {
+            do {
+                try fileManager.removeItem(at: directoryURL)
+            } catch {
+                XCTFail("Failed to remove temporary directory with error \(error).")
+            }
         }
+        try perform(directoryURL)
     }
 
     func scan(directoryURL: URL,
