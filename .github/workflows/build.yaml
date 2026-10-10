@@ -58,13 +58,15 @@ jobs:
       with:
         path: build/build-*.zip
         if-no-files-found: error
+        retention-days: 1
 
     - name: Archive build direcctory
       uses: actions/upload-artifact@v7
-      if: always()
+      if: failure()
       with:
         name: build-directory
         path: build
+        retention-days: 1
 
   website-build:
 
