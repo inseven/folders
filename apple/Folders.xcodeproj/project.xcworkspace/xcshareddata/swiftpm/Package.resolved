@@ -1,6 +1,15 @@
 {
-  "originHash" : "5f0c2137c5860870179b0fd774ce434705742ee5f9685bed5615ac4bc5285b82",
+  "originHash" : "222eb95cf7f3d6990cc12c7ff9ea5469505b34cbf458df1ac3fb81055aae61ca",
   "pins" : [
+    {
+      "identity" : "diligence",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/inseven/diligence.git",
+      "state" : {
+        "revision" : "5faa62e7f528faa6aa2d1b5d022b78fe3698c62a",
+        "version" : "2.0.1"
+      }
+    },
     {
       "identity" : "fseventswrapper",
       "kind" : "remoteSourceControl",
@@ -8,6 +17,24 @@
       "state" : {
         "revision" : "70bbea4b108221fcabfce8dbced8502831c0ae04",
         "version" : "2.1.0"
+      }
+    },
+    {
+      "identity" : "glitter",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/inseven/glitter.git",
+      "state" : {
+        "revision" : "5a6f098f7f2672450b7870e78bbba70333f482f4",
+        "version" : "0.1.6"
+      }
+    },
+    {
+      "identity" : "interact",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/inseven/interact.git",
+      "state" : {
+        "revision" : "f54eb2dcd05b40f02ecab721044d87049fbaca78",
+        "version" : "3.10.7"
       }
     },
     {
