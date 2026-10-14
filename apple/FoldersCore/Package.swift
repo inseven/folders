@@ -14,17 +14,29 @@ let package = Package(
         ),
     ],
     dependencies: [
+        .package(url: "https://github.com/apple/swift-algorithms.git", from: "1.2.0"),
+        .package(url: "https://github.com/apple/swift-collections.git", from: "1.0.5"),
+        .package(url: "https://github.com/Frizlab/FSEventsWrapper.git", from: "2.1.0"),
+        .package(url: "https://github.com/jpsim/Yams.git", from: "5.0.6"),
         .package(url: "https://github.com/inseven/diligence.git", from: "2.0.1"),
         .package(url: "https://github.com/inseven/glitter.git", from: "0.1.3"),
         .package(url: "https://github.com/inseven/interact.git", from: "3.10.7"),
+        .package(url: "https://github.com/stephencelis/SQLite.swift.git", from: "0.14.1"),
+
+
     ],
     targets: [
         .target(
             name: "FoldersCore",
             dependencies: [
+                .product(name: "Algorithms", package: "swift-algorithms"),
                 .product(name: "Diligence", package: "diligence"),
+                .product(name: "FSEventsWrapper", package: "FSEventsWrapper"),
                 .product(name: "Glitter", package: "glitter"),
                 .product(name: "Interact", package: "interact"),
+                .product(name: "OrderedCollections", package: "swift-collections"),
+                .product(name: "SQLite", package: "SQLite.swift"),
+                .product(name: "Yams", package: "Yams"),
             ],
             swiftSettings: [
                 .enableUpcomingFeature("ApproachableConcurrency"),
