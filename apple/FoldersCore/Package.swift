@@ -15,7 +15,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-algorithms.git", from: "1.2.1"),
-        .package(url: "https://github.com/apple/swift-collections.git", from: "1.0.5"),
+        .package(url: "https://github.com/apple/swift-collections.git", from: "1.7.3"),
         .package(url: "https://github.com/Frizlab/FSEventsWrapper.git", from: "2.1.0"),
         .package(url: "https://github.com/jpsim/Yams.git", from: "5.0.6"),
         .package(url: "https://github.com/inseven/diligence.git", from: "2.0.1"),
