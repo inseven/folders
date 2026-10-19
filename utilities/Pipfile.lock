@@ -16,13 +16,21 @@
         ]
     },
     "default": {
+        "argcomplete": {
+            "hashes": [
+                "sha256:6029205678bdd9c1c728a155f5f9ecf5812393f969eef58807641a2bc2aa5b19",
+                "sha256:aad8b69a0b9969edb62db0d1752354c0d50717b10e0cbb00e2a958381b9fc6b9"
+            ],
+            "markers": "python_version >= '3.10'",
+            "version": "==3.7.2"
+        },
         "fastcommand": {
             "hashes": [
-                "sha256:1022c41063e17525a60cec55180790afdf545c436a61eb389507054a78b5f6eb",
-                "sha256:8c1e9c149c23ee18f6e439e2bdce3a0b08a678a5e113dee6a2372e21519bfbbd"
+                "sha256:3083c989d6121b351a09fe50e5942477165b8cc4883ac9f8506099c3a96a3f9b",
+                "sha256:a6060b5b0a3914cf8ab9a2e2f60ca82610d9a29254cc608ddd11093308c05ac8"
             ],
             "index": "pypi",
-            "version": "==0.1.8"
+            "version": "==0.2.1"
         }
     },
     "develop": {}
