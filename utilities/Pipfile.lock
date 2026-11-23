@@ -18,11 +18,11 @@
     "default": {
         "argcomplete": {
             "hashes": [
-                "sha256:6029205678bdd9c1c728a155f5f9ecf5812393f969eef58807641a2bc2aa5b19",
-                "sha256:aad8b69a0b9969edb62db0d1752354c0d50717b10e0cbb00e2a958381b9fc6b9"
+                "sha256:0114d634013e11ac92cc329b3a7d886c3506e98ddc7bb23c99b1782aacc8b8bd",
+                "sha256:1fcc7b143e22a22b04629773a40751fb78976bc9cc0912f1fef6c70b51b48ef9"
             ],
             "markers": "python_version >= '3.10'",
-            "version": "==3.7.2"
+            "version": "==3.8.0"
         },
         "fastcommand": {
             "hashes": [
